@@ -1,0 +1,34 @@
+- synchronize with iCloud
+- for ipadOS and iOS has a widget
+- macos is where we do the main writing, but maybe editable on ipadOS and iOS as well
+- Organized under schemas (work, personal, education, monocurl, etc)
+- from there we can either have assignments with deadlines
+    - multiple states (not started, finished, need to turn in)
+    - each assignment has a tree hierarchy of subassignments (so folders)
+- uses vim like commands for navigating
+- at the top we have a list of important stuff to do
+- so we can have events, assignments, and procedures (stuff like monocurl)
+    - procedures (maybe everything) can also have plans/descriptions
+ 
+ - Procedure (infinite interval)
+ - assignment (negative ray)
+ - reminder (positive ray, notification on leading edge...)
+ - event (line segment)
+ 
+ - Have home page + scheme pages
+    - home page has a list of producedures (maybe based on priority). Also has overall calendar
+    - each scheme page has procedures + tree view of assignments and stuff
+    - so different views: calendar, procedure, etc
+    
+SIDEBAR:
+- which scheme
+MAIN PAGE:
+    HOME PAGE:
+        - calendar
+        - procedures
+        - upcoming
+    SCHEME PAGES:
+        - Select name and color of current scheme
+        
+IOS/IPADOS WIDGET:
+- upcoming starts and edges

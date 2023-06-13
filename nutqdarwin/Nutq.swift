@@ -8,10 +8,11 @@
 import SwiftUI
 
 @main
-struct nutqdarwinApp: App {
+struct Nutq: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            NutqContentView()
         }
+        .windowStyle(.hiddenTitleBar)
     }
 }
