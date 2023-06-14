@@ -12,11 +12,13 @@ struct NutqContentView: View {
     @StateObject private var env = EnvState()
     
     var body: some View {
-        NavigationView {
+        NavigationSplitView {
             Sidebar()
-            
+        } detail: {
             Union()
         }
+        .navigationSplitViewStyle(.prominentDetail)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .environmentObject(env)
         .onChange(of: undo) { undo in
             env.undoManager = undo

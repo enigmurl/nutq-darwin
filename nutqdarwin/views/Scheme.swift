@@ -5,8 +5,13 @@
 //  Created by Manu Bhat on 6/12/23.
 //
 
-import Cocoa
 import SwiftUI
+
+#if os(macOS)
+import Cocoa
+#else
+import UIKit
+#endif
 
 struct Scheme: View {
     @EnvironmentObject var env: EnvState
@@ -14,13 +19,18 @@ struct Scheme: View {
     
     func removeFocus() {
         DispatchQueue.main.async {
-            NSApp.keyWindow?.makeFirstResponder(nil)
+            #if os(macOS)
+                NSApp.keyWindow?.makeFirstResponder(nil)
+            #else
+                UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+            #endif
         }
     }
     
     var body: some View {
         HStack {
-            CalendarView()
+            Tree(scheme: $scheme)
+            Upcoming(schemes: [scheme])
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background {
@@ -41,8 +51,6 @@ struct Scheme: View {
             }
         }
        
-        // main editing tree
-        // Right sidebar: upcoming rising and falling edges
     }
 }
 

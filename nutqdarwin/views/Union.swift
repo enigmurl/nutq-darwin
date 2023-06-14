@@ -14,9 +14,12 @@ struct CalendarView: View {
 }
 
 struct Union: View {
+    @EnvironmentObject var env: EnvState
+    
     var body: some View {
         HStack {
             CalendarView()
+            Upcoming(schemes: env.schemes)
         }
         .toolbar {
             ToolbarItem(placement:. principal) {

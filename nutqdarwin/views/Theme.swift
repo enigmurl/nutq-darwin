@@ -25,7 +25,7 @@ public func colorIndexToColor(_ index: Int) -> Color {
     case 6:
         return .purple
     default:
-        return .white
+        return .primary
     }
 }
 

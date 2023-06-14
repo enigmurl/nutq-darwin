@@ -8,6 +8,9 @@
 import Foundation
 import SwiftUI
 
+
+let union_uuid = UUID(uuidString: "00000000-0000-0000-0000-ffffffffffff")!
+
 public let debugSchemes = [
     SchemeState(name: "Monocurl", colorIndex: 1, schemes: []),
     SchemeState(name: "UCSD", colorIndex: 2, schemes: []),
@@ -38,9 +41,10 @@ public struct SchemeState: Identifiable {
 }
 
 public class EnvState: ObservableObject {
-    weak var undoManager: UndoManager?
-    @Published var scheme: UUID? = nil
+    @Published var scheme: UUID? = union_uuid
     @Published var schemes: [SchemeState] = debugSchemes
+    
+    weak var undoManager: UndoManager?
     
     public func delete(uuid: UUID) {
         guard let index = self.schemes.firstIndex(where: {$0.id == uuid}) else {
