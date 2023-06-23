@@ -47,7 +47,7 @@ struct SidebarLabel: View {
                 TagView(index: scheme?.colorIndex ?? nil)
             }
         }
-        .tag(scheme?.wrappedValue.id ?? union_uuid)
+        .tag(scheme?.wrappedValue.id ?? unionNullUUID)
         .swipeActions(allowsFullSwipe: false) {
             // necessarily iOS
             if scheme != nil {
@@ -98,7 +98,7 @@ struct Sidebar: View {
         .listStyle(.sidebar)
         #if os(macOS)
         .onDeleteCommand {
-            if self.env.scheme != union_uuid {
+            if self.env.scheme != unionNullUUID {
                 self.delete(uuid: self.env.scheme)
             }
         }

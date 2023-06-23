@@ -9,39 +9,11 @@ import Foundation
 import SwiftUI
 
 
-let union_uuid = UUID(uuidString: "00000000-0000-0000-0000-ffffffffffff")!
+let unionNullUUID = UUID(uuidString: "00000000-0000-0000-0000-ffffffffffff")!
 
-public let debugSchemes = [
-    SchemeState(name: "Monocurl", colorIndex: 1, schemes: []),
-    SchemeState(name: "UCSD", colorIndex: 2, schemes: []),
-    SchemeState(name: "MaXentric", colorIndex: 3, schemes: []),
-    SchemeState(name: "Nutq", colorIndex: 4, schemes: []),
-    SchemeState(name: "Research", colorIndex: 5, schemes: []),
-    SchemeState(name: "Ideas", colorIndex: 6, schemes: []),
-]
-
-public struct SchemeItem {
-    public var state: Int // 0 = not complete, -1 = finished. Open to intermediate states
-    public var description: String
-    
-    public var start: Date?
-    public var end: Date?
-    
-    public var children: [SchemeItem]? // in which case start and end are guaranteed to be a procedure
-}
-
-public struct SchemeState: Identifiable {
-    public let id = UUID()
-    
-    public var name: String
-    public var colorIndex: Int
-    public var email: String?
-    
-    public var schemes: [SchemeItem]
-}
 
 public class EnvState: ObservableObject {
-    @Published var scheme: UUID? = union_uuid
+    @Published var scheme: UUID? = unionNullUUID
     @Published var schemes: [SchemeState] = debugSchemes
     
     weak var undoManager: UndoManager?
@@ -61,5 +33,12 @@ public class EnvState: ObservableObject {
         self.schemes.insert(scheme, at: index)
         
         undoManager?.registerUndo(withTarget: self) {$0.delete(uuid: scheme.id)}
+    }
+    
+    public func writeBinding<T>(binding: Binding<T>, newValue: T) {
+        let oldValue = binding.wrappedValue
+        binding.wrappedValue = newValue
+        
+        undoManager?.registerUndo(withTarget: self, handler: {$0.writeBinding(binding: binding, newValue: oldValue)})
     }
 }

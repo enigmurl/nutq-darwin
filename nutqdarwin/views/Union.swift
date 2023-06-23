@@ -7,19 +7,17 @@
 
 import SwiftUI
 
-struct CalendarView: View {
-    var body: some View {
-        Text("Not implemented yet")
-    }
-}
 
 struct Union: View {
     @EnvironmentObject var env: EnvState
     
     var body: some View {
         HStack {
-            CalendarView()
-            Upcoming(schemes: env.schemes)
+            Upcoming(schemes: ($env.schemes).map({$0}))
+            #if os(macOS)
+                Divider()
+                Calendar()
+            #endif
         }
         .toolbar {
             ToolbarItem(placement:. principal) {

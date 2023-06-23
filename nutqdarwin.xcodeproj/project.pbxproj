@@ -19,6 +19,8 @@
 		B4754ED82A381E0C00FB26C0 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754ED72A381E0C00FB26C0 /* Theme.swift */; };
 		B4754EDC2A38F14C00FB26C0 /* Upcoming.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754EDB2A38F14C00FB26C0 /* Upcoming.swift */; };
 		B4754EDE2A38F38000FB26C0 /* Tree.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754EDD2A38F38000FB26C0 /* Tree.swift */; };
+		B4754EE12A3A47D800FB26C0 /* Calendar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754EE02A3A47D800FB26C0 /* Calendar.swift */; };
+		B4754EE32A3E3C3800FB26C0 /* SchemeUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754EE22A3E3C3800FB26C0 /* SchemeUtil.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -37,6 +39,8 @@
 		B4754EDB2A38F14C00FB26C0 /* Upcoming.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Upcoming.swift; sourceTree = "<group>"; };
 		B4754EDD2A38F38000FB26C0 /* Tree.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tree.swift; sourceTree = "<group>"; };
 		B4754EDF2A3A3A1A00FB26C0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		B4754EE02A3A47D800FB26C0 /* Calendar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Calendar.swift; sourceTree = "<group>"; };
+		B4754EE22A3E3C3800FB26C0 /* SchemeUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemeUtil.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -105,8 +109,9 @@
 				B4754ECF2A38097800FB26C0 /* Sidebar.swift */,
 				B4754ED22A380D1C00FB26C0 /* Union.swift */,
 				B4754ED52A380DC500FB26C0 /* Scheme.swift */,
-				B4754EDB2A38F14C00FB26C0 /* Upcoming.swift */,
+				B4754EE02A3A47D800FB26C0 /* Calendar.swift */,
 				B4754EDD2A38F38000FB26C0 /* Tree.swift */,
+				B4754EDB2A38F14C00FB26C0 /* Upcoming.swift */,
 			);
 			path = views;
 			sourceTree = "<group>";
@@ -115,6 +120,7 @@
 			isa = PBXGroup;
 			children = (
 				B4754ECD2A38019000FB26C0 /* EnvState.swift */,
+				B4754EE22A3E3C3800FB26C0 /* SchemeUtil.swift */,
 			);
 			path = state;
 			sourceTree = "<group>";
@@ -197,8 +203,10 @@
 				B4754EDE2A38F38000FB26C0 /* Tree.swift in Sources */,
 				B4754EDC2A38F14C00FB26C0 /* Upcoming.swift in Sources */,
 				B4754ED02A38097800FB26C0 /* Sidebar.swift in Sources */,
+				B4754EE32A3E3C3800FB26C0 /* SchemeUtil.swift in Sources */,
 				B434A5E12A23D91B001D81E8 /* Nutq.swift in Sources */,
 				B4754ED82A381E0C00FB26C0 /* Theme.swift in Sources */,
+				B4754EE12A3A47D800FB26C0 /* Calendar.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

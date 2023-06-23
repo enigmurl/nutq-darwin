@@ -29,8 +29,11 @@ struct Scheme: View {
     
     var body: some View {
         HStack {
+            #if os(macOS)
+                Upcoming(schemes: [$scheme])
+                Divider()
+            #endif 
             Tree(scheme: $scheme)
-            Upcoming(schemes: [scheme])
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background {

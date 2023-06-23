@@ -58,7 +58,11 @@ struct TagView: View {
                     }
                 }
                 .padding(8)
+                .presentationCompactAdaptation(.popover)
             }
     }
-    
+}
+
+extension Font {
+//    static var
 }
