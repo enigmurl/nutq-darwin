@@ -8,12 +8,12 @@
 import SwiftUI
 
 // a bit redundant, but should be fine
-fileprivate extension Date {
+extension Date {
     var dateString: String {
         let diff = dayDifference(with: .now)
         
         let dayFormatter = DateFormatter()
-        dayFormatter.dateFormat = "MM-dd"
+        dayFormatter.dateFormat = "MMMM dd"
         
         let timeFormatter = DateFormatter()
         timeFormatter.dateFormat = "HH:mm"
@@ -36,11 +36,15 @@ fileprivate extension Date {
     
     // time interval starts at midnight
     func dayDifference(with date: Date) -> Int {
-        let cal = NSCalendar(identifier: .gregorian)!
+        let cal = NSCalendar.current
         let ourStart = cal.startOfDay(for: self)
         let theirStart = cal.startOfDay(for: date)
         
         return Int(ourStart.timeIntervalSince(theirStart) / .day)
+    }
+    
+    func startOfDay() -> Date {
+        NSCalendar.current.startOfDay(for: self)
     }
 }
 
@@ -135,7 +139,7 @@ struct UpcomingAssignment: View {
         .opacity(self.item.state == -1 ? 0.3 : 1)
         .strikethrough(self.item.state == -1, color: .red)
      
-        .onTapGesture(count: 1) {
+        .onTapGesture {
             self.switchState()
         }
         
@@ -143,14 +147,14 @@ struct UpcomingAssignment: View {
     }
     
     func switchState() {
-        withAnimation {
-            if (self.item.state != -1) {
-                self.env.writeBinding(binding: self.item.$state, newValue: -1)
-            }
-            else {
-                self.env.writeBinding(binding: self.item.$state, newValue: 0)
-            }
+//        withAnimation {
+        if (self.item.state != -1) {
+            self.env.writeBinding(binding: self.item.$state, newValue: -1)
         }
+        else {
+            self.env.writeBinding(binding: self.item.$state, newValue: 0)
+        }
+//        }
     }
 }
 
@@ -159,7 +163,7 @@ struct Upcoming: View {
     let upcomingSchemes: [SchemeSingularItem]
     
     init(schemes: [Binding<SchemeState>]) {
-        let calendar = NSCalendar(identifier: .gregorian)!
+        let calendar = NSCalendar.current
         let mainSchemes = schemes.flattenToUpcomingSchemes(start: calendar.startOfDay(for: .now))
         
         self.assignmentSchemes = mainSchemes
@@ -191,14 +195,15 @@ struct Upcoming: View {
             else {
                 ForEach(Array(list.enumerated()), id: \.element.id) {
                     UpcomingAssignment(item: $0.element)
-                        .padding(3)
+                        .padding(4)
                         .background( Color.blue.opacity(($0.offset + parity) % 2 == 0 ? 0 : 0.1)
-                            .cornerRadius(2)
+                            .cornerRadius(3)
                         )
                 }
             }
         }
-        .frame(maxWidth: .infinity, alignment: .top)
+        .padding(.vertical, 2)
+        .frame(maxWidth: .infinity, minHeight: 40, alignment: .top)
     }
 
     
@@ -210,10 +215,15 @@ struct Upcoming: View {
         ScrollView {
             self.itemList(title: "Assignments", items: self.assignmentSchemes, parity: 0)
             
-            self.itemList(title: "Upcoming", items: self.upcomingSchemes, parity: self.assignmentSchemes.count)
+            self.itemList(title: "Upcoming", items: self.upcomingSchemes, parity: 0)
         }
         .padding(.horizontal, 4)
-        .frame(maxWidth: 320, maxHeight: .infinity)
+        #if os(macOS)
+        .frame(minWidth: 250, maxWidth: 250, maxHeight: .infinity)
+        #else
+        .frame(minWidth: 250, idealWidth: 250, maxHeight: .infinity)
+        #endif
+        .padding(.vertical, 8)
     }
 }
 

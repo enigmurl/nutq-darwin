@@ -7,5 +7,7 @@
 		<key>UIImageName</key>
 		<string></string>
 	</dict>
+	<key>UIRequiresFullScreen</key>
+	<true/>
 </dict>
 </plist>

@@ -11,14 +11,26 @@ import SwiftUI
 struct Union: View {
     @EnvironmentObject var env: EnvState
     
+    #if os(iOS)
+    @State var showingUpcoming = false
+    #endif
+    
     var body: some View {
-        HStack {
-            Upcoming(schemes: ($env.schemes).map({$0}))
+        HStack(alignment: .top, spacing: 0) {
             #if os(macOS)
+                Upcoming(schemes: ($env.schemes).map({$0}))
                 Divider()
-                Calendar()
+                    .opacity(0.2)
             #endif
+            Calendar(schemes: ($env.schemes).map({$0}))
         }
+        #if os(iOS)
+        .sheet(isPresented: $showingUpcoming) {
+            Upcoming(schemes: ($env.schemes).map({$0}))
+                .padding(.top, 20)
+        }
+        .navigationBarTitleDisplayMode(.inline)
+        #endif
         .toolbar {
             ToolbarItem(placement:. principal) {
                 HStack {
@@ -29,11 +41,15 @@ struct Union: View {
                 }
                 .frame(width: 140, alignment: .leading)
             }
+            
+            #if os(iOS)
+            ToolbarItem {
+                Button("Soon") {
+                    showingUpcoming = true
+                }
+            }
+            #endif
         }
-        
-        // calendar view
-        
-        // right side: upcoming edges
     }
 }
 

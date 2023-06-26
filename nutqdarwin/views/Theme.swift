@@ -66,3 +66,35 @@ struct TagView: View {
 extension Font {
 //    static var
 }
+
+extension Color {
+//    static var
+}
+
+#if os(macOS)
+/* not used for now */
+import AppKit
+struct VisualEffectView: NSViewRepresentable {
+    func makeNSView(context: NSViewRepresentableContext<Self>) -> NSVisualEffectView {
+        let view = NSVisualEffectView()
+        view.blendingMode = .withinWindow
+        view.material = .hudWindow
+        return view
+    }
+    
+    func updateNSView(_ nsView: NSVisualEffectView, context: NSViewRepresentableContext<Self>) {
+        
+    }
+}
+#else
+import UIKit
+struct VisualEffectView: UIViewRepresentable {
+    func makeUIView(context: UIViewRepresentableContext<Self>) -> UIVisualEffectView {
+        UIVisualEffectView(effect: UIBlurEffect(style: .dark))
+    }
+    
+    func updateUIView(_ uiView: UIVisualEffectView, context: UIViewRepresentableContext<Self>) {
+        
+    }
+}
+#endif

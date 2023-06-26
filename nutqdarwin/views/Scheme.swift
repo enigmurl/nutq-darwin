@@ -53,6 +53,9 @@ struct Scheme: View {
                 .frame(width: 140, alignment: .leading)
             }
         }
+        #if os(iOS)
+        .navigationBarTitleDisplayMode(.inline)
+        #endif
        
     }
 }

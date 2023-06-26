@@ -13,8 +13,5 @@ struct Nutq: App {
         WindowGroup {
             NutqContentView()
         }
-        #if os(macOS)
-        .windowStyle(.hiddenTitleBar)
-        #endif
     }
 }
