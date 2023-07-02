@@ -22,7 +22,7 @@ struct Union: View {
                 Divider()
                     .opacity(0.2)
             #endif
-            Calendar(schemes: ($env.schemes).map({$0}))
+            CalendarView(schemes: ($env.schemes).map({$0}))
         }
         #if os(iOS)
         .sheet(isPresented: $showingUpcoming) {
@@ -39,7 +39,9 @@ struct Union: View {
                     Text("Union")
                         .font(.headline)
                 }
+                #if os(macOS)
                 .frame(width: 140, alignment: .leading)
+                #endif
             }
             
             #if os(iOS)

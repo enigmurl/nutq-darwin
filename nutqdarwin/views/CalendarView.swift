@@ -113,10 +113,12 @@ struct CalendarEvents: View {
     // array of intersections
     // each intersection is an array of duplicates (duplicates are same time/same type) events)
     // each duplicate is an array of single iterms
+    let day: Date
     let mergedEvents: [[[SchemeSingularItem]]]
     
     /* not perfect, but does an ok job usually */
-    init(schemes: [SchemeSingularItem]) {
+    init(day: Date, schemes: [SchemeSingularItem]) {
+        self.day = day
         if schemes.count == 0 {
             mergedEvents = []
             return
@@ -189,9 +191,9 @@ struct CalendarEvents: View {
             HStack(spacing: 2) {
                 ForEach(intersection, id: \.first!.id) { duplicates in
                     let head = duplicates[0]
-                    let above: CGFloat = head.start == nil ? 0 : hourHeight * head.start!.timeIntervalSince(head.start!.startOfDay()) / .hour
+                    let above: CGFloat = head.start == nil ? 0 : hourHeight * min(23, head.start!.timeIntervalSince(day.startOfDay()) / .hour)
                     let minCurr: CGFloat = head.start == nil || head.end == nil ? 0 : hourHeight * head.end!.timeIntervalSince(head.start!) / .hour
-                    let below: CGFloat = head.end == nil ? 0 : hourHeight * (24.0 - head.end!.timeIntervalSince(head.end!.startOfDay()) / .hour)
+                    let below: CGFloat = head.end == nil ? 0 : hourHeight * min(23, (24.0 - head.end!.timeIntervalSince(day.startOfDay()) / .hour))
                     
                     VStack {
                         Text(self.dateString(start: head.start, end: head.end))
@@ -238,6 +240,7 @@ struct CalendarEvents: View {
                                 RoundedRectangle(cornerRadius: 3)
                                     .stroke(.white, lineWidth: 2)
                             }
+                            .padding(2)
                             .frame(minHeight: minCurr)
                         }
                     }
@@ -280,7 +283,7 @@ struct CalendarDay: View {
     }
     
     var events: some View {
-        CalendarEvents(schemes: filteredSchemes)
+        CalendarEvents(day: day, schemes: filteredSchemes)
     }
     
     var body: some View {
@@ -299,7 +302,7 @@ struct CalendarDay: View {
                 .padding(.horizontal, 1)
         }
         .padding(.top, timeLegendYOffset)
-        .background(
+        .overlay(
             Color.blue.opacity(0.075)
                 .frame(height: filledPixels, alignment: .top)
                 .frame(maxHeight: .infinity, alignment: .top)
@@ -320,7 +323,7 @@ struct CalendarDay: View {
     }
 }
 
-struct Calendar: View {
+struct CalendarView: View {
     let schemes: [Binding<SchemeState>]
     @State var headDate = Date.now
     
@@ -441,7 +444,7 @@ class MacosSwipeRecognizer: NSView {
                 self.window?.makeFirstResponder(self)
             }
         }
-        else if event.phase == .ended {
+        else if event.phase == .ended && self.window?.firstResponder == self {
             let duration = Date.now.timeIntervalSince(start!)
            
             if duration < 0.2 && abs(cumulativeScroll) > 100 {
@@ -469,6 +472,6 @@ class MacosSwipeRecognizer: NSView {
 
 struct Calendar_Previews: PreviewProvider {
     static var previews: some View {
-        Calendar(schemes: debugSchemes.map({Binding.constant($0)}))
+        CalendarView(schemes: debugSchemes.map({Binding.constant($0)}))
     }
 }

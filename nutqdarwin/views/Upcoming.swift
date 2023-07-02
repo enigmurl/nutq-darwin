@@ -7,23 +7,38 @@
 
 import SwiftUI
 
+fileprivate let dayFormatter = {
+    let dayFormatter = DateFormatter()
+    dayFormatter.dateFormat = "MMMM dd"
+    return dayFormatter
+}()
+
+fileprivate let weekFormatter = {
+    let weekFormatter = DateFormatter()
+    weekFormatter.dateFormat = "EEEE"
+    return weekFormatter
+}()
+
+fileprivate let timeFormatter = {
+    let timeFormatter = DateFormatter()
+    timeFormatter.dateFormat = "HH:mm"
+    return timeFormatter
+}()
+
 // a bit redundant, but should be fine
 extension Date {
     var dateString: String {
         let diff = dayDifference(with: .now)
         
-        let dayFormatter = DateFormatter()
-        dayFormatter.dateFormat = "MMMM dd"
-        
-        let timeFormatter = DateFormatter()
-        timeFormatter.dateFormat = "HH:mm"
-        
         let day: String
         if diff == 0 {
-            day = "today"
+            day = "Today"
         }
         else if diff == 1 {
-            day = "tomorrow"
+            day = "Tomorrow"
+        }
+        else if diff < 7 {
+            day = weekFormatter.string(from: self)
         }
         else {
             day = dayFormatter.string(from: self)
@@ -32,6 +47,10 @@ extension Date {
         let time = timeFormatter.string(from: self)
         
         return day + " " + time
+    }
+    
+    var timeString: String {
+        timeFormatter.string(from: self)
     }
     
     // time interval starts at midnight
@@ -78,15 +97,15 @@ struct UpcomingAssignment: View {
             Group {
                 if let start = self.item.start {
                     if self.item.end != nil {
-                        Text("From " + start.dateString)
+                        Text(start.dateString)
                     }
                     else {
                         Text("Starts " + start.dateString)
                     }
                 }
                 if let end = self.item.end {
-                    if self.item.start != nil {
-                        Text("To " + end.dateString)
+                    if let s = self.item.start {
+                        Text((end.dayDifference(with: s) == 0 ? end.timeString : end.dateString))
                     }
                     else {
                         Text("Due " + end.dateString)

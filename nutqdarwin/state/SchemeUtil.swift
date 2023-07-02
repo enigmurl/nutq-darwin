@@ -9,6 +9,10 @@ import Foundation
 import SwiftUI
 
 extension TimeInterval {
+    static var minute: TimeInterval {
+        60
+    }
+    
     static var hour: TimeInterval {
         3600
     }
@@ -27,13 +31,14 @@ public let debugSchemes = [
         SchemeItem(state: [1], text: "Example 1", start: .now + 1000, end: .now + 10000, repeats: .none, children: [])
     ]),
     SchemeState(name: "UCSD", colorIndex: 2, schemes: [
-        SchemeItem(state: [Int](repeating: 1, count: 20000), text: "Example 2", start: Date(timeInterval: 1200, since: Date.now - Date.now.timeIntervalSinceReferenceDate), end: Date(timeInterval: 4800, since: Date.now - Date.now.timeIntervalSinceReferenceDate), repeats: SchemeRepeats.block(blocks: 10000, remainders: [0, 1], modulus: 7, blockUnit: .day), children: [])
+        SchemeItem(state: [Int](repeating: 1, count: 20000), text: "Example 2", start: Date(timeInterval: 1200, since: Date.now - Date.now.timeIntervalSinceReferenceDate), end: Date(timeInterval: 4800, since: Date.now - Date.now.timeIntervalSinceReferenceDate), repeats: SchemeRepeat.block(block: SchemeRepeat.Block(blocks: 10000, remainders: [0, 1], modulus: 7, blockUnit: .day)), children: []),
+        SchemeItem(state: [1], text: "Example 3", start: nil, end: .now.startOfDay() + 9000, repeats: .none, children: [])
     ]),
     SchemeState(name: "MaXentric", colorIndex: 3, schemes: [
-        SchemeItem(state: [1], text: "Example 3", start: nil, end: .now.startOfDay() + 1000, repeats: .none, children: [])
+        SchemeItem(state: [1], text: "Example 3", start: nil, end: .now.startOfDay() + 9000, repeats: .none, children: [])
     ]),
     SchemeState(name: "Nutq", colorIndex: 4, schemes: [
-        SchemeItem(state: [1], text: "Example 4", start: nil, end: .now.startOfDay() + 1000, repeats: .none, children: [])
+        SchemeItem(state: [1], text: "Example 4", start: nil, end: .now.startOfDay() + 3000, repeats: .none, children: [])
     ]),
     SchemeState(name: "Research", colorIndex: 5, schemes: [
         SchemeItem(state: [1], text: "Example 5", start: .now + 86400 * 3, end: nil, repeats: .none, children: [])
@@ -76,9 +81,18 @@ struct SchemeSingularItem: Identifiable {
 }
 
 /* polymorphism at some point? */
-public enum SchemeRepeats: Codable, CustomStringConvertible {
+public enum SchemeRepeat: Codable, Hashable, CustomStringConvertible {
     case none
-    case block(blocks: Int, remainders: [Int], modulus: Int, blockUnit: TimeInterval)
+    case block(block: Block)
+    
+    public struct Block: Codable, Hashable {
+        static let maxBlocks = 256
+        
+        var blocks: Int = 1
+        var remainders: [Int] = [0]
+        var modulus: Int = 7
+        var blockUnit: TimeInterval = .day
+    }
     
     public var description: String {
         switch (self) {
@@ -93,11 +107,11 @@ public enum SchemeRepeats: Codable, CustomStringConvertible {
         switch(self) {
         case .none:
             return [(start, end)]
-        case let .block(blocks, remainders, modulus, blockUnit):
+        case let .block(block):
             var ret: [(start: Date?, end: Date?)] = []
-            for i in 0 ..< blocks {
-                for r in remainders {
-                    let offset = Double(i * modulus + r) * blockUnit
+            for i in 0 ..< block.blocks {
+                for r in block.remainders {
+                    let offset = Double(i * block.modulus + r) * block.blockUnit
                     ret.append((start != nil ? start! + offset : nil,
                                 end != nil ? end! + offset : nil))
                 }
@@ -111,8 +125,8 @@ public enum SchemeRepeats: Codable, CustomStringConvertible {
         switch(self) {
         case .none:
             return start ?? end
-        case let .block(_, remainders, _, blockUnit):
-            let offset = Double(remainders.first ?? 0) * blockUnit
+        case let .block(block):
+            let offset = Double(block.remainders.first ?? 0) * block.blockUnit
             if start != nil {
                 return start! + offset
             }
@@ -127,8 +141,8 @@ public enum SchemeRepeats: Codable, CustomStringConvertible {
         switch(self) {
         case .none:
             return end ?? start
-        case let .block(blocks, remainders, modulus, blockUnit):
-            let offset = Double((blocks - 1) * modulus + (remainders.last ?? 0)) * blockUnit
+        case let .block(block):
+            let offset = Double((block.blocks - 1) * block.modulus + (block.remainders.last ?? 0)) * block.blockUnit
             if end != nil {
                 return end! + offset
             }
@@ -141,7 +155,7 @@ public enum SchemeRepeats: Codable, CustomStringConvertible {
     }
 }
 
-public struct SchemeItem: Codable, Identifiable {
+public struct SchemeItem: Codable, Hashable, Identifiable {
     public var id = UUID()
     public var state: [Int] // 0 = not complete, -1 = finished. Open to intermediate states. Represents states of all events
     public var text: String
@@ -149,9 +163,9 @@ public struct SchemeItem: Codable, Identifiable {
     public var start: Date?
     public var end: Date?
   
-    public var repeats: SchemeRepeats
+    public var repeats: SchemeRepeat
     
-    public var children: [SchemeItem]?
+    public var children: [SchemeItem]
     
     public var schemeType: SchemeType {
         if (start != nil && end != nil) {
@@ -169,7 +183,7 @@ public struct SchemeItem: Codable, Identifiable {
     }
 }
 
-public struct SchemeState: Codable, Identifiable {
+public struct SchemeState: Codable, Hashable, Identifiable {
     public var id = UUID()
     
     public var name: String
@@ -227,7 +241,7 @@ extension Binding<Array<SchemeItem>> {
                 }
             }
             
-            schemes += Binding(x.children)?.flattenToUpcomingSchemes(color: color, path: path + [wrap.text], start: start) ?? []
+            schemes += x.children.flattenToUpcomingSchemes(color: color, path: path + [wrap.text], start: start) ?? []
         }
         return schemes
     }
@@ -241,7 +255,7 @@ extension Binding<Array<SchemeItem>> {
                 schemes.append(base)
             }
             
-            schemes += Binding(x.children)?.flattenFullSchemes(color: color, path: path + [wrap.text]) ?? []
+            schemes += x.children.flattenFullSchemes(color: color, path: path + [wrap.text]) ?? []
         }
         return schemes
     }
@@ -262,7 +276,7 @@ extension Binding<Array<SchemeItem>> {
                 }
             }
             
-            schemes += Binding(x.children)?.flattenEventsInRange(color: color, path: path + [wrap.text], start: start, end: end, schemeTypes: schemeTypes) ?? []
+            schemes += x.children.flattenEventsInRange(color: color, path: path + [wrap.text], start: start, end: end, schemeTypes: schemeTypes)
         }
         
         return schemes

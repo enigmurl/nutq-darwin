@@ -50,7 +50,9 @@ struct Scheme: View {
                     Text(scheme.name)
                         .font(.headline)
                 }
+                #if os(macOS)
                 .frame(width: 140, alignment: .leading)
+                #endif
             }
         }
         #if os(iOS)

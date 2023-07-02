@@ -8,16 +8,24 @@
 import SwiftUI
 
 struct SidebarLabel: View {
+    @EnvironmentObject var env: EnvState
     @Binding var deletionID: UUID?
     
-    let scheme: Binding<SchemeState>?
+    var scheme: Binding<SchemeState>?
     
     @State var showingEditingWindow = false
     
     var body: some View {
+        let undoableScheme = scheme == nil ? nil : Binding(get: {
+            scheme!.wrappedValue
+        }, set: {
+            if scheme!.wrappedValue != $0 {
+                env.writeBinding(binding: scheme!, newValue: $0)
+            }
+        })
         
         NavigationLink {
-            if let scheme = scheme {
+            if let scheme = undoableScheme {
                 Scheme(scheme: scheme)
             }
             else {
@@ -26,11 +34,10 @@ struct SidebarLabel: View {
         } label: {
             Label {
                 #if os(iOS)
-                Text(scheme?.wrappedValue.name ?? "Union")
+                Text(undoableScheme?.wrappedValue.name ?? "Union")
                     .font(.title3)
-                
                 #else
-                if let scheme = scheme {
+                if let scheme = undoableScheme {
                     TextField("", text: scheme.name)
                         .padding(.leading, -4)
                         .textFieldStyle(.plain)
@@ -44,16 +51,16 @@ struct SidebarLabel: View {
                 #endif
 
             } icon: {
-                TagView(index: scheme?.colorIndex ?? nil)
+                TagView(index: undoableScheme?.colorIndex ?? nil)
             }
         }
-        .tag(scheme?.wrappedValue.id ?? unionNullUUID)
+        .tag(undoableScheme?.wrappedValue.id ?? unionNullUUID)
         .swipeActions(allowsFullSwipe: false) {
             // necessarily iOS
             if scheme != nil {
                 /* role destructive deletes it automatically for some reason */
                 Button("Delete") {
-                    self.deletionID = self.scheme?.wrappedValue.id
+                    self.deletionID = undoableScheme?.wrappedValue.id
                 }
                 .tint(.red)
                 
@@ -64,12 +71,12 @@ struct SidebarLabel: View {
         }
         .popover(isPresented: $showingEditingWindow) {
             Label {
-                TextField("", text: scheme!.name)
+                TextField("", text: undoableScheme!.name)
                     .padding(.leading, -4)
                     .textFieldStyle(.plain)
                     .font(.title3)
             } icon: {
-                TagView(index: scheme?.colorIndex ?? nil)
+                TagView(index: undoableScheme?.colorIndex ?? nil)
             }
             .frame(minWidth: 140)
             .padding()
@@ -78,7 +85,9 @@ struct SidebarLabel: View {
     }
 }
 
+    
 struct Sidebar: View {
+    @EnvironmentObject private var menu: MenuState
     @EnvironmentObject private var env: EnvState
         
     @State var deleteID: UUID? = nil
@@ -94,6 +103,14 @@ struct Sidebar: View {
             ForEach($env.schemes, editActions: .move) { scheme in
                 SidebarLabel(deletionID: $deleteID, scheme: scheme)
             }
+            
+            Button("New") {
+                env.insert(scheme: SchemeState(name: "Scheme", colorIndex: 1, schemes: []), at: env.schemes.count)
+            }
+            #if os(macOS)
+            .buttonStyle(.link)
+            #endif
+            .frame(maxWidth: .infinity)
         }
         .listStyle(.sidebar)
         #if os(macOS)
@@ -116,6 +133,20 @@ struct Sidebar: View {
                 Text("Delete \(env.schemes.first(where: {$0.id == id})!.name)?")
             }
         }
+       .onReceive(menu) { action in
+           switch (action) {
+           case .gotoUnion:
+               self.env.scheme = unionNullUUID
+           case .prevScheme:
+               let index = max(-1, (self.env.schemes.firstIndex(where: {$0.id == self.env.scheme ?? unionNullUUID}) ?? -1) - 1)
+               self.env.scheme = index == -1 ? unionNullUUID : self.env.schemes[index].id
+           case .nextScheme:
+               let index = min(self.env.schemes.count - 1, (self.env.schemes.firstIndex(where: {$0.id == self.env.scheme ?? unionNullUUID}) ?? -1) + 1)
+               self.env.scheme = index == -1 ? unionNullUUID : self.env.schemes[index].id
+           default:
+               break
+           }
+       }
     }
 }
 

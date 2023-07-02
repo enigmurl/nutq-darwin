@@ -74,11 +74,11 @@ extension Color {
 #if os(macOS)
 /* not used for now */
 import AppKit
-struct VisualEffectView: NSViewRepresentable {
+struct BlurView: NSViewRepresentable {
     func makeNSView(context: NSViewRepresentableContext<Self>) -> NSVisualEffectView {
         let view = NSVisualEffectView()
         view.blendingMode = .withinWindow
-        view.material = .hudWindow
+        view.material = .toolTip
         return view
     }
     
@@ -88,7 +88,7 @@ struct VisualEffectView: NSViewRepresentable {
 }
 #else
 import UIKit
-struct VisualEffectView: UIViewRepresentable {
+struct BlurView: UIViewRepresentable {
     func makeUIView(context: UIViewRepresentableContext<Self>) -> UIVisualEffectView {
         UIVisualEffectView(effect: UIBlurEffect(style: .dark))
     }

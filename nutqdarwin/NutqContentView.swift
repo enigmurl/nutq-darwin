@@ -9,7 +9,7 @@ import SwiftUI
 
 struct NutqContentView: View {
     @Environment(\.undoManager) private var undo: UndoManager?
-    @StateObject private var env = EnvState()
+    @EnvironmentObject var env: EnvState
     
     var body: some View {
         NavigationSplitView {
