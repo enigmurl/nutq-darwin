@@ -28,23 +28,23 @@ extension TimeInterval {
 
 public let debugSchemes = [
     SchemeState(name: "Monocurl", colorIndex: 1, schemes: [
-        SchemeItem(state: [1], text: "Example 1", start: .now + 1000, end: .now + 10000, repeats: .none, children: [])
+        SchemeItem(state: [1], text: "Example 1", start: .now + 1000, end: .now + 10000, repeats: .none, indentation: 0)
     ]),
     SchemeState(name: "UCSD", colorIndex: 2, schemes: [
-        SchemeItem(state: [Int](repeating: 1, count: 20000), text: "Example 2", start: Date(timeInterval: 1200, since: Date.now - Date.now.timeIntervalSinceReferenceDate), end: Date(timeInterval: 4800, since: Date.now - Date.now.timeIntervalSinceReferenceDate), repeats: SchemeRepeat.block(block: SchemeRepeat.Block(blocks: 10000, remainders: [0, 1], modulus: 7, blockUnit: .day)), children: []),
-        SchemeItem(state: [1], text: "Example 3", start: nil, end: .now.startOfDay() + 9000, repeats: .none, children: [])
+        SchemeItem(state: [Int](repeating: 1, count: 20000), text: "Example 2", start: Date(timeInterval: 1200, since: Date.now - Date.now.timeIntervalSinceReferenceDate), end: Date(timeInterval: 4800, since: Date.now - Date.now.timeIntervalSinceReferenceDate), repeats: SchemeRepeat.block(block: SchemeRepeat.Block(blocks: 10000, remainders: [0, 1], modulus: 7, blockUnit: .day)), indentation: 0),
+        SchemeItem(state: [1], text: "Example 3", start: nil, end: .now.startOfDay() + 9000, repeats: .none, indentation: 0)
     ]),
     SchemeState(name: "MaXentric", colorIndex: 3, schemes: [
-        SchemeItem(state: [1], text: "Example 3", start: nil, end: .now.startOfDay() + 9000, repeats: .none, children: [])
+        SchemeItem(state: [1], text: "Example 3", start: nil, end: .now.startOfDay() + 9000, repeats: .none, indentation: 0)
     ]),
     SchemeState(name: "Nutq", colorIndex: 4, schemes: [
-        SchemeItem(state: [1], text: "Example 4", start: nil, end: .now.startOfDay() + 3000, repeats: .none, children: [])
+        SchemeItem(state: [1], text: "Example 4", start: nil, end: .now.startOfDay() + 3000, repeats: .none, indentation: 0)
     ]),
     SchemeState(name: "Research", colorIndex: 5, schemes: [
-        SchemeItem(state: [1], text: "Example 5", start: .now + 86400 * 3, end: nil, repeats: .none, children: [])
+        SchemeItem(state: [1], text: "Example 5", start: .now + 86400 * 3, end: nil, repeats: .none, indentation: 0)
     ]),
     SchemeState(name: "Ideas", colorIndex: 6, schemes: [
-        SchemeItem(state: [1], text: "Example 6", start: nil, end: .now + 86400 * 2, repeats: .none, children: [])
+        SchemeItem(state: [1], text: "Example 6", start: nil, end: .now + 86400 * 2, repeats: .none, indentation: 0)
     ]),
 ]
 
@@ -165,7 +165,7 @@ public struct SchemeItem: Codable, Hashable, Identifiable {
   
     public var repeats: SchemeRepeat
     
-    public var children: [SchemeItem]
+    public var indentation: Int
     
     public var schemeType: SchemeType {
         if (start != nil && end != nil) {
@@ -240,8 +240,6 @@ extension Binding<Array<SchemeItem>> {
                     schemes.append(base)
                 }
             }
-            
-            schemes += x.children.flattenToUpcomingSchemes(color: color, path: path + [wrap.text], start: start) ?? []
         }
         return schemes
     }
@@ -254,8 +252,6 @@ extension Binding<Array<SchemeItem>> {
                 let base = convertSingularScheme(color: color, path: path, start: s, end: e, scheme: x, index: i)
                 schemes.append(base)
             }
-            
-            schemes += x.children.flattenFullSchemes(color: color, path: path + [wrap.text]) ?? []
         }
         return schemes
     }
@@ -275,8 +271,6 @@ extension Binding<Array<SchemeItem>> {
                     schemes.append(base)
                 }
             }
-            
-            schemes += x.children.flattenEventsInRange(color: color, path: path + [wrap.text], start: start, end: end, schemeTypes: schemeTypes)
         }
         
         return schemes

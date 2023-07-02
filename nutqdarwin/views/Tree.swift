@@ -13,8 +13,8 @@ import SwiftUI
 fileprivate let defaultStartOffset: TimeInterval = 9 * .hour
 fileprivate let defaultEndOffset: TimeInterval = 23 * .hour
 
-fileprivate func blankEditor(_ str: String) -> SchemeItem {
-    return SchemeItem(state: [0], text: str, repeats: .none, children: [])
+fileprivate func blankEditor(_ str: String, indentation: Int = 0) -> SchemeItem {
+    return SchemeItem(state: [0], text: str, repeats: .none, indentation: indentation)
 }
 
 fileprivate struct BackgroundView: View {
@@ -55,20 +55,143 @@ fileprivate extension View {
     }
 }
 
-#if false
-fileprivate struct ItemTextField: NSViewRepresentable {
-    @Binding var text: String
+#if os(macOS)
+// got to be a better way..., but it seems like it's pretty hard to interop
+// with focus state
+fileprivate var inAppearingContext = false
+fileprivate class FocusableTextField: NSTextField {
+    var focus: FocusState<TreeFocusToken?>.Binding!
+    var targetFocus: TreeFocusToken!
     
+    override func becomeFirstResponder() -> Bool {
+        let status = super.becomeFirstResponder()
+        if status {
+            focus.wrappedValue = targetFocus
+        }
+        return status
+    }
+
+    override func textDidEndEditing(_ notification: Notification) {
+        super.textDidEndEditing(notification)
+        if focus.wrappedValue == targetFocus {
+            if !inAppearingContext {
+                focus.wrappedValue = nil
+            }
+        }
+    }
 }
+
+fileprivate struct EnterableTextField: NSViewRepresentable {
+    @Binding var text: String
+    @FocusState.Binding var focus: TreeFocusToken?
+    let prevFocus: TreeFocusToken
+    let targetFocus: TreeFocusToken
+    let nextFocus: TreeFocusToken
+    
+    func makeNSView(context: Context) -> FocusableTextField  {
+        let field = FocusableTextField()
+        field.stringValue = text
+        field.isBordered = false
+        field.backgroundColor = .clear
+        field.focusRingType = .none
+        field.isEditable = true
+        field.font = NSFont.systemFont(ofSize: NSFont.systemFontSize)
+        
+        field.delegate = context.coordinator
+        
+        field.focus = $focus
+        field.targetFocus = targetFocus
+        
+        return field
+    }
+    
+    func updateNSView(_ nsView: FocusableTextField, context: Context) {
+        if nsView.stringValue != text {
+            nsView.stringValue = text
+        }
+//        if focus == targetFocus && nsView.currentEditor() == nil {
+//            nsView.window?.makeFirstResponder(nsView)
+//        }
+//        else if focus != targetFocus && nsView.currentEditor() == nil {
+//            nsView.window?.firstResponder?.resignFirstResponder()
+//        }
+    }
+    
+    func makeCoordinator() -> Delegate {
+        Delegate(text: $text, focusState: $focus, prevFocus: prevFocus, targetFocus: targetFocus, nextFocus: nextFocus)
+    }
+    
+    class Delegate: NSObject, NSTextFieldDelegate {
+        @Binding var text: String
+        @FocusState.Binding var focusState: TreeFocusToken?
+        
+        let prevFocus: TreeFocusToken
+        let targetFocus: TreeFocusToken
+        let nextFocus: TreeFocusToken
+        
+        init(text: Binding<String>, focusState: FocusState<TreeFocusToken?>.Binding, prevFocus: TreeFocusToken, targetFocus: TreeFocusToken, nextFocus: TreeFocusToken) {
+            _text = text
+            _focusState = focusState
+            self.prevFocus = prevFocus
+            self.targetFocus = targetFocus
+            self.nextFocus = nextFocus
+        }
+        
+        func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
+            if commandSelector == #selector(NSResponder.insertNewline(_:)) ||
+                commandSelector == #selector(NSResponder.insertNewlineIgnoringFieldEditor(_:)) {
+                return true
+            }
+            else if commandSelector == #selector(NSResponder.moveDown(_:)) {
+                focusState = nextFocus
+                return true
+            }
+            else if commandSelector == #selector(NSResponder.moveUp(_:)) {
+                focusState = prevFocus
+                return true
+            }
+            
+            return false
+        }
+    
+        func controlTextDidChange(_ obj: Notification) {
+            guard let textfield = obj.object as? NSTextField else {
+                return
+            }
+            
+            if text != textfield.stringValue {
+                text = textfield.stringValue
+            }
+        }
+    }
+}
+
+fileprivate struct ItemTextField: View {
+    @Binding var text: String
+    @FocusState.Binding var focus: TreeFocusToken?
+    let prevFocus: TreeFocusToken
+    let targetFocus: TreeFocusToken
+    let nextFocus: TreeFocusToken
+    
+    var body: some View {
+        EnterableTextField(text: $text, focus: $focus, prevFocus: prevFocus, targetFocus: targetFocus, nextFocus: nextFocus)
+            .padding(.leading, -2) // not sure whats the cause of this
+            .focused($focus, equals: targetFocus)
+    }
+}
+
 #else
 fileprivate struct ItemTextField: View {
     @Binding var text: String
+    @FocusState.Binding var focus: TreeFocusToken?
+    let targetFocus: TreeFocusToken
+
     var body: some View {
         TextField("", text: $text)
+            .focused($focus, equals: targetFocus)
     }
 }
 #endif
-
 
 //use march since it has 31 days, some date in the past
 fileprivate let referenceDate = {
@@ -76,7 +199,7 @@ fileprivate let referenceDate = {
     dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
     dateFormatter.timeZone = TimeZone.current
     dateFormatter.locale = Locale.current
-    return dateFormatter.date(from: "2000-03-15T12:00:00")!
+    return dateFormatter.date(from: "2000-03-14T12:00:00")!
 }()
 
 fileprivate let digitMap: [Calendar.Component: Int] = [.minute: 2, .hour: 2, .day: 2, .month: 2, .year: 4]
@@ -84,9 +207,11 @@ fileprivate let minMap: [Calendar.Component: Int] = [.minute: 0, .hour: 0, .day:
 fileprivate let maxMap: [Calendar.Component: Int] = [.minute: 59, .hour: 23, .day: 31, .month: 12, .year: 9999]
 
 struct ItemEditor: View {
-    @FocusState var mainFocus: Int?
+    @FocusState.Binding var focus: TreeFocusToken?
+    let prevFocus: TreeFocusToken
+    let nextFocus: TreeFocusToken
+    
     @Binding var schemeNode: SchemeItem
-    var parentArray: Binding<[SchemeItem]>?
     @Binding var allNodes: [SchemeItem]
     
     @EnvironmentObject var envState: EnvState
@@ -95,8 +220,6 @@ struct ItemEditor: View {
     @State var showingStart = false
     @State var showingEnd   = false
     @State var showingBlock = false
-    
-    let initialFocus: Int?
     
     @State var timeComponent: Calendar.Component? = nil
     @State var timeBuffer: String? = nil
@@ -146,10 +269,16 @@ struct ItemEditor: View {
         let digits = digitMap[comp]!
         let raw = String(format: "%0\(digits)d", NSCalendar.current.component(comp, from: (date.wrappedValue ?? Date.now)!))
         
-        return TextField("", text: Binding(get: {
-                 mainFocus == focus && timeBuffer != nil && timeSettled == mainFocus ? timeBuffer! : raw
+        return TextField("", text: Binding(
+            get: {
+                if self.focus?.uuid == self.schemeNode.id && timeSettled == self.focus?.subtoken && timeSettled == focus && timeBuffer != nil {
+                    return timeBuffer!
+                }
+                else {
+                    return raw
+                }
             }, set: { newValue in
-                if mainFocus == focus {
+                if self.focus?.uuid == self.schemeNode.id && self.focus?.subtoken == focus {
                     timeBuffer = String(
                         newValue
                         .filter { $0.isNumber }
@@ -158,13 +287,13 @@ struct ItemEditor: View {
                 }
             }))
                 .multilineTextAlignment(.trailing)
-                .focused($mainFocus, equals: focus)
+                .focused(self.$focus, equals: TreeFocusToken(uuid: self.schemeNode.id, subtoken: focus))
                 .frame(maxWidth: CGFloat(digits) * 7.5)
                 .onAppear {
                     timeComponent = nil
                 }
-                .onChange(of: mainFocus) { mf in
-                    if mf == focus {
+                .onChange(of: self.focus) { mf in
+                    if mf?.uuid == schemeNode.id && mf?.subtoken == focus {
                         write(comp: timeComponent)
                         // NOTE: cannot be cached with other string
                         // since may have changed as result of write
@@ -183,7 +312,8 @@ struct ItemEditor: View {
                 }
                 .onSubmit {
                     write(comp: comp)
-                    mainFocus = focus + 1
+                    
+                    self.focus?.subtoken = focus + 1
                 }
     }
     
@@ -224,11 +354,12 @@ struct ItemEditor: View {
         }
         .textFieldStyle(.plain)
         .onSubmit {
-            mainFocus = 0
+            self.focus?.subtoken = 0
             self.resetModifiers()
         }
         .onAppear {
-            mainFocus = 3
+            self.focus?.subtoken = 3
+            inAppearingContext = true
         }
     }
    
@@ -270,21 +401,21 @@ struct ItemEditor: View {
                         .split(separator: ",")
                         .map { Int($0) ?? 0 }
                 }))
-                    .focused($mainFocus, equals: 1)
+                    .focused($focus, equals: TreeFocusToken(uuid: schemeNode.id, subtoken: 1))
                     .frame(maxWidth: 60)
                     .blueBackground()
                     .padding(.trailing, 4)
                 
                 Text("blocks")
                 TextField("", text: Binding(digits: blockBinding.blocks, min: 1, max: SchemeRepeat.Block.maxBlocks))
-                    .focused($mainFocus, equals: 2)
+                    .focused($focus, equals: TreeFocusToken(uuid: schemeNode.id, subtoken: 2))
                     .frame(maxWidth: 20)
                     .blueBackground()
                     .padding(.trailing, 4)
                 
                 Text("modulus")
                 TextField("", text: Binding(digits: blockBinding.modulus, min: 1))
-                    .focused($mainFocus, equals: 3)
+                    .focused($focus, equals: TreeFocusToken(uuid: schemeNode.id, subtoken: 3))
                     .frame(maxWidth: 20)
                     .blueBackground()
                     .padding(.trailing, 2)
@@ -295,7 +426,7 @@ struct ItemEditor: View {
             .textFieldStyle(.plain)
             .multilineTextAlignment(.trailing)
             .onAppear {
-                mainFocus = 1
+                self.focus?.subtoken = 1
                 blockBuffer = blockBinding.wrappedValue.remainders
                     .map { String($0)}
                     .joined(separator: ",")
@@ -309,7 +440,7 @@ struct ItemEditor: View {
                 )).sorted()
             }
             .onSubmit {
-                mainFocus = 0
+                self.focus?.subtoken = 0
                 self.resetModifiers()
             }
         )
@@ -432,27 +563,19 @@ struct ItemEditor: View {
                     // disabled doesn't look nice
                     
                     VStack(alignment: .leading, spacing: 0) {
-                        TextField("", text: $schemeNode.text)
-                            .focused($mainFocus, equals: 0)
+                        ItemTextField(text: $schemeNode.text, focus: $focus, prevFocus: prevFocus, targetFocus: TreeFocusToken(uuid: schemeNode.id, subtoken: 0), nextFocus: nextFocus)
                             .textFieldStyle(.plain)
-                            .onAppear {
-                                self.mainFocus = initialFocus
-                            }
                         
                         self.captions
                     }
                 }
             }
 
-            VStack(spacing: 0) {
-                ForEach(Array($schemeNode.children.enumerated()), id: \.element.id) { i, scheme in
-                    ItemEditor(schemeNode: scheme, parentArray: $allNodes, allNodes: $schemeNode.children, initialFocus: nil)
-                        .zIndex(Double(schemeNode.children.count - i)) // proper popover display
-                }
-                .padding(.leading, 25)
-            }
-           
-            if self.anyModifiers && mainFocus != nil {
+            if self.anyModifiers && focus?.uuid == self.schemeNode.id {
+                // focus anchor
+                EmptyView()
+                    .focused($focus, equals: TreeFocusToken(uuid: schemeNode.id, subtoken: -1))
+                
                 Color.clear
                     .frame(maxHeight: 0)
                     .overlay(alignment: .top) {
@@ -467,15 +590,19 @@ struct ItemEditor: View {
             resetModifiers()
         }
         #endif
-        .onChange(of: mainFocus) { focus in
-            if focus == nil {
+        .onChange(of: focus) { [focus] newFocus in
+            if newFocus?.uuid != self.schemeNode.id {
                 resetModifiers()
             }
+            else if focus?.uuid != newFocus?.uuid {
+                resetModifiers()
+            }
+            inAppearingContext = false
         }
     }
     
     func handleMenuAction(_ action: MenuAction) {
-        guard mainFocus != nil else {
+        guard focus?.uuid == schemeNode.id else {
             return
         }
         
@@ -486,53 +613,50 @@ struct ItemEditor: View {
                     schemeNode.start = .now.startOfDay() + defaultStartOffset
                 }
                
-                mainFocus = 0
                 self.resetModifiers()
                 self.showingStart = true
             }
             else {
                 
-                mainFocus = 0
+                focus?.subtoken = 0
                 self.resetModifiers()
                 self.showingStart = false
             }
         case .disableStart:
             schemeNode.start = nil
             self.showingStart = false
-            mainFocus = 0
+            focus?.subtoken = 0
         case .toggleEndView:
             if !showingEnd {
                 if schemeNode.end == nil {
                     schemeNode.end = .now.startOfDay() + defaultEndOffset
                 }
                 
-                mainFocus = 0
                 self.resetModifiers()
                 self.showingEnd = true
             }
             else {
                 
-                mainFocus = 0
+                focus?.subtoken = 0
                 self.resetModifiers()
                 self.showingEnd = false
             }
         case .disableEnd:
             schemeNode.end = nil
             self.showingEnd = false
-            mainFocus = 0
+            focus?.subtoken = 0
         case .toggleBlockView:
             if !showingBlock {
                 if schemeNode.repeats == .none {
                     schemeNode.repeats = .block(block: SchemeRepeat.Block())
                 }
                 
-                mainFocus = 0
                 self.resetModifiers()
                 self.showingBlock = true
             }
             else {
                 
-                mainFocus = 0
+                focus?.subtoken = 0
                 self.resetModifiers()
                 self.showingBlock = false
             }
@@ -540,7 +664,7 @@ struct ItemEditor: View {
             schemeNode.state = [schemeNode.state.first ?? 0]
             schemeNode.repeats = .none
             self.showingBlock = false
-            mainFocus = 0
+            focus?.subtoken = 0
         case .indent:
             self.indent()
         case .deindent:
@@ -551,62 +675,28 @@ struct ItemEditor: View {
     }
     
     func indent() {
-       // can only indent if we're not the first child
-        guard let index = allNodes.firstIndex(of: self.schemeNode), index != 0 else {
-            return
-        }
-        
-        // append to previous node's children, and remove from current level
-        var allNodesCopy = allNodes
-        var previousNodeChildren = allNodes[index - 1].children
-        
-        allNodesCopy.remove(at: index)
-        previousNodeChildren.append(schemeNode)
-        
-        self.envState.writeBinding(binding: $allNodes, newValue: allNodesCopy)
-        self.envState.writeBinding(binding: $allNodes[index - 1].children, newValue: previousNodeChildren)
+        self.envState.writeBinding(binding: $schemeNode.indentation, newValue: schemeNode.indentation + 1)
     }
     
     func deindent() {
-        guard let parentArray = parentArray,
-              let parentIndex = parentArray.firstIndex(where: {$0.wrappedValue.children == allNodes}),
-              let myIndex = allNodes.firstIndex(of: self.schemeNode) else {
-           return
-        }
-        
-        // delete from allNodes
-        // insert into parentArray
-        // what was previously in front of us are now our children
-        // this should probably be put into a better undoable function, but copy it is....
-        
-        var allNodesCopy = allNodes
-        var parentNodesCopy = parentArray.wrappedValue
-        var myChildrenCopy = schemeNode.children
-        
-        allNodesCopy.remove(at: myIndex)
-        myChildrenCopy.append(contentsOf: allNodesCopy.dropFirst(myIndex))
-        allNodesCopy.removeLast(allNodesCopy.count - myIndex)
-      
-        self.envState.writeBinding(binding: $schemeNode.children, newValue: myChildrenCopy)
-        
-        // only update parent after schemeNode has been fully resolved
-        // but before we overwrite allNodes, removing the reference to schemeNode
-        parentNodesCopy.insert(schemeNode, at: parentIndex + 1)
-        self.envState.writeBinding(binding: parentArray, newValue: parentNodesCopy)
-        
-        self.envState.writeBinding(binding: $allNodes, newValue: allNodesCopy)
+        self.envState.writeBinding(binding: $schemeNode.indentation, newValue: max(0, schemeNode.indentation - 1))
     }
 }
 
+struct TreeFocusToken: Hashable {
+    let uuid: UUID?
+    var subtoken: Int
+}
+
 struct Tree: View {
-    @FocusState var keyFocus
-    #warning("TODO find better solution for focusing on new items")
-    @State var showedOne = false
+    @FocusState var keyFocus: TreeFocusToken?
     @State var keyBuffer = ""
     @Binding var scheme: SchemeState
     
-    func insertNewEditor() {
-        scheme.schemes.append(blankEditor(self.keyBuffer))
+    func insertNewEditor() -> SchemeItem {
+        let ret = blankEditor(self.keyBuffer)
+        scheme.schemes.append(ret)
+        return ret
     }
     
     var body: some View {
@@ -616,9 +706,13 @@ struct Tree: View {
                 ScrollView {
                     VStack(spacing: 0) {
                         ForEach(Array($scheme.schemes.enumerated()), id: \.element.id) { i, s in
-                            ItemEditor(schemeNode: s, parentArray: nil, allNodes: $scheme.schemes,
-                                       initialFocus: showedOne && s.wrappedValue == scheme.schemes.last ? 0 : nil)
+                            ItemEditor(focus: $keyFocus,
+                                       prevFocus: TreeFocusToken(uuid: scheme.schemes[max(i - 1, 0)].id, subtoken: 0),
+                                       nextFocus: TreeFocusToken(uuid: scheme.schemes[min(i + 1, scheme.schemes.count - 1)].id, subtoken: 0),
+                                       schemeNode: s,
+                                       allNodes: $scheme.schemes)
                                 .zIndex(Double(scheme.schemes.count - i)) // proper popover display
+                                .padding(.leading, CGFloat(s.wrappedValue.indentation) * 20)
                         }
                     }
                     .id(0)
@@ -638,23 +732,14 @@ struct Tree: View {
                 }
                 .shadow(radius: 4)
                 .padding(10)
-                .focused($keyFocus)
-                .onChange(of: scheme.id) { _ in // tree hierarchy is weird, bad fix
-                    showedOne = false
-                }
-                .onDisappear {
-                    showedOne = false
-                }
+                .focused($keyFocus, equals: TreeFocusToken(uuid: nil, subtoken: 0))
                 .onSubmit {
-                    self.insertNewEditor()
-                    
-                    showedOne = true
-                    keyFocus = false
+                    keyFocus = TreeFocusToken(uuid: self.insertNewEditor().id, subtoken: 0)
                     keyBuffer = ""
                 }
         }
         .onTapGesture {
-            keyFocus = true
+            self.keyFocus = TreeFocusToken(uuid: nil, subtoken: 0)
         }
     }
 }
