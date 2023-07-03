@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import SwiftUIIntrospect
 
 //not the greatest conventions overall, fix!
 
@@ -172,9 +171,11 @@ struct ItemEditor: View {
                 }
                 .onChange(of: self.focus) { [focus] mf in
                     if focus?.subtoken == fFocus {
+                        // absolute state...
                         write(comp: timeComponent.wrappedValue)
                     }
                     if mf?.subtoken == fFocus {
+                        write(comp: timeComponent.wrappedValue)
                         // NOTE: cannot be cached with other string
                         // since may have changed as result of write
                         let current = String(format: "%0\(digits)d", NSCalendar.current.component(comp, from: date.wrappedValue ?? Date.now))

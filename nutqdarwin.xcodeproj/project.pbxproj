@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B40160AE2A527ECB002DC32B /* SwiftUIIntrospect in Frameworks */ = {isa = PBXBuildFile; productRef = B40160AD2A527ECB002DC32B /* SwiftUIIntrospect */; };
 		B434A5E12A23D91B001D81E8 /* Nutq.swift in Sources */ = {isa = PBXBuildFile; fileRef = B434A5E02A23D91B001D81E8 /* Nutq.swift */; };
 		B434A5E32A23D91B001D81E8 /* NutqContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B434A5E22A23D91B001D81E8 /* NutqContentView.swift */; };
 		B434A5E52A23D91D001D81E8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B434A5E42A23D91D001D81E8 /* Assets.xcassets */; };
@@ -50,7 +49,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B40160AE2A527ECB002DC32B /* SwiftUIIntrospect in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -146,7 +144,6 @@
 			);
 			name = nutqdarwin;
 			packageProductDependencies = (
-				B40160AD2A527ECB002DC32B /* SwiftUIIntrospect */,
 			);
 			productName = nutqdarwin;
 			productReference = B434A5DD2A23D91B001D81E8 /* nutqdarwin.app */;
@@ -177,7 +174,6 @@
 			);
 			mainGroup = B434A5D42A23D91B001D81E8;
 			packageReferences = (
-				B40160AC2A527ECB002DC32B /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */,
 			);
 			productRefGroup = B434A5DE2A23D91B001D81E8 /* Products */;
 			projectDirPath = "";
@@ -424,25 +420,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		B40160AC2A527ECB002DC32B /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/siteline/SwiftUI-Introspect";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.8.0;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		B40160AD2A527ECB002DC32B /* SwiftUIIntrospect */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B40160AC2A527ECB002DC32B /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */;
-			productName = SwiftUIIntrospect;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = B434A5D52A23D91B001D81E8 /* Project object */;
 }
