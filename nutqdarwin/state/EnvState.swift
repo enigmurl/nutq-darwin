@@ -8,9 +8,51 @@
 import Foundation
 import SwiftUI
 import Combine
-
+import BackgroundTasks
 
 let unionNullUUID = UUID(uuidString: "00000000-0000-0000-0000-ffffffffffff")!
+
+class SystemManager {
+    unowned var env: EnvState
+    
+    init(env: EnvState) {
+        self.env = env
+        
+//        BGTaskScheduler.shared
+    }
+    
+    func fileSystemSync() {
+        
+    }
+    
+    func iCloudSync() {
+        
+    }
+    
+    func googleCalendarPoll() {
+        
+    }
+    
+    func stateControl() {
+        
+    }
+    
+    func reminderControl() {
+        
+    }
+    
+    func runTasks() {
+        // 1. sync with file system (handled by envState)
+        // 2. sync with iCloud
+        // 3. sync with google calendar
+        // 4. state control: all calendar events that are unfinished that have already passed must be marked as finished
+        // 5. setting up reminders
+    }
+    
+    func force() {
+        
+    }
+}
 
 public class EnvState: ObservableObject {
     var clock: AnyCancellable?
@@ -19,12 +61,14 @@ public class EnvState: ObservableObject {
     @Published var scheme: UUID? = unionNullUUID
     @Published var schemes: [SchemeState] = debugSchemes
     
+    var manager: SystemManager!
     weak var undoManager: UndoManager?
-    
+   
     init() {
         clock = Timer.publish(every: .minute, on: .main, in: .common)
             .autoconnect()
             .assign(to: \EnvState.stdTime, on: self)
+        manager = SystemManager(env: self)
     }
     
     public func delete(uuid: UUID) {
@@ -52,6 +96,10 @@ public class EnvState: ObservableObject {
             
             undoManager?.registerUndo(withTarget: self, handler: {$0.writeBinding(binding: binding, newValue: oldValue)})
         }
+    }
+    
+    deinit {
+        manager.force()
     }
 }
 

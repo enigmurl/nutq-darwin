@@ -94,9 +94,13 @@ struct ItemEditor: View {
     @State var showingEnd   = false
     @State var showingBlock = false
     
-    @State var timeComponent: Calendar.Component? = nil
-    @State var timeBuffer: String? = nil
-    @State var timeSettled = 0 // swiftui bug of selection not being proper
+    @State var startTimeComponent: Calendar.Component? = nil
+    @State var startTimeBuffer: String? = nil
+    @State var startTimeSettled = 0 // swiftui bug of selection not being proper
+    
+    @State var endTimeComponent: Calendar.Component? = nil
+    @State var endTimeBuffer: String? = nil
+    @State var endTimeSettled = 0 // swiftui bug of selection not being proper
    
     func reallySet(_ comp: Calendar.Component, value: Int, date: Date) -> Date {
         var components = NSCalendar.current.dateComponents([.minute, .hour, .day, .month, .year], from: date)
@@ -104,9 +108,9 @@ struct ItemEditor: View {
         return NSCalendar.current.date(from: components)!
     }
     
-    func field(date: Binding<Date?>, focus: Int, comp: Calendar.Component) -> some View {
+    func field(date: Binding<Date?>, timeBuffer: Binding<String?>, timeComponent: Binding<Calendar.Component?>, timeSettled: Binding<Int>, fFocus: Int, comp: Calendar.Component) -> some View {
         func write(comp: Calendar.Component?) {
-            guard let comp = comp, let timeBuffer = timeBuffer, let dateVal = date.wrappedValue else {
+            guard let comp = comp, let timeBuffer = timeBuffer.wrappedValue, let dateVal = date.wrappedValue else {
                 return
             }
             
@@ -142,15 +146,15 @@ struct ItemEditor: View {
         
         return TextField("", text: Binding(
             get: {
-                if self.focus?.uuid == self.schemeNode.id && timeSettled == self.focus?.subtoken && timeSettled == focus && timeBuffer != nil {
-                    return timeBuffer!
+                if self.focus?.uuid == self.schemeNode.id && timeSettled.wrappedValue == self.focus?.subtoken && timeSettled.wrappedValue == fFocus && timeBuffer.wrappedValue != nil {
+                    return timeBuffer.wrappedValue!
                 }
                 else {
                     return raw
                 }
             }, set: { newValue in
-                if self.focus?.uuid == self.schemeNode.id && self.focus?.subtoken == focus {
-                    timeBuffer = String(
+                if self.focus?.uuid == self.schemeNode.id && self.focus?.subtoken == fFocus {
+                    timeBuffer.wrappedValue = String(
                         newValue
                         .filter { $0.isNumber }
                         .suffix(digits)
@@ -161,37 +165,39 @@ struct ItemEditor: View {
                 #if os(iOS)
                 .keyboardType(.numbersAndPunctuation)
                 #endif
-                .focused(self.$focus, equals: TreeFocusToken(uuid: self.schemeNode.id, subtoken: focus))
+                .focused(self.$focus, equals: TreeFocusToken(uuid: self.schemeNode.id, subtoken: fFocus))
                 .frame(maxWidth: CGFloat(digits) * digitWidth)
                 .onAppear {
-                    timeComponent = nil
+                    timeComponent.wrappedValue = nil
                 }
-                .onChange(of: self.focus) { mf in
-                    if mf?.uuid == schemeNode.id && mf?.subtoken == focus {
-                        write(comp: timeComponent)
+                .onChange(of: self.focus) { [focus] mf in
+                    if focus?.subtoken == fFocus {
+                        write(comp: timeComponent.wrappedValue)
+                    }
+                    if mf?.subtoken == fFocus {
                         // NOTE: cannot be cached with other string
                         // since may have changed as result of write
                         let current = String(format: "%0\(digits)d", NSCalendar.current.component(comp, from: date.wrappedValue ?? Date.now))
-                        timeBuffer = current
-                        timeComponent = comp
-                        timeSettled = focus
+                        timeBuffer.wrappedValue = current
+                        timeComponent.wrappedValue = comp
+                        timeSettled.wrappedValue = fFocus
                     }
                 }
                 .onDisappear {
-                    if let comp = timeComponent {
+                    if let comp = timeComponent.wrappedValue {
                         write(comp: comp)
                     }
-                    timeComponent = nil
-                    timeBuffer = nil
+                    timeComponent.wrappedValue = nil
+                    timeBuffer.wrappedValue = nil
                 }
                 .onSubmit {
                     write(comp: comp)
                     
-                    self.focus?.subtoken = focus + 1
+                    self.focus?.subtoken = fFocus + 1
                 }
     }
     
-    func dateEditor(_ label: String, date: Binding<Date?>, offset: Int) -> some View {
+    func dateEditor(_ label: String, date: Binding<Date?>, timeBuffer: Binding<String?>, timeComponent: Binding<Calendar.Component?>, timeSettled: Binding<Int>, offset: Int) -> some View {
         HStack {
             #if os(macOS)
             Text(label)
@@ -200,17 +206,17 @@ struct ItemEditor: View {
             
             HStack(spacing: 0) {
                 //YYYY
-                self.field(date: date, focus: 1 + offset, comp: .year)
+                self.field(date: date, timeBuffer: timeBuffer, timeComponent: timeComponent, timeSettled: timeSettled, fFocus: 1 + offset, comp: .year)
                 Text("/")
                     .padding(.leading, 2)
                
                 //MM
-                self.field(date: date, focus: 2 + offset, comp: .month)
+                self.field(date: date, timeBuffer: timeBuffer, timeComponent: timeComponent, timeSettled: timeSettled, fFocus: 2 + offset, comp: .month)
                 Text("/")
                     .padding(.leading, 2)
                
                 //DD
-                self.field(date: date, focus: 3 + offset, comp: .day)
+                self.field(date: date, timeBuffer: timeBuffer, timeComponent: timeComponent, timeSettled: timeSettled, fFocus: 3 + offset, comp: .day)
             }
             .monospaced()
             .blueBackground()
@@ -219,11 +225,11 @@ struct ItemEditor: View {
             
             HStack(spacing: 0) {
                 //HH
-                self.field(date: date, focus: 4 + offset, comp: .hour)
+                self.field(date: date, timeBuffer: timeBuffer, timeComponent: timeComponent, timeSettled: timeSettled, fFocus: 4 + offset, comp: .hour)
                 Text(":")
                 
                 //MM
-                self.field(date: date, focus: 5 + offset, comp: .minute)
+                self.field(date: date, timeBuffer: timeBuffer, timeComponent: timeComponent, timeSettled: timeSettled, fFocus: 5 + offset, comp: .minute)
             }
             .monospaced()
             .blueBackground()
@@ -325,11 +331,11 @@ struct ItemEditor: View {
         HStack {
             VStack {
                 if showingStart {
-                    self.dateEditor("Starts", date: $schemeNode.start, offset: 0)
+                    self.dateEditor("Starts", date: $schemeNode.start, timeBuffer: $startTimeBuffer, timeComponent: $startTimeComponent, timeSettled: $startTimeSettled, offset: 0)
                 }
                 
                 if showingEnd {
-                    self.dateEditor("Ends", date: $schemeNode.end, offset: 16)
+                    self.dateEditor("Ends", date: $schemeNode.end, timeBuffer: $endTimeBuffer, timeComponent: $endTimeComponent, timeSettled: $endTimeSettled, offset: 16)
                 }
                 
                 if showingBlock {
@@ -354,7 +360,7 @@ struct ItemEditor: View {
                 schemeNode.start = $0 ? standardStart() : nil
             }))
             if schemeNode.start != nil {
-                self.dateEditor("Starts", date: $schemeNode.start, offset: 0)
+                self.dateEditor("Starts", date: $schemeNode.start, timeBuffer: $startTimeBuffer, timeComponent: $startTimeComponent, timeSettled: $startTimeSettled, offset: 0)
             }
             
             Toggle("End", isOn: Binding(get: {
@@ -363,7 +369,7 @@ struct ItemEditor: View {
                 schemeNode.end = $0 ? standardEnd() : nil
             }))
             if schemeNode.end != nil {
-                self.dateEditor("Ends", date: $schemeNode.end, offset: 16)
+                self.dateEditor("Ends", date: $schemeNode.end, timeBuffer: $endTimeBuffer, timeComponent: $endTimeComponent, timeSettled: $endTimeSettled, offset: 16)
             }
            
             Toggle("Block", isOn: Binding(get: {
