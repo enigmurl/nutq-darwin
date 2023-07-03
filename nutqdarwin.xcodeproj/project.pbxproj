@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B40160AE2A527ECB002DC32B /* SwiftUIIntrospect in Frameworks */ = {isa = PBXBuildFile; productRef = B40160AD2A527ECB002DC32B /* SwiftUIIntrospect */; };
 		B434A5E12A23D91B001D81E8 /* Nutq.swift in Sources */ = {isa = PBXBuildFile; fileRef = B434A5E02A23D91B001D81E8 /* Nutq.swift */; };
 		B434A5E32A23D91B001D81E8 /* NutqContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B434A5E22A23D91B001D81E8 /* NutqContentView.swift */; };
 		B434A5E52A23D91D001D81E8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B434A5E42A23D91D001D81E8 /* Assets.xcassets */; };
@@ -24,6 +25,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		B40160AB2A5273F3002DC32B /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		B434A5DD2A23D91B001D81E8 /* nutqdarwin.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = nutqdarwin.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B434A5E02A23D91B001D81E8 /* Nutq.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Nutq.swift; sourceTree = "<group>"; };
 		B434A5E22A23D91B001D81E8 /* NutqContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NutqContentView.swift; sourceTree = "<group>"; };
@@ -38,7 +40,7 @@
 		B4754ED72A381E0C00FB26C0 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		B4754EDB2A38F14C00FB26C0 /* Upcoming.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Upcoming.swift; sourceTree = "<group>"; };
 		B4754EDD2A38F38000FB26C0 /* Tree.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tree.swift; sourceTree = "<group>"; };
-		B4754EDF2A3A3A1A00FB26C0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		B4754EDF2A3A3A1A00FB26C0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B4754EE02A3A47D800FB26C0 /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
 		B4754EE22A3E3C3800FB26C0 /* SchemeUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemeUtil.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -48,6 +50,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B40160AE2A527ECB002DC32B /* SwiftUIIntrospect in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -57,7 +60,8 @@
 		B434A5D42A23D91B001D81E8 = {
 			isa = PBXGroup;
 			children = (
-				B434A5DF2A23D91B001D81E8 /* nutqdarwin */,
+				B40160AB2A5273F3002DC32B /* README.md */,
+				B46938732A522CC800143C96 /* nutqdarwin */,
 				B434A5DE2A23D91B001D81E8 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -70,7 +74,15 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		B434A5DF2A23D91B001D81E8 /* nutqdarwin */ = {
+		B434A5E62A23D91D001D81E8 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				B434A5E72A23D91D001D81E8 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		B46938732A522CC800143C96 /* nutqdarwin */ = {
 			isa = PBXGroup;
 			children = (
 				B4D693BE2A37FFAA00E94D23 /* state */,
@@ -85,14 +97,6 @@
 				B434A5E62A23D91D001D81E8 /* Preview Content */,
 			);
 			path = nutqdarwin;
-			sourceTree = "<group>";
-		};
-		B434A5E62A23D91D001D81E8 /* Preview Content */ = {
-			isa = PBXGroup;
-			children = (
-				B434A5E72A23D91D001D81E8 /* Preview Assets.xcassets */,
-			);
-			path = "Preview Content";
 			sourceTree = "<group>";
 		};
 		B4D693BA2A36BBE900E94D23 /* sync */ = {
@@ -141,6 +145,9 @@
 			dependencies = (
 			);
 			name = nutqdarwin;
+			packageProductDependencies = (
+				B40160AD2A527ECB002DC32B /* SwiftUIIntrospect */,
+			);
 			productName = nutqdarwin;
 			productReference = B434A5DD2A23D91B001D81E8 /* nutqdarwin.app */;
 			productType = "com.apple.product-type.application";
@@ -169,6 +176,9 @@
 				Base,
 			);
 			mainGroup = B434A5D42A23D91B001D81E8;
+			packageReferences = (
+				B40160AC2A527ECB002DC32B /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */,
+			);
 			productRefGroup = B434A5DE2A23D91B001D81E8 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -414,6 +424,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		B40160AC2A527ECB002DC32B /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/siteline/SwiftUI-Introspect";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.8.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		B40160AD2A527ECB002DC32B /* SwiftUIIntrospect */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B40160AC2A527ECB002DC32B /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */;
+			productName = SwiftUIIntrospect;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = B434A5D52A23D91B001D81E8 /* Project object */;
 }

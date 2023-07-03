@@ -168,10 +168,10 @@ struct UpcomingAssignment: View {
     func switchState() {
 //        withAnimation {
         if (self.item.state != -1) {
-            self.env.writeBinding(binding: self.item.$state, newValue: -1)
+            self.item.state = -1
         }
         else {
-            self.env.writeBinding(binding: self.item.$state, newValue: 0)
+            self.item.state = 0
         }
 //        }
     }

@@ -28,6 +28,7 @@ struct Union: View {
         .sheet(isPresented: $showingUpcoming) {
             Upcoming(schemes: ($env.schemes).map({$0}))
                 .padding(.top, 20)
+                .presentationDetents([.medium, .large])
         }
         .navigationBarTitleDisplayMode(.inline)
         #endif

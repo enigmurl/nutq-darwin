@@ -16,13 +16,15 @@ struct SidebarLabel: View {
     @State var showingEditingWindow = false
     
     var body: some View {
+        #if os(macOS)
         let undoableScheme = scheme == nil ? nil : Binding(get: {
             scheme!.wrappedValue
         }, set: {
-            if scheme!.wrappedValue != $0 {
-                env.writeBinding(binding: scheme!, newValue: $0)
-            }
+            env.writeBinding(binding: scheme!, newValue: $0)
         })
+        #else
+        let undoableScheme = scheme
+        #endif
         
         NavigationLink {
             if let scheme = undoableScheme {

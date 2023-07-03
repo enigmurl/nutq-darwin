@@ -14,7 +14,6 @@ fileprivate let hourHeight: CGFloat = 40
 fileprivate let timeLegendWidth: CGFloat = 50
 fileprivate let timeLegendYOffset: CGFloat = 12
 
-#warning("TODO auto scrolling is hacky")
 struct TimeLegend: View {
     let proxy: ScrollViewProxy
     
@@ -324,52 +323,56 @@ struct CalendarDay: View {
 }
 
 struct CalendarView: View {
+    @EnvironmentObject var env: EnvState
+    
     let schemes: [Binding<SchemeState>]
     @State var headDate = Date.now
     
     var body: some View {
         GeometryReader { proxy in
-            VStack(spacing: 0) {
-                let count = dayCount(for: proxy.size.width)
-                let days = self.days(count: count)
-                let schemes = self.schemes.flattenEventsInRange(start: days[0].startOfDay(), end: days.last!.startOfDay() + TimeInterval.day, schemeTypes: [.assignment, .event, .reminder])
-                
-                CalendarHeader(days: days)
-
-                ScrollViewReader { scrollProxy in
-                    ScrollView(showsIndicators: false) {
-                        HStack(spacing: 0) {
-                            TimeLegend(proxy: scrollProxy)
-                            
-                            ForEach(days, id: \.self) { day in
-                                Divider()
-                                CalendarDay(day: day, schemes: schemes, isActive: false, isWeekend: true)
-                            }
-                        }
-                    }
-                    #if os(macOS)
-                    .overlay(SwipeViewRepresentable(date: $headDate, displayedDates: count))
-                    #else
-                    .simultaneousGesture(DragGesture()
-                        .onEnded { gesture in
-                            guard abs(gesture.translation.width) > abs(gesture.translation.height) else {
-                                return
-                            }
-                            
-                            if gesture.translation.width < 0 {
-                                withAnimation {
-                                    self.headDate = self.headDate + Double(count) * TimeInterval.day
-                                }
-                            }
-                            else {
-                                withAnimation {
-                                    self.headDate = self.headDate - Double(count) * TimeInterval.day
-                                }
-                            }
-                        }
-                    )
-                    #endif
+            if env.scheme == unionNullUUID {
+                VStack(spacing: 0) {
+                    let count = dayCount(for: proxy.size.width)
+                    let days = self.days(count: count)
+                    let schemes = self.schemes.flattenEventsInRange(start: days[0].startOfDay(), end: days.last!.startOfDay() + TimeInterval.day, schemeTypes: [.assignment, .event, .reminder])
                     
+                    CalendarHeader(days: days)
+                    
+                    ScrollViewReader { scrollProxy in
+                        ScrollView(showsIndicators: false) {
+                            HStack(spacing: 0) {
+                                TimeLegend(proxy: scrollProxy)
+                                
+                                ForEach(days, id: \.self) { day in
+                                    Divider()
+                                    CalendarDay(day: day, schemes: schemes, isActive: false, isWeekend: true)
+                                }
+                            }
+                        }
+#if os(macOS)
+                        .overlay(SwipeViewRepresentable(date: $headDate, displayedDates: count))
+#else
+                        .simultaneousGesture(DragGesture()
+                            .onEnded { gesture in
+                                guard abs(gesture.translation.width) > abs(gesture.translation.height) else {
+                                    return
+                                }
+                                
+                                if gesture.translation.width < 0 {
+                                    withAnimation {
+                                        self.headDate = self.headDate + Double(count) * TimeInterval.day
+                                    }
+                                }
+                                else {
+                                    withAnimation {
+                                        self.headDate = self.headDate - Double(count) * TimeInterval.day
+                                    }
+                                }
+                            }
+                        )
+#endif
+                        
+                    }
                 }
             }
                 

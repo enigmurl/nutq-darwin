@@ -12,8 +12,6 @@ import Combine
 
 let unionNullUUID = UUID(uuidString: "00000000-0000-0000-0000-ffffffffffff")!
 
-
-#warning("TODO, not a big deal but some actions aren't truly undoable (i.e. name/color edits)")
 public class EnvState: ObservableObject {
     var clock: AnyCancellable?
     
@@ -48,14 +46,14 @@ public class EnvState: ObservableObject {
     
     public func writeBinding<T>(binding: Binding<T>, newValue: T) where T: Equatable {
         let oldValue = binding.wrappedValue
-        binding.wrappedValue = newValue
-       
+        
         if oldValue != newValue {
+            binding.wrappedValue = newValue
+            
             undoManager?.registerUndo(withTarget: self, handler: {$0.writeBinding(binding: binding, newValue: oldValue)})
         }
     }
 }
-
 
 public enum MenuAction: CustomStringConvertible {
     case gotoUnion
@@ -64,6 +62,7 @@ public enum MenuAction: CustomStringConvertible {
     
     case indent
     case deindent
+    case delete
     
     case toggleStartView
     case disableStart
@@ -84,6 +83,8 @@ public enum MenuAction: CustomStringConvertible {
             return "Indent"
         case .deindent:
             return "Deindent"
+        case .delete:
+            return "Delete"
         case .toggleStartView:
             return "Toggle Start View"
         case .disableStart:

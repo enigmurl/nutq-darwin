@@ -31,7 +31,7 @@ public let debugSchemes = [
         SchemeItem(state: [1], text: "Example 1", start: .now + 1000, end: .now + 10000, repeats: .none, indentation: 0)
     ]),
     SchemeState(name: "UCSD", colorIndex: 2, schemes: [
-        SchemeItem(state: [Int](repeating: 1, count: 20000), text: "Example 2", start: Date(timeInterval: 1200, since: Date.now - Date.now.timeIntervalSinceReferenceDate), end: Date(timeInterval: 4800, since: Date.now - Date.now.timeIntervalSinceReferenceDate), repeats: SchemeRepeat.block(block: SchemeRepeat.Block(blocks: 10000, remainders: [0, 1], modulus: 7, blockUnit: .day)), indentation: 0),
+        SchemeItem(state: [Int](repeating: 1, count: 200), text: "Example 2", start: Date(timeInterval: 1200, since: Date.now - Date.now.timeIntervalSinceReferenceDate), end: Date(timeInterval: 4800, since: Date.now - Date.now.timeIntervalSinceReferenceDate), repeats: SchemeRepeat.block(block: SchemeRepeat.Block(blocks: 100, remainders: [0, 1], modulus: 7, blockUnit: .day)), indentation: 0),
         SchemeItem(state: [1], text: "Example 3", start: nil, end: .now.startOfDay() + 9000, repeats: .none, indentation: 0)
     ]),
     SchemeState(name: "MaXentric", colorIndex: 3, schemes: [
