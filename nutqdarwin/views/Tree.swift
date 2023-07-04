@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import CodeEditorView
+import LanguageSupport
 
 //not the greatest conventions overall, fix!
 
@@ -749,49 +751,54 @@ struct Tree: View {
         #endif
     }
         
+    @State var text = "hello"
+    @State var position = CodeEditor.Position()
+    @State var messages: Set<Located<Message>> = Set()
+
     var body: some View {
-        // allows standard editing configuration
-        VStack {
-            if env.scheme == scheme.id {
-                ScrollViewReader { reader in
-                    self.hostedContent
-                        .onAppear {
-                            reader.scrollTo(scheme.schemes.count - 1)
-                        }
-                        .onChange(of: scheme.id) { _ in
-                            reader.scrollTo(scheme.schemes.count - 1)
-                        }
-                    
-                }
-                
-                TextField("template", text: $keyBuffer)
-                    .textFieldStyle(.plain)
-                    .padding(6)
-                    .background {
-                        BackgroundView()
-                    }
-                    .shadow(radius: 4)
-                    .padding(10)
-                    .focused($keyFocus, equals: TreeFocusToken(uuid: nil, subtoken: 0))
-                    .onSubmit {
-                        keyFocus = TreeFocusToken(uuid: self.insertNewEditor().id, subtoken: 0)
-                        keyBuffer = ""
-                    }
-            }
-        }
-        .background {
-            Color.clear
-                .onTapGesture {
-                    self.keyFocus = TreeFocusToken(uuid: nil, subtoken: 0)
-                }
-        }
-        #if os(iOS)
-        .onChange(of: buffer) { buff in
-            DispatchQueue.main.async {
-                scheme = buff
-            }
-        }
-        #endif
+        CodeEditor(text: $text, position: $position, messages: $messages)
+//        // allows standard editing configuration
+//        VStack {
+//            if env.scheme == scheme.id {
+//                ScrollViewReader { reader in
+//                    self.hostedContent
+//                        .onAppear {
+//                            reader.scrollTo(scheme.schemes.count - 1)
+//                        }
+//                        .onChange(of: scheme.id) { _ in
+//                            reader.scrollTo(scheme.schemes.count - 1)
+//                        }
+//
+//                }
+//
+//                TextField("template", text: $keyBuffer)
+//                    .textFieldStyle(.plain)
+//                    .padding(6)
+//                    .background {
+//                        BackgroundView()
+//                    }
+//                    .shadow(radius: 4)
+//                    .padding(10)
+//                    .focused($keyFocus, equals: TreeFocusToken(uuid: nil, subtoken: 0))
+//                    .onSubmit {
+//                        keyFocus = TreeFocusToken(uuid: self.insertNewEditor().id, subtoken: 0)
+//                        keyBuffer = ""
+//                    }
+//            }
+//        }
+//        .background {
+//            Color.clear
+//                .onTapGesture {
+//                    self.keyFocus = TreeFocusToken(uuid: nil, subtoken: 0)
+//                }
+//        }
+//        #if os(iOS)
+//        .onChange(of: buffer) { buff in
+//            DispatchQueue.main.async {
+//                scheme = buff
+//            }
+//        }
+//        #endif
     }
 }
 

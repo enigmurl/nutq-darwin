@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B40160B12A532F1E002DC32B /* CodeEditorView in Frameworks */ = {isa = PBXBuildFile; productRef = B40160B02A532F1E002DC32B /* CodeEditorView */; };
+		B40160B32A532F1E002DC32B /* LanguageSupport in Frameworks */ = {isa = PBXBuildFile; productRef = B40160B22A532F1E002DC32B /* LanguageSupport */; };
+		B40160B52A533098002DC32B /* TreeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40160B42A533098002DC32B /* TreeView.swift */; };
 		B434A5E12A23D91B001D81E8 /* Nutq.swift in Sources */ = {isa = PBXBuildFile; fileRef = B434A5E02A23D91B001D81E8 /* Nutq.swift */; };
 		B434A5E32A23D91B001D81E8 /* NutqContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B434A5E22A23D91B001D81E8 /* NutqContentView.swift */; };
 		B434A5E52A23D91D001D81E8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B434A5E42A23D91D001D81E8 /* Assets.xcassets */; };
@@ -25,6 +28,7 @@
 
 /* Begin PBXFileReference section */
 		B40160AB2A5273F3002DC32B /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		B40160B42A533098002DC32B /* TreeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TreeView.swift; sourceTree = "<group>"; };
 		B434A5DD2A23D91B001D81E8 /* nutqdarwin.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = nutqdarwin.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B434A5E02A23D91B001D81E8 /* Nutq.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Nutq.swift; sourceTree = "<group>"; };
 		B434A5E22A23D91B001D81E8 /* NutqContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NutqContentView.swift; sourceTree = "<group>"; };
@@ -49,6 +53,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B40160B32A532F1E002DC32B /* LanguageSupport in Frameworks */,
+				B40160B12A532F1E002DC32B /* CodeEditorView in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -114,6 +120,7 @@
 				B4754EDB2A38F14C00FB26C0 /* Upcoming.swift */,
 				B4754EE02A3A47D800FB26C0 /* CalendarView.swift */,
 				B4754EDD2A38F38000FB26C0 /* Tree.swift */,
+				B40160B42A533098002DC32B /* TreeView.swift */,
 			);
 			path = views;
 			sourceTree = "<group>";
@@ -144,6 +151,8 @@
 			);
 			name = nutqdarwin;
 			packageProductDependencies = (
+				B40160B02A532F1E002DC32B /* CodeEditorView */,
+				B40160B22A532F1E002DC32B /* LanguageSupport */,
 			);
 			productName = nutqdarwin;
 			productReference = B434A5DD2A23D91B001D81E8 /* nutqdarwin.app */;
@@ -174,6 +183,7 @@
 			);
 			mainGroup = B434A5D42A23D91B001D81E8;
 			packageReferences = (
+				B40160AF2A532F1E002DC32B /* XCRemoteSwiftPackageReference "CodeEditorView" */,
 			);
 			productRefGroup = B434A5DE2A23D91B001D81E8 /* Products */;
 			projectDirPath = "";
@@ -202,6 +212,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B40160B52A533098002DC32B /* TreeView.swift in Sources */,
 				B4754ED62A380DC500FB26C0 /* Scheme.swift in Sources */,
 				B434A5E32A23D91B001D81E8 /* NutqContentView.swift in Sources */,
 				B4754ECE2A38019000FB26C0 /* EnvState.swift in Sources */,
@@ -420,6 +431,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		B40160AF2A532F1E002DC32B /* XCRemoteSwiftPackageReference "CodeEditorView" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/mchakravarty/CodeEditorView";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.11.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		B40160B02A532F1E002DC32B /* CodeEditorView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B40160AF2A532F1E002DC32B /* XCRemoteSwiftPackageReference "CodeEditorView" */;
+			productName = CodeEditorView;
+		};
+		B40160B22A532F1E002DC32B /* LanguageSupport */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B40160AF2A532F1E002DC32B /* XCRemoteSwiftPackageReference "CodeEditorView" */;
+			productName = LanguageSupport;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = B434A5D52A23D91B001D81E8 /* Project object */;
 }

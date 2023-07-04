@@ -7,10 +7,22 @@
 
 import SwiftUI
 
-
+#if os(macOS)
+class AppDelegate: NSObject, NSApplicationDelegate {
+    var env: EnvState!
+    
+    func applicationWillTerminate(_ notification: Notification) {
+        env.manager.force()
+    }
+}
+#endif
 
 @main
 struct Nutq: App {
+    #if os(macOS)
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    #endif
+    
     @StateObject private var env = EnvState()
     @StateObject private var commandDispatcher = MenuState()
     
@@ -26,6 +38,11 @@ struct Nutq: App {
             NutqContentView()
                 .environmentObject(env)
                 .environmentObject(commandDispatcher)
+                #if os(macOS)
+                .onAppear {
+                    self.appDelegate.env = env
+                }
+                #endif
         }
         .commands {
             CommandGroup(after: .toolbar) {

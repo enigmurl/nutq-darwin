@@ -12,8 +12,16 @@ import BackgroundTasks
 
 let unionNullUUID = UUID(uuidString: "00000000-0000-0000-0000-ffffffffffff")!
 
+struct Datastore: Codable {
+    let signed: Date
+    var schemes: [SchemeState]
+}
+
 class SystemManager {
     unowned var env: EnvState
+    
+    var loadedFileSchemes: Datastore! // whatever is currently known to be in the file system
+    var loadediCloudSchemes: Datastore?
     
     init(env: EnvState) {
         self.env = env
@@ -49,8 +57,37 @@ class SystemManager {
         // 5. setting up reminders
     }
     
-    func force() {
+    var url: URL! {
+        try? FileManager.default.url(for: .libraryDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
+            .appending(path: "main.nqd")
+    }
+    
+    func loadFileSystem() {
+        defer {
+            self.env.schemes = self.loadedFileSchemes.schemes
+        }
         
+        guard let data = try? Data(contentsOf: self.url) else {
+            NSLog("[SystemManager] loading default schemes")
+            self.loadedFileSchemes = Datastore(signed: .distantPast, schemes: [])
+            return
+        }
+        
+        self.loadedFileSchemes = try! JSONDecoder().decode(Datastore.self, from: data)
+        NSLog("[SystemManager] loaded file system schemes")
+    }
+    
+    func saveFileSystem() {
+        if loadedFileSchemes.schemes != self.env.schemes {
+            loadedFileSchemes = Datastore(signed: .now, schemes: self.env.schemes)
+            let data = try! JSONEncoder().encode(loadedFileSchemes)
+            try! data.write(to: self.url)
+            NSLog("[SystemManager] committing file system save")
+        }
+    }
+    
+    func force() {
+        self.saveFileSystem()
     }
 }
 
@@ -65,10 +102,15 @@ public class EnvState: ObservableObject {
     weak var undoManager: UndoManager?
    
     init() {
+        manager = SystemManager(env: self)
         clock = Timer.publish(every: .minute, on: .main, in: .common)
             .autoconnect()
-            .assign(to: \EnvState.stdTime, on: self)
-        manager = SystemManager(env: self)
+            .sink(receiveValue: { val in
+                self.stdTime = val
+                self.manager.saveFileSystem()
+            })
+
+        self.manager.loadFileSystem()
     }
     
     public func delete(uuid: UUID) {
