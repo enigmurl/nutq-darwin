@@ -20,7 +20,6 @@ struct EditorState {
 class TextView: NSTextView {
     
 }
-#endif
 
 
 struct TreeView: NSViewRepresentable {
@@ -42,3 +41,4 @@ struct TreeView_Previews: PreviewProvider {
         TreeView()
     }
 }
+#endif

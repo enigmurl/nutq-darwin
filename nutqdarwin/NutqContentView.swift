@@ -22,13 +22,6 @@ struct NutqContentView: View {
         .onChange(of: undo) { undo in
             env.undoManager = undo
         }
-        #if os(iOS)
-        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
-            if scenePhase == .background {
-                env.manager.force()
-            }
-        }
-        #endif
     }
 }
 

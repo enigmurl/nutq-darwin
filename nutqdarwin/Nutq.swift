@@ -11,9 +11,19 @@ import SwiftUI
 class AppDelegate: NSObject, NSApplicationDelegate {
     var env: EnvState!
     
-    func applicationWillTerminate(_ notification: Notification) {
-        env.manager.force()
+    
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        env.manager.force {
+            NSApplication.shared.reply(toApplicationShouldTerminate: true)
+        }
+        
+        return .terminateLater
     }
+    
+}
+#else
+class AppDelegate: UIResponder, UIApplicationDelegate {
+    var env: EnvState!
 }
 #endif
 
@@ -21,10 +31,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 struct Nutq: App {
     #if os(macOS)
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    #else
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     #endif
     
     @StateObject private var env = EnvState()
     @StateObject private var commandDispatcher = MenuState()
+    @Environment(\.scenePhase) var phase
     
     func commandMenu(menuAction: MenuAction, key: KeyEquivalent, modifiers: EventModifiers = []) -> some View {
         Button(menuAction.description) {
@@ -38,11 +51,14 @@ struct Nutq: App {
             NutqContentView()
                 .environmentObject(env)
                 .environmentObject(commandDispatcher)
-                #if os(macOS)
                 .onAppear {
                     self.appDelegate.env = env
                 }
-                #endif
+                .onChange(of: phase) { phase in
+                    if phase == .inactive {
+                        self.env.manager.force {}
+                    }
+                }
         }
         .commands {
             CommandGroup(after: .toolbar) {

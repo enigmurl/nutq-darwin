@@ -57,7 +57,7 @@ struct SidebarLabel: View {
             }
         }
         .tag(undoableScheme?.wrappedValue.id ?? unionNullUUID)
-        .swipeActions(allowsFullSwipe: false) {
+        .swipeActions {
             // necessarily iOS
             if scheme != nil {
                 /* role destructive deletes it automatically for some reason */

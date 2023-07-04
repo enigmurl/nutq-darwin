@@ -12,9 +12,99 @@ import BackgroundTasks
 
 let unionNullUUID = UUID(uuidString: "00000000-0000-0000-0000-ffffffffffff")!
 
-struct Datastore: Codable {
-    let signed: Date
-    var schemes: [SchemeState]
+#if os(macOS)
+class Datastore: NSDocument {
+    unowned var env: EnvState
+    var lastSaveCount: Int = 0
+    var modCount: Int = 0
+        
+    init(env: EnvState) {
+        self.env = env
+    }
+   
+    override func data(ofType typeName: String) throws -> Data {
+        NSLog("[Datastore] perform write")
+        return try JSONEncoder().encode(env.schemes)
+    }
+    
+    override func read(from data: Data, ofType typeName: String) throws {
+        NSLog("[Datastore] perform read")
+        self.env.schemes = try JSONDecoder().decode([SchemeState].self, from: data)
+    }
+    
+    func save(_ completion: @escaping () -> ()) {
+        guard self.lastSaveCount < self.modCount else {
+            return
+        }
+        
+        self.lastSaveCount = self.modCount
+        
+        Task.init {
+            try! await self.env.document.save(to: Self.url, ofType: "nqd", for: .saveAsOperation)
+            DispatchQueue.main.async {
+                completion()
+            }
+        }
+    }
+    
+    func load() {
+        try? self.env.document.revert(toContentsOf: Self.url, ofType: "nqd")
+    }
+}
+#else
+class Datastore: UIDocument {
+    unowned var env: EnvState
+    var lastSaveCount: Int = 0
+    var modCount: Int = 0
+    
+    init(env: EnvState) {
+        self.env = env
+        super.init(fileURL: Self.url)
+    }
+   
+    override func contents(forType typeName: String) throws -> Any {
+        NSLog("[Datastore] perform write")
+        return try JSONEncoder().encode(env.schemes)
+    }
+    
+    override func load(fromContents contents: Any, ofType typeName: String?) throws {
+        guard let data = contents as? Data else {
+            throw NSError(domain: "[Datastore]", code: 1)
+        }
+    
+        NSLog("[Datastore] perform read")
+        self.env.schemes = try JSONDecoder().decode([SchemeState].self, from: data)
+    }
+    
+    func save(_ completion: @escaping () -> ()) {
+        guard self.lastSaveCount < self.modCount else {
+            return
+        }
+        
+        self.lastSaveCount = self.modCount
+        
+        Task.init {
+            let res = await self.env.document.save(to: Self.url, for: .forOverwriting)
+            DispatchQueue.main.async {
+                completion()
+            }
+        }
+    }
+    
+    func load() {
+        Task.init {
+            let res = await self.open()
+        }
+    }
+}
+#endif
+
+extension Datastore {
+    class var url: URL! {
+        FileManager.default.url(forUbiquityContainerIdentifier: nil)?.appendingPathComponent("main.nqd")
+    }
+    
+    
 }
 
 class SystemManager {
@@ -25,8 +115,6 @@ class SystemManager {
     
     init(env: EnvState) {
         self.env = env
-        
-//        BGTaskScheduler.shared
     }
     
     func fileSystemSync() {
@@ -36,11 +124,7 @@ class SystemManager {
     func iCloudSync() {
         
     }
-    
-    func googleCalendarPoll() {
-        
-    }
-    
+
     func stateControl() {
         
     }
@@ -57,37 +141,16 @@ class SystemManager {
         // 5. setting up reminders
     }
     
-    var url: URL! {
-        try? FileManager.default.url(for: .libraryDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
-            .appending(path: "main.nqd")
-    }
-    
     func loadFileSystem() {
-        defer {
-            self.env.schemes = self.loadedFileSchemes.schemes
-        }
-        
-        guard let data = try? Data(contentsOf: self.url) else {
-            NSLog("[SystemManager] loading default schemes")
-            self.loadedFileSchemes = Datastore(signed: .distantPast, schemes: [])
-            return
-        }
-        
-        self.loadedFileSchemes = try! JSONDecoder().decode(Datastore.self, from: data)
-        NSLog("[SystemManager] loaded file system schemes")
+        self.env.document.load()
     }
     
-    func saveFileSystem() {
-        if loadedFileSchemes.schemes != self.env.schemes {
-            loadedFileSchemes = Datastore(signed: .now, schemes: self.env.schemes)
-            let data = try! JSONEncoder().encode(loadedFileSchemes)
-            try! data.write(to: self.url)
-            NSLog("[SystemManager] committing file system save")
-        }
+    func saveFileSystem(_ completion: @escaping () -> ()) {
+        self.env.document.save(completion)
     }
     
-    func force() {
-        self.saveFileSystem()
+    func force(_ completion: @escaping () -> ()) {
+        self.saveFileSystem(completion)
     }
 }
 
@@ -96,19 +159,28 @@ public class EnvState: ObservableObject {
     
     @Published var stdTime: Date = .now
     @Published var scheme: UUID? = unionNullUUID
-    @Published var schemes: [SchemeState] = debugSchemes
+    
+    
+    /* doubly buffered */
+    var document: Datastore!
+    @Published var schemes: [SchemeState] = [] {
+        didSet {
+            document.modCount += 1
+        }
+    }
     
     var manager: SystemManager!
     weak var undoManager: UndoManager?
    
     init() {
         manager = SystemManager(env: self)
+        document = Datastore(env: self)
         clock = Timer.publish(every: .minute, on: .main, in: .common)
             .autoconnect()
-            .sink(receiveValue: { val in
-                self.stdTime = val
-                self.manager.saveFileSystem()
-            })
+            .sink { val in
+                self.stdTime = val // makes it so clock position is not out of data
+                self.manager.saveFileSystem({})
+            }
 
         self.manager.loadFileSystem()
     }
@@ -141,7 +213,7 @@ public class EnvState: ObservableObject {
     }
     
     deinit {
-        manager.force()
+        manager.force({})
     }
 }
 
