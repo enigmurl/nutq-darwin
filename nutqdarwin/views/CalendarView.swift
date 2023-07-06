@@ -37,17 +37,6 @@ struct TimeLegend: View {
     }
 }
 
-fileprivate let monthFormatter = {
-    let formatter = DateFormatter()
-    formatter.dateFormat = "MMMM"
-    return formatter
-}()
-
-fileprivate let hourFormatter = {
-    let formatter = DateFormatter()
-    formatter.dateFormat = "HH:mm"
-    return formatter
-}()
 
 struct DayHeader: View {
     let index: Int
@@ -285,6 +274,14 @@ struct CalendarDay: View {
         CalendarEvents(day: day, schemes: filteredSchemes)
     }
     
+    var completedDateOpacity: CGFloat {
+        #if os(macOS)
+        0.075
+        #else
+        0.15
+        #endif
+    }
+    
     var body: some View {
         ZStack(alignment: .top) {
             VStack(spacing: 0) {
@@ -302,7 +299,7 @@ struct CalendarDay: View {
         }
         .padding(.top, timeLegendYOffset)
         .overlay(
-            Color.blue.opacity(0.075)
+            Color.blue.opacity(completedDateOpacity)
                 .frame(height: filledPixels, alignment: .top)
                 .frame(maxHeight: .infinity, alignment: .top)
         )

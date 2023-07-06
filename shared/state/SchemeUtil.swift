@@ -8,23 +8,6 @@
 import Foundation
 import SwiftUI
 
-extension TimeInterval {
-    static var minute: TimeInterval {
-        60
-    }
-    
-    static var hour: TimeInterval {
-        3600
-    }
-    
-    static var day: TimeInterval {
-        86400
-    }
-    
-    static var week: TimeInterval {
-        604800
-    }
-}
 
 public let debugSchemes = [
     SchemeState(name: "Monocurl", colorIndex: 1, schemes: [
@@ -78,6 +61,21 @@ struct SchemeSingularItem: Identifiable {
             return .procedure
         }
     }
+    
+    var dateColor: Color {
+        let time = self.start ?? self.end!
+        // same day
+        if time.dayDifference(with: .now) <= 0 {
+            return Color(red: 1, green: 0.5, blue: 0.5)
+        }
+        else if time.dayDifference(with: .now) <= 1 {
+            return Color(red: 1, green: 0.7, blue: 0.7)
+        }
+        else {
+            return .white
+        }
+    }
+    
 }
 
 /* polymorphism at some point? */

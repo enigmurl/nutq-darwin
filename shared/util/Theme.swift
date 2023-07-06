@@ -58,7 +58,9 @@ struct TagView: View {
                     }
                 }
                 .padding(8)
+                #if os(iOS)
                 .presentationCompactAdaptation(.popover)
+                #endif
             }
     }
 }

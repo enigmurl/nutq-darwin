@@ -15,6 +15,45 @@
 		B434A5E52A23D91D001D81E8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B434A5E42A23D91D001D81E8 /* Assets.xcassets */; };
 		B434A5E82A23D91D001D81E8 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B434A5E72A23D91D001D81E8 /* Preview Assets.xcassets */; };
 		B434A5F02A23DA39001D81E8 /* plan.txt in Resources */ = {isa = PBXBuildFile; fileRef = B434A5EF2A23DA39001D81E8 /* plan.txt */; };
+		B44F47A32A55084E008C8899 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B44F47A22A55084E008C8899 /* WidgetKit.framework */; };
+		B44F47A52A55084E008C8899 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B44F47A42A55084E008C8899 /* SwiftUI.framework */; };
+		B44F47A82A55084E008C8899 /* NutqWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44F47A72A55084E008C8899 /* NutqWidgetBundle.swift */; };
+		B44F47AC2A55084E008C8899 /* UpcomingWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44F47AB2A55084E008C8899 /* UpcomingWidget.swift */; };
+		B44F47AF2A550850008C8899 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B44F47AE2A550850008C8899 /* Assets.xcassets */; };
+		B44F47B12A550850008C8899 /* nutqdarwin_widget.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = B44F47AD2A55084E008C8899 /* nutqdarwin_widget.intentdefinition */; };
+		B44F47B22A550850008C8899 /* nutqdarwin_widget.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = B44F47AD2A55084E008C8899 /* nutqdarwin_widget.intentdefinition */; };
+		B44F47BB2A551045008C8899 /* EnvState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754ECD2A38019000FB26C0 /* EnvState.swift */; };
+		B44F47BC2A551048008C8899 /* SchemeUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754EE22A3E3C3800FB26C0 /* SchemeUtil.swift */; };
+		B44F47BF2A55143E008C8899 /* Time.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44F47BE2A55143E008C8899 /* Time.swift */; };
+		B44F47C02A551447008C8899 /* Time.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44F47BE2A55143E008C8899 /* Time.swift */; };
+		B44F47C72A5536EC008C8899 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B44F47A22A55084E008C8899 /* WidgetKit.framework */; };
+		B44F47C82A5536EC008C8899 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B44F47A42A55084E008C8899 /* SwiftUI.framework */; };
+		B44F47DA2A565197008C8899 /* UpcomingWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44F47AB2A55084E008C8899 /* UpcomingWidget.swift */; };
+		B44F47DB2A5651AF008C8899 /* EnvState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754ECD2A38019000FB26C0 /* EnvState.swift */; };
+		B44F47DC2A5651AF008C8899 /* Time.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44F47BE2A55143E008C8899 /* Time.swift */; };
+		B44F47DD2A5651AF008C8899 /* SchemeUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754EE22A3E3C3800FB26C0 /* SchemeUtil.swift */; };
+		B46D18192A5652D000D886ED /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B44F47AE2A550850008C8899 /* Assets.xcassets */; };
+		B46D181A2A5652D300D886ED /* nutqdarwin_widget.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = B44F47AD2A55084E008C8899 /* nutqdarwin_widget.intentdefinition */; };
+		B46D181B2A5652D900D886ED /* NutqWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44F47A72A55084E008C8899 /* NutqWidgetBundle.swift */; };
+		B46D18252A56546100D886ED /* TreeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40160B42A533098002DC32B /* TreeView.swift */; };
+		B46D18262A56546100D886ED /* Scheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754ED52A380DC500FB26C0 /* Scheme.swift */; };
+		B46D18272A56546100D886ED /* Time.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44F47BE2A55143E008C8899 /* Time.swift */; };
+		B46D18282A56546100D886ED /* NutqContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B434A5E22A23D91B001D81E8 /* NutqContentView.swift */; };
+		B46D18292A56546100D886ED /* EnvState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754ECD2A38019000FB26C0 /* EnvState.swift */; };
+		B46D182A2A56546100D886ED /* Union.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754ED22A380D1C00FB26C0 /* Union.swift */; };
+		B46D182B2A56546100D886ED /* Tree.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754EDD2A38F38000FB26C0 /* Tree.swift */; };
+		B46D182C2A56546100D886ED /* Upcoming.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754EDB2A38F14C00FB26C0 /* Upcoming.swift */; };
+		B46D182D2A56546100D886ED /* Sidebar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754ECF2A38097800FB26C0 /* Sidebar.swift */; };
+		B46D182E2A56546100D886ED /* nutqdarwin_widget.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = B44F47AD2A55084E008C8899 /* nutqdarwin_widget.intentdefinition */; };
+		B46D182F2A56546100D886ED /* SchemeUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754EE22A3E3C3800FB26C0 /* SchemeUtil.swift */; };
+		B46D18302A56546100D886ED /* Nutq.swift in Sources */ = {isa = PBXBuildFile; fileRef = B434A5E02A23D91B001D81E8 /* Nutq.swift */; };
+		B46D18312A56546100D886ED /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754ED72A381E0C00FB26C0 /* Theme.swift */; };
+		B46D18322A56546100D886ED /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754EE02A3A47D800FB26C0 /* CalendarView.swift */; };
+		B46D18342A56546100D886ED /* LanguageSupport in Frameworks */ = {isa = PBXBuildFile; productRef = B46D18232A56546100D886ED /* LanguageSupport */; };
+		B46D18352A56546100D886ED /* CodeEditorView in Frameworks */ = {isa = PBXBuildFile; productRef = B46D18212A56546100D886ED /* CodeEditorView */; };
+		B46D18372A56546100D886ED /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B434A5E72A23D91D001D81E8 /* Preview Assets.xcassets */; };
+		B46D18382A56546100D886ED /* plan.txt in Resources */ = {isa = PBXBuildFile; fileRef = B434A5EF2A23DA39001D81E8 /* plan.txt */; };
+		B46D18392A56546100D886ED /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B434A5E42A23D91D001D81E8 /* Assets.xcassets */; };
 		B4754ECE2A38019000FB26C0 /* EnvState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754ECD2A38019000FB26C0 /* EnvState.swift */; };
 		B4754ED02A38097800FB26C0 /* Sidebar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754ECF2A38097800FB26C0 /* Sidebar.swift */; };
 		B4754ED32A380D1C00FB26C0 /* Union.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754ED22A380D1C00FB26C0 /* Union.swift */; };
@@ -24,18 +63,76 @@
 		B4754EDE2A38F38000FB26C0 /* Tree.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754EDD2A38F38000FB26C0 /* Tree.swift */; };
 		B4754EE12A3A47D800FB26C0 /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754EE02A3A47D800FB26C0 /* CalendarView.swift */; };
 		B4754EE32A3E3C3800FB26C0 /* SchemeUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754EE22A3E3C3800FB26C0 /* SchemeUtil.swift */; };
+		B4A2F82C2A5675140073D472 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754ED72A381E0C00FB26C0 /* Theme.swift */; };
+		B4A2F82D2A5675140073D472 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754ED72A381E0C00FB26C0 /* Theme.swift */; };
+		B4F87EC92A5655F900A6753E /* Nut Q.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B44F47A02A55084E008C8899 /* Nut Q.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		B4F87ECD2A56560100A6753E /* Nut Q.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B44F47C62A5536EC008C8899 /* Nut Q.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		B4F87ECA2A5655F900A6753E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B434A5D52A23D91B001D81E8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B44F479F2A55084E008C8899;
+			remoteInfo = "nutqdarwin-widget (iOS)";
+		};
+		B4F87ECE2A56560100A6753E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B434A5D52A23D91B001D81E8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B44F47C52A5536EC008C8899;
+			remoteInfo = "nutqdarwin-widget (macOS)";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		B4F87ECC2A5655F900A6753E /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				B4F87EC92A5655F900A6753E /* Nut Q.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B4F87ED02A56560100A6753E /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				B4F87ECD2A56560100A6753E /* Nut Q.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		B40160AB2A5273F3002DC32B /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		B40160B42A533098002DC32B /* TreeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TreeView.swift; sourceTree = "<group>"; };
-		B434A5DD2A23D91B001D81E8 /* nutqdarwin.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = nutqdarwin.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B434A5DD2A23D91B001D81E8 /* Nut Q.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Nut Q.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B434A5E02A23D91B001D81E8 /* Nutq.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Nutq.swift; sourceTree = "<group>"; };
 		B434A5E22A23D91B001D81E8 /* NutqContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NutqContentView.swift; sourceTree = "<group>"; };
 		B434A5E42A23D91D001D81E8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B434A5E72A23D91D001D81E8 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		B434A5E92A23D91D001D81E8 /* nutqdarwin.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = nutqdarwin.entitlements; sourceTree = "<group>"; };
 		B434A5EF2A23DA39001D81E8 /* plan.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = plan.txt; sourceTree = "<group>"; };
+		B44F47A02A55084E008C8899 /* Nut Q.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Nut Q.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B44F47A22A55084E008C8899 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		B44F47A42A55084E008C8899 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		B44F47A72A55084E008C8899 /* NutqWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NutqWidgetBundle.swift; sourceTree = "<group>"; };
+		B44F47AB2A55084E008C8899 /* UpcomingWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpcomingWidget.swift; sourceTree = "<group>"; };
+		B44F47AD2A55084E008C8899 /* nutqdarwin_widget.intentdefinition */ = {isa = PBXFileReference; lastKnownFileType = file.intentdefinition; path = nutqdarwin_widget.intentdefinition; sourceTree = "<group>"; };
+		B44F47AE2A550850008C8899 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B44F47B02A550850008C8899 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B44F47BE2A55143E008C8899 /* Time.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Time.swift; sourceTree = "<group>"; };
+		B44F47C12A55181E008C8899 /* nutqdarwin-widgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "nutqdarwin-widgetExtension.entitlements"; sourceTree = "<group>"; };
+		B44F47C62A5536EC008C8899 /* Nut Q.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Nut Q.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B46D18402A56546100D886ED /* Nut Q.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Nut Q.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B4754ECD2A38019000FB26C0 /* EnvState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvState.swift; sourceTree = "<group>"; };
 		B4754ECF2A38097800FB26C0 /* Sidebar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sidebar.swift; sourceTree = "<group>"; };
 		B4754ED22A380D1C00FB26C0 /* Union.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Union.swift; sourceTree = "<group>"; };
@@ -58,6 +155,33 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B44F479D2A55084E008C8899 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B44F47A52A55084E008C8899 /* SwiftUI.framework in Frameworks */,
+				B44F47A32A55084E008C8899 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B44F47C32A5536EC008C8899 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B44F47C82A5536EC008C8899 /* SwiftUI.framework in Frameworks */,
+				B44F47C72A5536EC008C8899 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B46D18332A56546100D886ED /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B46D18342A56546100D886ED /* LanguageSupport in Frameworks */,
+				B46D18352A56546100D886ED /* CodeEditorView in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -65,7 +189,10 @@
 			isa = PBXGroup;
 			children = (
 				B40160AB2A5273F3002DC32B /* README.md */,
+				B44F47BA2A550D8A008C8899 /* shared */,
 				B46938732A522CC800143C96 /* nutqdarwin */,
+				B44F47A62A55084E008C8899 /* nutqdarwin-widget */,
+				B44F47A12A55084E008C8899 /* Frameworks */,
 				B434A5DE2A23D91B001D81E8 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -73,7 +200,10 @@
 		B434A5DE2A23D91B001D81E8 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				B434A5DD2A23D91B001D81E8 /* nutqdarwin.app */,
+				B434A5DD2A23D91B001D81E8 /* Nut Q.app */,
+				B44F47A02A55084E008C8899 /* Nut Q.appex */,
+				B44F47C62A5536EC008C8899 /* Nut Q.appex */,
+				B46D18402A56546100D886ED /* Nut Q.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -86,10 +216,49 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
+		B44F47A12A55084E008C8899 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				B44F47A22A55084E008C8899 /* WidgetKit.framework */,
+				B44F47A42A55084E008C8899 /* SwiftUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		B44F47A62A55084E008C8899 /* nutqdarwin-widget */ = {
+			isa = PBXGroup;
+			children = (
+				B44F47A72A55084E008C8899 /* NutqWidgetBundle.swift */,
+				B44F47AB2A55084E008C8899 /* UpcomingWidget.swift */,
+				B44F47AD2A55084E008C8899 /* nutqdarwin_widget.intentdefinition */,
+				B44F47AE2A550850008C8899 /* Assets.xcassets */,
+				B44F47C12A55181E008C8899 /* nutqdarwin-widgetExtension.entitlements */,
+				B44F47B02A550850008C8899 /* Info.plist */,
+			);
+			path = "nutqdarwin-widget";
+			sourceTree = "<group>";
+		};
+		B44F47BA2A550D8A008C8899 /* shared */ = {
+			isa = PBXGroup;
+			children = (
+				B44F47BD2A551432008C8899 /* util */,
+				B4D693BE2A37FFAA00E94D23 /* state */,
+			);
+			path = shared;
+			sourceTree = "<group>";
+		};
+		B44F47BD2A551432008C8899 /* util */ = {
+			isa = PBXGroup;
+			children = (
+				B4754ED72A381E0C00FB26C0 /* Theme.swift */,
+				B44F47BE2A55143E008C8899 /* Time.swift */,
+			);
+			path = util;
+			sourceTree = "<group>";
+		};
 		B46938732A522CC800143C96 /* nutqdarwin */ = {
 			isa = PBXGroup;
 			children = (
-				B4D693BE2A37FFAA00E94D23 /* state */,
 				B4D693BD2A36CC9400E94D23 /* views */,
 				B4D693BA2A36BBE900E94D23 /* sync */,
 				B434A5EF2A23DA39001D81E8 /* plan.txt */,
@@ -113,7 +282,6 @@
 		B4D693BD2A36CC9400E94D23 /* views */ = {
 			isa = PBXGroup;
 			children = (
-				B4754ED72A381E0C00FB26C0 /* Theme.swift */,
 				B4754ECF2A38097800FB26C0 /* Sidebar.swift */,
 				B4754ED22A380D1C00FB26C0 /* Union.swift */,
 				B4754ED52A380DC500FB26C0 /* Scheme.swift */,
@@ -137,25 +305,84 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		B434A5DC2A23D91B001D81E8 /* nutqdarwin */ = {
+		B434A5DC2A23D91B001D81E8 /* nutqdarwin (macOS) */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = B434A5EC2A23D91D001D81E8 /* Build configuration list for PBXNativeTarget "nutqdarwin" */;
+			buildConfigurationList = B434A5EC2A23D91D001D81E8 /* Build configuration list for PBXNativeTarget "nutqdarwin (macOS)" */;
 			buildPhases = (
 				B434A5D92A23D91B001D81E8 /* Sources */,
 				B434A5DA2A23D91B001D81E8 /* Frameworks */,
 				B434A5DB2A23D91B001D81E8 /* Resources */,
+				B4F87ED02A56560100A6753E /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				B4F87ECF2A56560100A6753E /* PBXTargetDependency */,
 			);
-			name = nutqdarwin;
+			name = "nutqdarwin (macOS)";
 			packageProductDependencies = (
 				B40160B02A532F1E002DC32B /* CodeEditorView */,
 				B40160B22A532F1E002DC32B /* LanguageSupport */,
 			);
 			productName = nutqdarwin;
-			productReference = B434A5DD2A23D91B001D81E8 /* nutqdarwin.app */;
+			productReference = B434A5DD2A23D91B001D81E8 /* Nut Q.app */;
+			productType = "com.apple.product-type.application";
+		};
+		B44F479F2A55084E008C8899 /* nutqdarwin-widget (iOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B44F47B62A550850008C8899 /* Build configuration list for PBXNativeTarget "nutqdarwin-widget (iOS)" */;
+			buildPhases = (
+				B44F479C2A55084E008C8899 /* Sources */,
+				B44F479D2A55084E008C8899 /* Frameworks */,
+				B44F479E2A55084E008C8899 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "nutqdarwin-widget (iOS)";
+			productName = "nutqdarwin-widgetExtension";
+			productReference = B44F47A02A55084E008C8899 /* Nut Q.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		B44F47C52A5536EC008C8899 /* nutqdarwin-widget (macOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B44F47D62A5536ED008C8899 /* Build configuration list for PBXNativeTarget "nutqdarwin-widget (macOS)" */;
+			buildPhases = (
+				B44F47C22A5536EC008C8899 /* Sources */,
+				B44F47C32A5536EC008C8899 /* Frameworks */,
+				B44F47C42A5536EC008C8899 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "nutqdarwin-widget (macOS)";
+			productName = "nutqdarwin-desktop-widgetExtension";
+			productReference = B44F47C62A5536EC008C8899 /* Nut Q.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		B46D181C2A56546100D886ED /* nutqdarwin (iOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B46D183D2A56546100D886ED /* Build configuration list for PBXNativeTarget "nutqdarwin (iOS)" */;
+			buildPhases = (
+				B46D18242A56546100D886ED /* Sources */,
+				B46D18332A56546100D886ED /* Frameworks */,
+				B46D18362A56546100D886ED /* Resources */,
+				B4F87ECC2A5655F900A6753E /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B4F87ECB2A5655F900A6753E /* PBXTargetDependency */,
+			);
+			name = "nutqdarwin (iOS)";
+			packageProductDependencies = (
+				B46D18212A56546100D886ED /* CodeEditorView */,
+				B46D18232A56546100D886ED /* LanguageSupport */,
+			);
+			productName = nutqdarwin;
+			productReference = B46D18402A56546100D886ED /* Nut Q.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -170,6 +397,12 @@
 				TargetAttributes = {
 					B434A5DC2A23D91B001D81E8 = {
 						CreatedOnToolsVersion = 14.3;
+					};
+					B44F479F2A55084E008C8899 = {
+						CreatedOnToolsVersion = 14.3.1;
+					};
+					B44F47C52A5536EC008C8899 = {
+						CreatedOnToolsVersion = 14.3.1;
 					};
 				};
 			};
@@ -189,7 +422,10 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				B434A5DC2A23D91B001D81E8 /* nutqdarwin */,
+				B434A5DC2A23D91B001D81E8 /* nutqdarwin (macOS) */,
+				B46D181C2A56546100D886ED /* nutqdarwin (iOS) */,
+				B44F479F2A55084E008C8899 /* nutqdarwin-widget (iOS) */,
+				B44F47C52A5536EC008C8899 /* nutqdarwin-widget (macOS) */,
 			);
 		};
 /* End PBXProject section */
@@ -205,6 +441,32 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B44F479E2A55084E008C8899 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B44F47AF2A550850008C8899 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B44F47C42A5536EC008C8899 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B46D18192A5652D000D886ED /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B46D18362A56546100D886ED /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B46D18372A56546100D886ED /* Preview Assets.xcassets in Resources */,
+				B46D18382A56546100D886ED /* plan.txt in Resources */,
+				B46D18392A56546100D886ED /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -214,12 +476,14 @@
 			files = (
 				B40160B52A533098002DC32B /* TreeView.swift in Sources */,
 				B4754ED62A380DC500FB26C0 /* Scheme.swift in Sources */,
+				B44F47BF2A55143E008C8899 /* Time.swift in Sources */,
 				B434A5E32A23D91B001D81E8 /* NutqContentView.swift in Sources */,
 				B4754ECE2A38019000FB26C0 /* EnvState.swift in Sources */,
 				B4754ED32A380D1C00FB26C0 /* Union.swift in Sources */,
 				B4754EDE2A38F38000FB26C0 /* Tree.swift in Sources */,
 				B4754EDC2A38F14C00FB26C0 /* Upcoming.swift in Sources */,
 				B4754ED02A38097800FB26C0 /* Sidebar.swift in Sources */,
+				B44F47B22A550850008C8899 /* nutqdarwin_widget.intentdefinition in Sources */,
 				B4754EE32A3E3C3800FB26C0 /* SchemeUtil.swift in Sources */,
 				B434A5E12A23D91B001D81E8 /* Nutq.swift in Sources */,
 				B4754ED82A381E0C00FB26C0 /* Theme.swift in Sources */,
@@ -227,7 +491,69 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B44F479C2A55084E008C8899 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B44F47A82A55084E008C8899 /* NutqWidgetBundle.swift in Sources */,
+				B44F47C02A551447008C8899 /* Time.swift in Sources */,
+				B44F47BC2A551048008C8899 /* SchemeUtil.swift in Sources */,
+				B44F47BB2A551045008C8899 /* EnvState.swift in Sources */,
+				B44F47AC2A55084E008C8899 /* UpcomingWidget.swift in Sources */,
+				B44F47B12A550850008C8899 /* nutqdarwin_widget.intentdefinition in Sources */,
+				B4A2F82C2A5675140073D472 /* Theme.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B44F47C22A5536EC008C8899 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B44F47DA2A565197008C8899 /* UpcomingWidget.swift in Sources */,
+				B44F47DD2A5651AF008C8899 /* SchemeUtil.swift in Sources */,
+				B44F47DC2A5651AF008C8899 /* Time.swift in Sources */,
+				B44F47DB2A5651AF008C8899 /* EnvState.swift in Sources */,
+				B46D181A2A5652D300D886ED /* nutqdarwin_widget.intentdefinition in Sources */,
+				B46D181B2A5652D900D886ED /* NutqWidgetBundle.swift in Sources */,
+				B4A2F82D2A5675140073D472 /* Theme.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B46D18242A56546100D886ED /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B46D18252A56546100D886ED /* TreeView.swift in Sources */,
+				B46D18262A56546100D886ED /* Scheme.swift in Sources */,
+				B46D18272A56546100D886ED /* Time.swift in Sources */,
+				B46D18282A56546100D886ED /* NutqContentView.swift in Sources */,
+				B46D18292A56546100D886ED /* EnvState.swift in Sources */,
+				B46D182A2A56546100D886ED /* Union.swift in Sources */,
+				B46D182B2A56546100D886ED /* Tree.swift in Sources */,
+				B46D182C2A56546100D886ED /* Upcoming.swift in Sources */,
+				B46D182D2A56546100D886ED /* Sidebar.swift in Sources */,
+				B46D182E2A56546100D886ED /* nutqdarwin_widget.intentdefinition in Sources */,
+				B46D182F2A56546100D886ED /* SchemeUtil.swift in Sources */,
+				B46D18302A56546100D886ED /* Nutq.swift in Sources */,
+				B46D18312A56546100D886ED /* Theme.swift in Sources */,
+				B46D18322A56546100D886ED /* CalendarView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		B4F87ECB2A5655F900A6753E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B44F479F2A55084E008C8899 /* nutqdarwin-widget (iOS) */;
+			targetProxy = B4F87ECA2A5655F900A6753E /* PBXContainerItemProxy */;
+		};
+		B4F87ECF2A56560100A6753E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B44F47C52A5536EC008C8899 /* nutqdarwin-widget (macOS) */;
+			targetProxy = B4F87ECE2A56560100A6753E /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		B434A5EA2A23D91D001D81E8 /* Debug */ = {
@@ -358,21 +684,23 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = nutqdarwin/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Nut Q";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 13.3;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.enigmadux.nutqdarwin;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				PRODUCT_NAME = "Nut Q";
+				SUPPORTED_PLATFORMS = macosx;
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -391,16 +719,211 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = nutqdarwin/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Nut Q";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.3;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.enigmadux.nutqdarwin;
+				PRODUCT_NAME = "Nut Q";
+				SUPPORTED_PLATFORMS = macosx;
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		B44F47B72A550850008C8899 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = "nutqdarwin-widget/nutqdarwin-widgetExtension.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = T35KD9JHQ6;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "nutqdarwin-widget/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Nut Q";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.enigmadux.nutqdarwin.widget;
+				PRODUCT_NAME = "Nut Q";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		B44F47B82A550850008C8899 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = "nutqdarwin-widget/nutqdarwin-widgetExtension.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = T35KD9JHQ6;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "nutqdarwin-widget/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Nut Q";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.enigmadux.nutqdarwin.widget;
+				PRODUCT_NAME = "Nut Q";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		B44F47D72A5536ED008C8899 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = "nutqdarwin-widget/nutqdarwin-widgetExtension.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = T35KD9JHQ6;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "nutqdarwin-widget/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Nut Q";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.3;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.enigmadux.nutqdarwin.widget;
+				PRODUCT_NAME = "Nut Q";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		B44F47D82A5536ED008C8899 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = "nutqdarwin-widget/nutqdarwin-widgetExtension.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = T35KD9JHQ6;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "nutqdarwin-widget/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "Nut Q";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.3;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.enigmadux.nutqdarwin.widget;
+				PRODUCT_NAME = "Nut Q";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		B46D183E2A56546100D886ED /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = nutqdarwin/nutqdarwin.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"nutqdarwin/Preview Content\"";
+				DEVELOPMENT_TEAM = T35KD9JHQ6;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = nutqdarwin/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Nut Q";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.enigmadux.nutqdarwin;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				PRODUCT_NAME = "Nut Q";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		B46D183F2A56546100D886ED /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = nutqdarwin/nutqdarwin.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"nutqdarwin/Preview Content\"";
+				DEVELOPMENT_TEAM = T35KD9JHQ6;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = nutqdarwin/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Nut Q";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.enigmadux.nutqdarwin;
+				PRODUCT_NAME = "Nut Q";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -421,7 +944,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		B434A5EC2A23D91D001D81E8 /* Build configuration list for PBXNativeTarget "nutqdarwin" */ = {
+		B434A5EC2A23D91D001D81E8 /* Build configuration list for PBXNativeTarget "nutqdarwin (macOS)" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B434A5ED2A23D91D001D81E8 /* Debug */,
@@ -430,10 +953,45 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		B44F47B62A550850008C8899 /* Build configuration list for PBXNativeTarget "nutqdarwin-widget (iOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B44F47B72A550850008C8899 /* Debug */,
+				B44F47B82A550850008C8899 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B44F47D62A5536ED008C8899 /* Build configuration list for PBXNativeTarget "nutqdarwin-widget (macOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B44F47D72A5536ED008C8899 /* Debug */,
+				B44F47D82A5536ED008C8899 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B46D183D2A56546100D886ED /* Build configuration list for PBXNativeTarget "nutqdarwin (iOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B46D183E2A56546100D886ED /* Debug */,
+				B46D183F2A56546100D886ED /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
 		B40160AF2A532F1E002DC32B /* XCRemoteSwiftPackageReference "CodeEditorView" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/mchakravarty/CodeEditorView";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.11.0;
+			};
+		};
+		B46D18222A56546100D886ED /* XCRemoteSwiftPackageReference "CodeEditorView" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/mchakravarty/CodeEditorView";
 			requirement = {
@@ -452,6 +1010,16 @@
 		B40160B22A532F1E002DC32B /* LanguageSupport */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = B40160AF2A532F1E002DC32B /* XCRemoteSwiftPackageReference "CodeEditorView" */;
+			productName = LanguageSupport;
+		};
+		B46D18212A56546100D886ED /* CodeEditorView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B46D18222A56546100D886ED /* XCRemoteSwiftPackageReference "CodeEditorView" */;
+			productName = CodeEditorView;
+		};
+		B46D18232A56546100D886ED /* LanguageSupport */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B46D18222A56546100D886ED /* XCRemoteSwiftPackageReference "CodeEditorView" */;
 			productName = LanguageSupport;
 		};
 /* End XCSwiftPackageProductDependency section */

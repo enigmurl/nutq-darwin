@@ -24,6 +24,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 #else
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var env: EnvState!
+    
+    func applicationWillEnterForeground(_ application: UIApplication) {
+    }
+    
+    func applicationDidEnterBackground(_ application: UIApplication) {
+        NSFileCoordinator.removeFilePresenter(env.document)
+    }
 }
 #endif
 

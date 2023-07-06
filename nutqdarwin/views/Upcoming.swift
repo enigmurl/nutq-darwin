@@ -7,66 +7,6 @@
 
 import SwiftUI
 
-fileprivate let dayFormatter = {
-    let dayFormatter = DateFormatter()
-    dayFormatter.dateFormat = "MMMM dd"
-    return dayFormatter
-}()
-
-fileprivate let weekFormatter = {
-    let weekFormatter = DateFormatter()
-    weekFormatter.dateFormat = "EEEE"
-    return weekFormatter
-}()
-
-fileprivate let timeFormatter = {
-    let timeFormatter = DateFormatter()
-    timeFormatter.dateFormat = "HH:mm"
-    return timeFormatter
-}()
-
-// a bit redundant, but should be fine
-extension Date {
-    var dateString: String {
-        let diff = dayDifference(with: .now)
-        
-        let day: String
-        if diff == 0 {
-            day = "Today"
-        }
-        else if diff == 1 {
-            day = "Tomorrow"
-        }
-        else if diff < 7 {
-            day = weekFormatter.string(from: self)
-        }
-        else {
-            day = dayFormatter.string(from: self)
-        }
-        
-        let time = timeFormatter.string(from: self)
-        
-        return day + " " + time
-    }
-    
-    var timeString: String {
-        timeFormatter.string(from: self)
-    }
-    
-    // time interval starts at midnight
-    func dayDifference(with date: Date) -> Int {
-        let cal = NSCalendar.current
-        let ourStart = cal.startOfDay(for: self)
-        let theirStart = cal.startOfDay(for: date)
-        
-        return Int(ourStart.timeIntervalSince(theirStart) / .day)
-    }
-    
-    func startOfDay() -> Date {
-        NSCalendar.current.startOfDay(for: self)
-    }
-}
-
 struct UpcomingAssignment: View {
     @EnvironmentObject var env: EnvState
     let item: SchemeSingularItem
@@ -76,20 +16,6 @@ struct UpcomingAssignment: View {
             return .gray
         }
         return colorIndexToColor(item.colorIndex)
-    }
-    
-    var dateColor: Color {
-        let time = self.item.start ?? self.item.end!
-        // same day
-        if time.dayDifference(with: .now) <= 0 {
-            return Color(red: 1, green: 0.5, blue: 0.5)
-        }
-        else if time.dayDifference(with: .now) <= 1 {
-            return Color(red: 1, green: 0.7, blue: 0.7)
-        }
-        else {
-            return .white
-        }
     }
     
     var dateString: some View {
@@ -113,8 +39,9 @@ struct UpcomingAssignment: View {
                 }
             }
             .font(.caption2.monospaced())
+            .multilineTextAlignment(.trailing)
             .bold()
-            .foregroundColor(self.dateColor)
+            .foregroundColor(self.item.dateColor)
             
             Spacer()
         }

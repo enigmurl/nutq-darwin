@@ -63,14 +63,7 @@ fileprivate extension View {
             }
     }
 }
-//use march since it has 31 days, some date in the past
-fileprivate let referenceDate = {
-    let dateFormatter = DateFormatter()
-    dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
-    dateFormatter.timeZone = TimeZone.current
-    dateFormatter.locale = Locale.current
-    return dateFormatter.date(from: "2000-03-14T12:00:00")!
-}()
+
 
 fileprivate let digitMap: [Calendar.Component: Int] = [.minute: 2, .hour: 2, .day: 2, .month: 2, .year: 4]
 fileprivate let minMap: [Calendar.Component: Int] = [.minute: 0, .hour: 0, .day: 1, .month: 1, .year: 1]
@@ -747,7 +740,6 @@ struct Tree: View {
         List {
             content
         }
-//        .listStyle(.plain)
         #endif
     }
         
@@ -756,49 +748,49 @@ struct Tree: View {
     @State var messages: Set<Located<Message>> = Set()
 
     var body: some View {
-        CodeEditor(text: $text, position: $position, messages: $messages)
-//        // allows standard editing configuration
-//        VStack {
-//            if env.scheme == scheme.id {
-//                ScrollViewReader { reader in
-//                    self.hostedContent
-//                        .onAppear {
-//                            reader.scrollTo(scheme.schemes.count - 1)
-//                        }
-//                        .onChange(of: scheme.id) { _ in
-//                            reader.scrollTo(scheme.schemes.count - 1)
-//                        }
-//
-//                }
-//
-//                TextField("template", text: $keyBuffer)
-//                    .textFieldStyle(.plain)
-//                    .padding(6)
-//                    .background {
-//                        BackgroundView()
-//                    }
-//                    .shadow(radius: 4)
-//                    .padding(10)
-//                    .focused($keyFocus, equals: TreeFocusToken(uuid: nil, subtoken: 0))
-//                    .onSubmit {
-//                        keyFocus = TreeFocusToken(uuid: self.insertNewEditor().id, subtoken: 0)
-//                        keyBuffer = ""
-//                    }
-//            }
-//        }
-//        .background {
-//            Color.clear
-//                .onTapGesture {
-//                    self.keyFocus = TreeFocusToken(uuid: nil, subtoken: 0)
-//                }
-//        }
-//        #if os(iOS)
-//        .onChange(of: buffer) { buff in
-//            DispatchQueue.main.async {
-//                scheme = buff
-//            }
-//        }
-//        #endif
+//        CodeEditor(text: $text, position: $position, messages: $messages)
+        // allows standard editing configuration
+        VStack {
+            if env.scheme == scheme.id {
+                ScrollViewReader { reader in
+                    self.hostedContent
+                        .onAppear {
+                            reader.scrollTo(scheme.schemes.count - 1)
+                        }
+                        .onChange(of: scheme.id) { _ in
+                            reader.scrollTo(scheme.schemes.count - 1)
+                        }
+
+                }
+
+                TextField("template", text: $keyBuffer)
+                    .textFieldStyle(.plain)
+                    .padding(6)
+                    .background {
+                        BackgroundView()
+                    }
+                    .shadow(radius: 4)
+                    .padding(10)
+                    .focused($keyFocus, equals: TreeFocusToken(uuid: nil, subtoken: 0))
+                    .onSubmit {
+                        keyFocus = TreeFocusToken(uuid: self.insertNewEditor().id, subtoken: 0)
+                        keyBuffer = ""
+                    }
+            }
+        }
+        .background {
+            Color.clear
+                .onTapGesture {
+                    self.keyFocus = TreeFocusToken(uuid: nil, subtoken: 0)
+                }
+        }
+        #if os(iOS)
+        .onChange(of: buffer) { buff in
+            DispatchQueue.main.async {
+                scheme = buff
+            }
+        }
+        #endif
     }
 }
 

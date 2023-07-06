@@ -115,6 +115,7 @@ struct Sidebar: View {
             .frame(maxWidth: .infinity)
         }
         .listStyle(.sidebar)
+        .frame(minWidth: 175)
         #if os(macOS)
         .onDeleteCommand {
             if self.env.scheme != unionNullUUID {
