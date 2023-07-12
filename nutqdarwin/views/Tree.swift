@@ -443,7 +443,6 @@ struct ItemEditor: View {
         showingBlock = false
     }
     
-    @State var test = ""
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 5) {
