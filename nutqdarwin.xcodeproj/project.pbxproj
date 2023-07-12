@@ -7,9 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B40160B12A532F1E002DC32B /* CodeEditorView in Frameworks */ = {isa = PBXBuildFile; productRef = B40160B02A532F1E002DC32B /* CodeEditorView */; };
-		B40160B32A532F1E002DC32B /* LanguageSupport in Frameworks */ = {isa = PBXBuildFile; productRef = B40160B22A532F1E002DC32B /* LanguageSupport */; };
-		B40160B52A533098002DC32B /* TreeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40160B42A533098002DC32B /* TreeView.swift */; };
 		B434A5E12A23D91B001D81E8 /* Nutq.swift in Sources */ = {isa = PBXBuildFile; fileRef = B434A5E02A23D91B001D81E8 /* Nutq.swift */; };
 		B434A5E32A23D91B001D81E8 /* NutqContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B434A5E22A23D91B001D81E8 /* NutqContentView.swift */; };
 		B434A5E52A23D91D001D81E8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B434A5E42A23D91D001D81E8 /* Assets.xcassets */; };
@@ -51,7 +48,6 @@
 		B46D18192A5652D000D886ED /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B44F47AE2A550850008C8899 /* Assets.xcassets */; };
 		B46D181A2A5652D300D886ED /* nutqdarwin_widget.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = B44F47AD2A55084E008C8899 /* nutqdarwin_widget.intentdefinition */; };
 		B46D181B2A5652D900D886ED /* NutqWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44F47A72A55084E008C8899 /* NutqWidgetBundle.swift */; };
-		B46D18252A56546100D886ED /* TreeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40160B42A533098002DC32B /* TreeView.swift */; };
 		B46D18262A56546100D886ED /* Scheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754ED52A380DC500FB26C0 /* Scheme.swift */; };
 		B46D18272A56546100D886ED /* Time.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44F47BE2A55143E008C8899 /* Time.swift */; };
 		B46D18282A56546100D886ED /* NutqContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B434A5E22A23D91B001D81E8 /* NutqContentView.swift */; };
@@ -128,7 +124,6 @@
 
 /* Begin PBXFileReference section */
 		B40160AB2A5273F3002DC32B /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		B40160B42A533098002DC32B /* TreeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TreeView.swift; sourceTree = "<group>"; };
 		B434A5DD2A23D91B001D81E8 /* Nut Q.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Nut Q.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B434A5E02A23D91B001D81E8 /* Nutq.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Nutq.swift; sourceTree = "<group>"; };
 		B434A5E22A23D91B001D81E8 /* NutqContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NutqContentView.swift; sourceTree = "<group>"; };
@@ -167,8 +162,6 @@
 				B4415F082A5922D000725B22 /* GTMSessionFetcherCore in Frameworks */,
 				B4415F062A5922D000725B22 /* GTMSessionFetcher in Frameworks */,
 				B4415EEC2A57D5A200725B22 /* GoogleAPIClientForRESTCore in Frameworks */,
-				B40160B32A532F1E002DC32B /* LanguageSupport in Frameworks */,
-				B40160B12A532F1E002DC32B /* CodeEditorView in Frameworks */,
 				B4415F0A2A5922D000725B22 /* GTMSessionFetcherFull in Frameworks */,
 				B4415EE72A57D22100725B22 /* GoogleSignIn in Frameworks */,
 				B4415F182A59255E00725B22 /* GoogleAPIClientForREST_Calendar in Frameworks */,
@@ -318,7 +311,6 @@
 				B4754EDB2A38F14C00FB26C0 /* Upcoming.swift */,
 				B4754EE02A3A47D800FB26C0 /* CalendarView.swift */,
 				B4754EDD2A38F38000FB26C0 /* Tree.swift */,
-				B40160B42A533098002DC32B /* TreeView.swift */,
 			);
 			path = views;
 			sourceTree = "<group>";
@@ -351,8 +343,6 @@
 			);
 			name = "nutqdarwin (macOS)";
 			packageProductDependencies = (
-				B40160B02A532F1E002DC32B /* CodeEditorView */,
-				B40160B22A532F1E002DC32B /* LanguageSupport */,
 				B4415EE62A57D22100725B22 /* GoogleSignIn */,
 				B4415EE82A57D22100725B22 /* GoogleSignInSwift */,
 				B4415EEB2A57D5A200725B22 /* GoogleAPIClientForRESTCore */,
@@ -467,7 +457,6 @@
 			);
 			mainGroup = B434A5D42A23D91B001D81E8;
 			packageReferences = (
-				B40160AF2A532F1E002DC32B /* XCRemoteSwiftPackageReference "CodeEditorView" */,
 				B4415EE52A57D22100725B22 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 				B4415EEA2A57D5A200725B22 /* XCRemoteSwiftPackageReference "google-api-objectivec-client-for-rest" */,
 				B4415F042A5922D000725B22 /* XCRemoteSwiftPackageReference "gtm-session-fetcher" */,
@@ -526,7 +515,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B40160B52A533098002DC32B /* TreeView.swift in Sources */,
 				B4754ED62A380DC500FB26C0 /* Scheme.swift in Sources */,
 				B44F47BF2A55143E008C8899 /* Time.swift in Sources */,
 				B434A5E32A23D91B001D81E8 /* NutqContentView.swift in Sources */,
@@ -575,7 +563,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B46D18252A56546100D886ED /* TreeView.swift in Sources */,
 				B46D18262A56546100D886ED /* Scheme.swift in Sources */,
 				B46D18272A56546100D886ED /* Time.swift in Sources */,
 				B46D18282A56546100D886ED /* NutqContentView.swift in Sources */,
@@ -1037,14 +1024,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		B40160AF2A532F1E002DC32B /* XCRemoteSwiftPackageReference "CodeEditorView" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/mchakravarty/CodeEditorView";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.11.0;
-			};
-		};
 		B4415EE52A57D22100725B22 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
@@ -1080,16 +1059,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		B40160B02A532F1E002DC32B /* CodeEditorView */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B40160AF2A532F1E002DC32B /* XCRemoteSwiftPackageReference "CodeEditorView" */;
-			productName = CodeEditorView;
-		};
-		B40160B22A532F1E002DC32B /* LanguageSupport */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B40160AF2A532F1E002DC32B /* XCRemoteSwiftPackageReference "CodeEditorView" */;
-			productName = LanguageSupport;
-		};
 		B4415EE62A57D22100725B22 /* GoogleSignIn */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = B4415EE52A57D22100725B22 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;

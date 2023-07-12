@@ -232,7 +232,15 @@ struct ItemEditor: View {
         }
         .textFieldStyle(.plain)
         .onAppear {
-            self.focus?.subtoken = 3
+            DispatchQueue.main.async {
+                self.focus?.subtoken = 3 + offset
+            }
+        }
+        .onChange(of: offset) { offset in
+            self.focus?.subtoken = 3 + offset
+        }
+        .onDisappear {
+            self.focus?.subtoken = 0
         }
     }
    
@@ -301,7 +309,9 @@ struct ItemEditor: View {
             .textFieldStyle(.plain)
             .multilineTextAlignment(.trailing)
             .onAppear {
-                self.focus?.subtoken = 1
+                DispatchQueue.main.async {
+                    self.focus?.subtoken = 1 + offset
+                }
                 blockBuffer = blockBinding.wrappedValue.remainders
                     .map { String($0)}
                     .joined(separator: ",")
@@ -315,6 +325,7 @@ struct ItemEditor: View {
                             .map { min(blockBinding.wrappedValue.modulus - 1, max(Int($0) ?? 0, 0)) }
                     )).sorted()
                 }
+                self.focus?.subtoken = 0
             }
             .onSubmit {
                 self.focus?.subtoken = 0
@@ -331,11 +342,11 @@ struct ItemEditor: View {
                 }
                 
                 if showingEnd {
-                    self.dateEditor("Ends", date: $schemeNode.end, timeBuffer: $endTimeBuffer, timeComponent: $endTimeComponent, timeSettled: $endTimeSettled, offset: 16)
+                    self.dateEditor("Ends", date: $schemeNode.end, timeBuffer: $endTimeBuffer, timeComponent: $endTimeComponent, timeSettled: $endTimeSettled, offset: 0)
                 }
                 
                 if showingBlock {
-                    self.blockEditor("Block Repeat", schemeRepeat: $schemeNode.repeats, offset: 32)
+                    self.blockEditor("Block Repeat", schemeRepeat: $schemeNode.repeats, offset: 0)
                 }
             }
             .padding(6)
@@ -507,11 +518,11 @@ struct ItemEditor: View {
                     .onTapGesture {
                         self.focus = TreeFocusToken(uuid: schemeNode.id, subtoken: 0)
                     }
-
             }
+           
             
             #if os(macOS)
-            if self.anyModifiers && focus?.uuid == self.schemeNode.id {
+            if self.anyModifiers {
                 Color.clear
                     .frame(maxHeight: 0)
                     .overlay(alignment: .top) {
