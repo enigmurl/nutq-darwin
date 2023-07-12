@@ -76,7 +76,6 @@ struct Nutq: App {
                 }
                 
                 Group {
-                    self.commandMenu(menuAction: .delete, key: .delete)
                     self.commandMenu(menuAction: .deindent, key: "[")
                     self.commandMenu(menuAction: .indent, key: "]")
                 }

@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import GoogleSignIn
+import GoogleAPIClientForRESTCore
 
 
 struct Union: View {
@@ -31,6 +33,10 @@ struct Union: View {
                 .presentationDetents([.medium, .large])
         }
         .navigationBarTitleDisplayMode(.inline)
+        #else
+        .onAppear {
+            env.startup()
+        }
         #endif
         .toolbar {
             ToolbarItem(placement:. principal) {
@@ -49,6 +55,18 @@ struct Union: View {
             ToolbarItem {
                 Button("Soon") {
                     showingUpcoming = true
+                }
+            }
+            #else
+            ToolbarItem(placement: .navigation) {
+                Button(GIDSignIn.sharedInstance.currentUser?.profile?.email ?? "Add G-Sync") {
+                    guard let window = NSApplication.shared.keyWindow else {
+                        return
+                    }
+                  
+                    GIDSignIn.sharedInstance.signIn(withPresenting: window, hint: nil, additionalScopes:  ["https://www.googleapis.com/auth/calendar.readonly", "https://www.googleapis.com/auth/calendar.events"]) { result, error in
+                        
+                    }
                 }
             }
             #endif

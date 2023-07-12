@@ -28,7 +28,7 @@ struct Scheme: View {
     }
     
     var body: some View {
-        HStack {
+        HStack(spacing: 0) {
             #if os(macOS)
                 Upcoming(schemes: [$scheme])
                 Divider()
@@ -50,10 +50,27 @@ struct Scheme: View {
                     Text(scheme.name)
                         .font(.headline)
                 }
-                #if os(macOS)
-                .frame(width: 140, alignment: .leading)
-                #endif
+#if os(macOS)
+                .frame(minWidth: 140, alignment: .leading)
+#endif
             }
+            
+            #if os(macOS)
+            ToolbarItem(placement: .navigation) {
+                Button(scheme.syncsToGsync ? "unset gsync" : "set gsync") {
+                    if scheme.syncsToGsync {
+                        scheme.syncsToGsync = false
+                    }
+                    else {
+                        for i in 0 ..< env.schemes.count {
+                            env.schemes[i].syncsToGsync = false
+                        }
+                        
+                        scheme.syncsToGsync = true
+                    }
+                }
+            }
+            #endif
         }
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)

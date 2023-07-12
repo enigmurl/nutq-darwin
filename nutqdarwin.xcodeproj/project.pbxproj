@@ -14,7 +14,23 @@
 		B434A5E32A23D91B001D81E8 /* NutqContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B434A5E22A23D91B001D81E8 /* NutqContentView.swift */; };
 		B434A5E52A23D91D001D81E8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B434A5E42A23D91D001D81E8 /* Assets.xcassets */; };
 		B434A5E82A23D91D001D81E8 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B434A5E72A23D91D001D81E8 /* Preview Assets.xcassets */; };
-		B434A5F02A23DA39001D81E8 /* plan.txt in Resources */ = {isa = PBXBuildFile; fileRef = B434A5EF2A23DA39001D81E8 /* plan.txt */; };
+		B4415EE72A57D22100725B22 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = B4415EE62A57D22100725B22 /* GoogleSignIn */; };
+		B4415EE92A57D22100725B22 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B4415EE82A57D22100725B22 /* GoogleSignInSwift */; };
+		B4415EEC2A57D5A200725B22 /* GoogleAPIClientForRESTCore in Frameworks */ = {isa = PBXBuildFile; productRef = B4415EEB2A57D5A200725B22 /* GoogleAPIClientForRESTCore */; };
+		B4415EF12A59206700725B22 /* GoogleAPIClientForREST_Calendar in Frameworks */ = {isa = PBXBuildFile; productRef = B4415EF02A59206700725B22 /* GoogleAPIClientForREST_Calendar */; };
+		B4415EF32A59206A00725B22 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = B4415EF22A59206A00725B22 /* GoogleSignIn */; };
+		B4415EFB2A59208800725B22 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = B4415EFA2A59208800725B22 /* GoogleSignIn */; };
+		B4415EFD2A59208800725B22 /* GoogleAPIClientForREST_Calendar in Frameworks */ = {isa = PBXBuildFile; productRef = B4415EFC2A59208800725B22 /* GoogleAPIClientForREST_Calendar */; };
+		B4415F062A5922D000725B22 /* GTMSessionFetcher in Frameworks */ = {isa = PBXBuildFile; productRef = B4415F052A5922D000725B22 /* GTMSessionFetcher */; };
+		B4415F082A5922D000725B22 /* GTMSessionFetcherCore in Frameworks */ = {isa = PBXBuildFile; productRef = B4415F072A5922D000725B22 /* GTMSessionFetcherCore */; };
+		B4415F0A2A5922D000725B22 /* GTMSessionFetcherFull in Frameworks */ = {isa = PBXBuildFile; productRef = B4415F092A5922D000725B22 /* GTMSessionFetcherFull */; };
+		B4415F0C2A5922E500725B22 /* GTMSessionFetcher in Frameworks */ = {isa = PBXBuildFile; productRef = B4415F0B2A5922E500725B22 /* GTMSessionFetcher */; };
+		B4415F0E2A5922E500725B22 /* GTMSessionFetcherCore in Frameworks */ = {isa = PBXBuildFile; productRef = B4415F0D2A5922E500725B22 /* GTMSessionFetcherCore */; };
+		B4415F102A5922E500725B22 /* GTMSessionFetcherFull in Frameworks */ = {isa = PBXBuildFile; productRef = B4415F0F2A5922E500725B22 /* GTMSessionFetcherFull */; };
+		B4415F122A5922EF00725B22 /* GTMSessionFetcher in Frameworks */ = {isa = PBXBuildFile; productRef = B4415F112A5922EF00725B22 /* GTMSessionFetcher */; };
+		B4415F142A5922EF00725B22 /* GTMSessionFetcherCore in Frameworks */ = {isa = PBXBuildFile; productRef = B4415F132A5922EF00725B22 /* GTMSessionFetcherCore */; };
+		B4415F162A5922EF00725B22 /* GTMSessionFetcherFull in Frameworks */ = {isa = PBXBuildFile; productRef = B4415F152A5922EF00725B22 /* GTMSessionFetcherFull */; };
+		B4415F182A59255E00725B22 /* GoogleAPIClientForREST_Calendar in Frameworks */ = {isa = PBXBuildFile; productRef = B4415F172A59255E00725B22 /* GoogleAPIClientForREST_Calendar */; };
 		B44F47A32A55084E008C8899 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B44F47A22A55084E008C8899 /* WidgetKit.framework */; };
 		B44F47A52A55084E008C8899 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B44F47A42A55084E008C8899 /* SwiftUI.framework */; };
 		B44F47A82A55084E008C8899 /* NutqWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = B44F47A72A55084E008C8899 /* NutqWidgetBundle.swift */; };
@@ -52,7 +68,6 @@
 		B46D18342A56546100D886ED /* LanguageSupport in Frameworks */ = {isa = PBXBuildFile; productRef = B46D18232A56546100D886ED /* LanguageSupport */; };
 		B46D18352A56546100D886ED /* CodeEditorView in Frameworks */ = {isa = PBXBuildFile; productRef = B46D18212A56546100D886ED /* CodeEditorView */; };
 		B46D18372A56546100D886ED /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B434A5E72A23D91D001D81E8 /* Preview Assets.xcassets */; };
-		B46D18382A56546100D886ED /* plan.txt in Resources */ = {isa = PBXBuildFile; fileRef = B434A5EF2A23DA39001D81E8 /* plan.txt */; };
 		B46D18392A56546100D886ED /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B434A5E42A23D91D001D81E8 /* Assets.xcassets */; };
 		B4754ECE2A38019000FB26C0 /* EnvState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754ECD2A38019000FB26C0 /* EnvState.swift */; };
 		B4754ED02A38097800FB26C0 /* Sidebar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754ECF2A38097800FB26C0 /* Sidebar.swift */; };
@@ -65,8 +80,8 @@
 		B4754EE32A3E3C3800FB26C0 /* SchemeUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754EE22A3E3C3800FB26C0 /* SchemeUtil.swift */; };
 		B4A2F82C2A5675140073D472 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754ED72A381E0C00FB26C0 /* Theme.swift */; };
 		B4A2F82D2A5675140073D472 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754ED72A381E0C00FB26C0 /* Theme.swift */; };
-		B4F87EC92A5655F900A6753E /* Nut Q.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B44F47A02A55084E008C8899 /* Nut Q.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		B4F87ECD2A56560100A6753E /* Nut Q.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B44F47C62A5536EC008C8899 /* Nut Q.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		B4F87EC92A5655F900A6753E /* Nut Q Widget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B44F47A02A55084E008C8899 /* Nut Q Widget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		B4F87ECD2A56560100A6753E /* Nut Q Widget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B44F47C62A5536EC008C8899 /* Nut Q Widget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -93,7 +108,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				B4F87EC92A5655F900A6753E /* Nut Q.appex in Embed Foundation Extensions */,
+				B4F87EC92A5655F900A6753E /* Nut Q Widget.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -104,7 +119,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				B4F87ECD2A56560100A6753E /* Nut Q.appex in Embed Foundation Extensions */,
+				B4F87ECD2A56560100A6753E /* Nut Q Widget.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -120,8 +135,7 @@
 		B434A5E42A23D91D001D81E8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B434A5E72A23D91D001D81E8 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		B434A5E92A23D91D001D81E8 /* nutqdarwin.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = nutqdarwin.entitlements; sourceTree = "<group>"; };
-		B434A5EF2A23DA39001D81E8 /* plan.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = plan.txt; sourceTree = "<group>"; };
-		B44F47A02A55084E008C8899 /* Nut Q.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Nut Q.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B44F47A02A55084E008C8899 /* Nut Q Widget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Nut Q Widget.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B44F47A22A55084E008C8899 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		B44F47A42A55084E008C8899 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		B44F47A72A55084E008C8899 /* NutqWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NutqWidgetBundle.swift; sourceTree = "<group>"; };
@@ -131,7 +145,7 @@
 		B44F47B02A550850008C8899 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B44F47BE2A55143E008C8899 /* Time.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Time.swift; sourceTree = "<group>"; };
 		B44F47C12A55181E008C8899 /* nutqdarwin-widgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "nutqdarwin-widgetExtension.entitlements"; sourceTree = "<group>"; };
-		B44F47C62A5536EC008C8899 /* Nut Q.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Nut Q.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B44F47C62A5536EC008C8899 /* Nut Q Widget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Nut Q Widget.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B46D18402A56546100D886ED /* Nut Q.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Nut Q.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B4754ECD2A38019000FB26C0 /* EnvState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvState.swift; sourceTree = "<group>"; };
 		B4754ECF2A38097800FB26C0 /* Sidebar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sidebar.swift; sourceTree = "<group>"; };
@@ -150,8 +164,15 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B4415F082A5922D000725B22 /* GTMSessionFetcherCore in Frameworks */,
+				B4415F062A5922D000725B22 /* GTMSessionFetcher in Frameworks */,
+				B4415EEC2A57D5A200725B22 /* GoogleAPIClientForRESTCore in Frameworks */,
 				B40160B32A532F1E002DC32B /* LanguageSupport in Frameworks */,
 				B40160B12A532F1E002DC32B /* CodeEditorView in Frameworks */,
+				B4415F0A2A5922D000725B22 /* GTMSessionFetcherFull in Frameworks */,
+				B4415EE72A57D22100725B22 /* GoogleSignIn in Frameworks */,
+				B4415F182A59255E00725B22 /* GoogleAPIClientForREST_Calendar in Frameworks */,
+				B4415EE92A57D22100725B22 /* GoogleSignInSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -160,7 +181,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				B44F47A52A55084E008C8899 /* SwiftUI.framework in Frameworks */,
+				B4415EF32A59206A00725B22 /* GoogleSignIn in Frameworks */,
+				B4415EF12A59206700725B22 /* GoogleAPIClientForREST_Calendar in Frameworks */,
+				B4415F102A5922E500725B22 /* GTMSessionFetcherFull in Frameworks */,
+				B4415F0E2A5922E500725B22 /* GTMSessionFetcherCore in Frameworks */,
 				B44F47A32A55084E008C8899 /* WidgetKit.framework in Frameworks */,
+				B4415F0C2A5922E500725B22 /* GTMSessionFetcher in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -170,6 +196,11 @@
 			files = (
 				B44F47C82A5536EC008C8899 /* SwiftUI.framework in Frameworks */,
 				B44F47C72A5536EC008C8899 /* WidgetKit.framework in Frameworks */,
+				B4415EFB2A59208800725B22 /* GoogleSignIn in Frameworks */,
+				B4415F162A5922EF00725B22 /* GTMSessionFetcherFull in Frameworks */,
+				B4415F142A5922EF00725B22 /* GTMSessionFetcherCore in Frameworks */,
+				B4415EFD2A59208800725B22 /* GoogleAPIClientForREST_Calendar in Frameworks */,
+				B4415F122A5922EF00725B22 /* GTMSessionFetcher in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -201,8 +232,8 @@
 			isa = PBXGroup;
 			children = (
 				B434A5DD2A23D91B001D81E8 /* Nut Q.app */,
-				B44F47A02A55084E008C8899 /* Nut Q.appex */,
-				B44F47C62A5536EC008C8899 /* Nut Q.appex */,
+				B44F47A02A55084E008C8899 /* Nut Q Widget.appex */,
+				B44F47C62A5536EC008C8899 /* Nut Q Widget.appex */,
 				B46D18402A56546100D886ED /* Nut Q.app */,
 			);
 			name = Products;
@@ -261,7 +292,6 @@
 			children = (
 				B4D693BD2A36CC9400E94D23 /* views */,
 				B4D693BA2A36BBE900E94D23 /* sync */,
-				B434A5EF2A23DA39001D81E8 /* plan.txt */,
 				B434A5E02A23D91B001D81E8 /* Nutq.swift */,
 				B434A5E22A23D91B001D81E8 /* NutqContentView.swift */,
 				B4754EDF2A3A3A1A00FB26C0 /* Info.plist */,
@@ -323,6 +353,13 @@
 			packageProductDependencies = (
 				B40160B02A532F1E002DC32B /* CodeEditorView */,
 				B40160B22A532F1E002DC32B /* LanguageSupport */,
+				B4415EE62A57D22100725B22 /* GoogleSignIn */,
+				B4415EE82A57D22100725B22 /* GoogleSignInSwift */,
+				B4415EEB2A57D5A200725B22 /* GoogleAPIClientForRESTCore */,
+				B4415F052A5922D000725B22 /* GTMSessionFetcher */,
+				B4415F072A5922D000725B22 /* GTMSessionFetcherCore */,
+				B4415F092A5922D000725B22 /* GTMSessionFetcherFull */,
+				B4415F172A59255E00725B22 /* GoogleAPIClientForREST_Calendar */,
 			);
 			productName = nutqdarwin;
 			productReference = B434A5DD2A23D91B001D81E8 /* Nut Q.app */;
@@ -341,8 +378,15 @@
 			dependencies = (
 			);
 			name = "nutqdarwin-widget (iOS)";
+			packageProductDependencies = (
+				B4415EF02A59206700725B22 /* GoogleAPIClientForREST_Calendar */,
+				B4415EF22A59206A00725B22 /* GoogleSignIn */,
+				B4415F0B2A5922E500725B22 /* GTMSessionFetcher */,
+				B4415F0D2A5922E500725B22 /* GTMSessionFetcherCore */,
+				B4415F0F2A5922E500725B22 /* GTMSessionFetcherFull */,
+			);
 			productName = "nutqdarwin-widgetExtension";
-			productReference = B44F47A02A55084E008C8899 /* Nut Q.appex */;
+			productReference = B44F47A02A55084E008C8899 /* Nut Q Widget.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 		B44F47C52A5536EC008C8899 /* nutqdarwin-widget (macOS) */ = {
@@ -358,8 +402,15 @@
 			dependencies = (
 			);
 			name = "nutqdarwin-widget (macOS)";
+			packageProductDependencies = (
+				B4415EFA2A59208800725B22 /* GoogleSignIn */,
+				B4415EFC2A59208800725B22 /* GoogleAPIClientForREST_Calendar */,
+				B4415F112A5922EF00725B22 /* GTMSessionFetcher */,
+				B4415F132A5922EF00725B22 /* GTMSessionFetcherCore */,
+				B4415F152A5922EF00725B22 /* GTMSessionFetcherFull */,
+			);
 			productName = "nutqdarwin-desktop-widgetExtension";
-			productReference = B44F47C62A5536EC008C8899 /* Nut Q.appex */;
+			productReference = B44F47C62A5536EC008C8899 /* Nut Q Widget.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 		B46D181C2A56546100D886ED /* nutqdarwin (iOS) */ = {
@@ -417,6 +468,9 @@
 			mainGroup = B434A5D42A23D91B001D81E8;
 			packageReferences = (
 				B40160AF2A532F1E002DC32B /* XCRemoteSwiftPackageReference "CodeEditorView" */,
+				B4415EE52A57D22100725B22 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+				B4415EEA2A57D5A200725B22 /* XCRemoteSwiftPackageReference "google-api-objectivec-client-for-rest" */,
+				B4415F042A5922D000725B22 /* XCRemoteSwiftPackageReference "gtm-session-fetcher" */,
 			);
 			productRefGroup = B434A5DE2A23D91B001D81E8 /* Products */;
 			projectDirPath = "";
@@ -436,7 +490,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				B434A5E82A23D91D001D81E8 /* Preview Assets.xcassets in Resources */,
-				B434A5F02A23DA39001D81E8 /* plan.txt in Resources */,
 				B434A5E52A23D91D001D81E8 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -462,7 +515,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				B46D18372A56546100D886ED /* Preview Assets.xcassets in Resources */,
-				B46D18382A56546100D886ED /* plan.txt in Resources */,
 				B46D18392A56546100D886ED /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -760,7 +812,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.enigmadux.nutqdarwin.widget;
-				PRODUCT_NAME = "Nut Q";
+				PRODUCT_NAME = "Nut Q Widget";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SUPPORTS_MACCATALYST = NO;
@@ -791,7 +843,7 @@
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.enigmadux.nutqdarwin.widget;
-				PRODUCT_NAME = "Nut Q";
+				PRODUCT_NAME = "Nut Q Widget";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				SUPPORTS_MACCATALYST = NO;
@@ -824,7 +876,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 13.3;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.enigmadux.nutqdarwin.widget;
-				PRODUCT_NAME = "Nut Q";
+				PRODUCT_NAME = "Nut Q Widget";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -853,7 +905,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 13.3;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.enigmadux.nutqdarwin.widget;
-				PRODUCT_NAME = "Nut Q";
+				PRODUCT_NAME = "Nut Q Widget";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -878,6 +930,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "Nut Q";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_UIRequiresFullScreen = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -914,6 +967,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = "Nut Q";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_UIRequiresFullScreen = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -991,6 +1045,30 @@
 				minimumVersion = 0.11.0;
 			};
 		};
+		B4415EE52A57D22100725B22 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 7.0.0;
+			};
+		};
+		B4415EEA2A57D5A200725B22 /* XCRemoteSwiftPackageReference "google-api-objectivec-client-for-rest" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/google-api-objectivec-client-for-rest";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+		B4415F042A5922D000725B22 /* XCRemoteSwiftPackageReference "gtm-session-fetcher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/gtm-session-fetcher";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		B46D18222A56546100D886ED /* XCRemoteSwiftPackageReference "CodeEditorView" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/mchakravarty/CodeEditorView";
@@ -1011,6 +1089,91 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B40160AF2A532F1E002DC32B /* XCRemoteSwiftPackageReference "CodeEditorView" */;
 			productName = LanguageSupport;
+		};
+		B4415EE62A57D22100725B22 /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B4415EE52A57D22100725B22 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		B4415EE82A57D22100725B22 /* GoogleSignInSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B4415EE52A57D22100725B22 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignInSwift;
+		};
+		B4415EEB2A57D5A200725B22 /* GoogleAPIClientForRESTCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B4415EEA2A57D5A200725B22 /* XCRemoteSwiftPackageReference "google-api-objectivec-client-for-rest" */;
+			productName = GoogleAPIClientForRESTCore;
+		};
+		B4415EF02A59206700725B22 /* GoogleAPIClientForREST_Calendar */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B4415EEA2A57D5A200725B22 /* XCRemoteSwiftPackageReference "google-api-objectivec-client-for-rest" */;
+			productName = GoogleAPIClientForREST_Calendar;
+		};
+		B4415EF22A59206A00725B22 /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B4415EE52A57D22100725B22 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		B4415EFA2A59208800725B22 /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B4415EE52A57D22100725B22 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		B4415EFC2A59208800725B22 /* GoogleAPIClientForREST_Calendar */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B4415EEA2A57D5A200725B22 /* XCRemoteSwiftPackageReference "google-api-objectivec-client-for-rest" */;
+			productName = GoogleAPIClientForREST_Calendar;
+		};
+		B4415F052A5922D000725B22 /* GTMSessionFetcher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B4415F042A5922D000725B22 /* XCRemoteSwiftPackageReference "gtm-session-fetcher" */;
+			productName = GTMSessionFetcher;
+		};
+		B4415F072A5922D000725B22 /* GTMSessionFetcherCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B4415F042A5922D000725B22 /* XCRemoteSwiftPackageReference "gtm-session-fetcher" */;
+			productName = GTMSessionFetcherCore;
+		};
+		B4415F092A5922D000725B22 /* GTMSessionFetcherFull */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B4415F042A5922D000725B22 /* XCRemoteSwiftPackageReference "gtm-session-fetcher" */;
+			productName = GTMSessionFetcherFull;
+		};
+		B4415F0B2A5922E500725B22 /* GTMSessionFetcher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B4415F042A5922D000725B22 /* XCRemoteSwiftPackageReference "gtm-session-fetcher" */;
+			productName = GTMSessionFetcher;
+		};
+		B4415F0D2A5922E500725B22 /* GTMSessionFetcherCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B4415F042A5922D000725B22 /* XCRemoteSwiftPackageReference "gtm-session-fetcher" */;
+			productName = GTMSessionFetcherCore;
+		};
+		B4415F0F2A5922E500725B22 /* GTMSessionFetcherFull */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B4415F042A5922D000725B22 /* XCRemoteSwiftPackageReference "gtm-session-fetcher" */;
+			productName = GTMSessionFetcherFull;
+		};
+		B4415F112A5922EF00725B22 /* GTMSessionFetcher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B4415F042A5922D000725B22 /* XCRemoteSwiftPackageReference "gtm-session-fetcher" */;
+			productName = GTMSessionFetcher;
+		};
+		B4415F132A5922EF00725B22 /* GTMSessionFetcherCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B4415F042A5922D000725B22 /* XCRemoteSwiftPackageReference "gtm-session-fetcher" */;
+			productName = GTMSessionFetcherCore;
+		};
+		B4415F152A5922EF00725B22 /* GTMSessionFetcherFull */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B4415F042A5922D000725B22 /* XCRemoteSwiftPackageReference "gtm-session-fetcher" */;
+			productName = GTMSessionFetcherFull;
+		};
+		B4415F172A59255E00725B22 /* GoogleAPIClientForREST_Calendar */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B4415EEA2A57D5A200725B22 /* XCRemoteSwiftPackageReference "google-api-objectivec-client-for-rest" */;
+			productName = GoogleAPIClientForREST_Calendar;
 		};
 		B46D18212A56546100D886ED /* CodeEditorView */ = {
 			isa = XCSwiftPackageProductDependency;

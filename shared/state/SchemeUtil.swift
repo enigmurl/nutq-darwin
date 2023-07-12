@@ -75,7 +75,6 @@ struct SchemeSingularItem: Identifiable {
             return .white
         }
     }
-    
 }
 
 /* polymorphism at some point? */
@@ -186,7 +185,7 @@ public struct SchemeState: Codable, Hashable, Identifiable {
     
     public var name: String
     public var colorIndex: Int
-    public var email: String?
+    public var syncsToGsync: Bool = false
     
     public var schemes: [SchemeItem]
 }
@@ -254,6 +253,20 @@ extension Binding<Array<SchemeItem>> {
         return schemes
     }
     
+    func flattenIncomplete(color: Int, path: [String]) -> [SchemeSingularItem] {
+        var schemes: [SchemeSingularItem] = []
+        for x in self {
+            let wrap = x.wrappedValue
+            for (i, (s, e)) in wrap.repeats.events(start: wrap.start, end: wrap.end).enumerated() {
+                let base = convertSingularScheme(color: color, path: path, start: s, end: e, scheme: x, index: i)
+                if base.state != -1 {
+                    schemes.append(base)
+                }
+            }
+        }
+        return schemes
+    }
+    
     func flattenEventsInRange(color: Int, path: [String], start: Date?, end: Date?, schemeTypes: SchemeType) -> [SchemeSingularItem] {
         var schemes: [SchemeSingularItem] = []
         for x in self {
@@ -289,6 +302,14 @@ extension Array<Binding<SchemeState>> {
         var schemes: [SchemeSingularItem] = []
         for x in self {
             schemes.append(contentsOf: x.schemes.flattenFullSchemes(color: x.wrappedValue.colorIndex, path: [x.wrappedValue.name]))
+        }
+        return schemes
+    }
+    
+    func flattenIncomplete() -> [SchemeSingularItem] {
+        var schemes: [SchemeSingularItem] = []
+        for x in self {
+            schemes.append(contentsOf: x.schemes.flattenIncomplete(color: x.wrappedValue.colorIndex, path: [x.wrappedValue.name]))
         }
         return schemes
     }

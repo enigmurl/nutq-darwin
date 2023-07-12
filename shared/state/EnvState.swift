@@ -9,8 +9,15 @@ import Foundation
 import SwiftUI
 import Combine
 import BackgroundTasks
+import GoogleSignIn
+import GoogleAPIClientForREST_Calendar
+import GTMSessionFetcherCore
+import GTMSessionFetcherFull
 
 let unionNullUUID = UUID(uuidString: "00000000-0000-0000-0000-ffffffffffff")!
+
+fileprivate let gsyncInterval = 15 * TimeInterval.minute
+fileprivate let gsyncHeader   = "[gc]"
 
 protocol DatastoreManager: AnyObject {
     var schemes: [SchemeState] {get set}
@@ -21,11 +28,11 @@ class Datastore: NSDocument {
     weak var env: DatastoreManager?
     var lastSaveCount: Int = 0
     var modCount: Int = 0
-        
+    
     init?(env: DatastoreManager) {
         self.env = env
     }
-   
+    
     override func data(ofType typeName: String) throws -> Data {
         NSLog("[Datastore] perform write")
         guard let env = self.env else {
@@ -77,7 +84,7 @@ class Datastore: UIDocument {
         self.env = env
         super.init(fileURL: url)
     }
-   
+    
     override func contents(forType typeName: String) throws -> Any {
         NSLog("[Datastore] perform write")
         guard let env = self.env else {
@@ -90,7 +97,7 @@ class Datastore: UIDocument {
         guard let data = contents as? Data else {
             throw NSError(domain: "[Datastore]", code: 1)
         }
-    
+        
         NSLog("[Datastore] perform read")
         self.env?.schemes = try JSONDecoder().decode([SchemeState].self, from: data)
     }
@@ -101,7 +108,7 @@ class Datastore: UIDocument {
         }
         
         self.lastSaveCount = self.modCount
-       
+        
         Task.init {
             await self.save(to: url, for: .forOverwriting)
             
@@ -125,33 +132,89 @@ extension Datastore {
 
 class SystemManager {
     unowned var env: EnvState
+    var lastSave = Date.distantPast
     
     init(env: EnvState) {
         self.env = env
     }
     
-    func fileSystemSync() {
-        
-    }
-    
-    func iCloudSync() {
-        
-    }
-
     func stateControl() {
+        let count = env.schemes.count
+        let binding = (0 ..< count)
+            .map { i in
+                Binding(get: {
+                    self.env.schemes[i]
+                }, set: {
+                    self.env.schemes[i] = $0
+                })
+            }
+        
+        for item in binding.flattenIncomplete() {
+            // autocomplete events
+            if item.start != nil && item.end != nil && item.end! < .now {
+                item.state = -1
+            }
+        }
+    }
+    
+    func gsyncControl() {
+        guard let authorizer = GIDSignIn.sharedInstance.currentUser?.fetcherAuthorizer, Date.now > lastSave + gsyncInterval else {
+            return
+        }
+        
+        lastSave = .now
+        
+        let service = GTLRCalendarService()
+        service.authorizer = authorizer
+        
+        let query = GTLRCalendarQuery_EventsList.query(withCalendarId: "primary")
+        query.timeMin = GTLRDateTime(date: Date.now.startOfDay())
+        query.timeMax = GTLRDateTime(date: Date.now.startOfDay() + TimeInterval.week + TimeInterval.day)
+        query.singleEvents = true
+        query.orderBy = kGTLRCalendarOrderByStartTime
+        
+        // replace gsyncs...
+        for (i, scheme) in self.env.schemes.enumerated() {
+            if scheme.syncsToGsync {
+                
+                service.executeQuery(query) { (_, result, error) in
+                    self.env.schemes[i].schemes = scheme.schemes.filter {!$0.text.hasSuffix(gsyncHeader)}
+
+                    if let error = error {
+                        // Handle the error
+                        self.env.schemes[i].schemes.insert(SchemeItem(state: [0], text:  "ERR_{\(error.localizedDescription)} " + gsyncHeader, repeats: .none, indentation: 0), at: 0)
+                        print("Calendar events query error: \(error.localizedDescription)")
+                        return
+                    }
+                    
+                    // Process the events returned in the response
+                    if let events = (result as? GTLRCalendar_Events)?.items {
+                        for (j, event) in events.enumerated() {
+                            guard let start = event.start?.dateTime?.date, let end = event.end?.dateTime?.date else {
+                                continue
+                            }
+                            
+                            let finished = Date.now > end ? -1 : 0
+                            let item = SchemeItem(state: [finished],
+                                                  text: (event.summary ?? "") + " " + gsyncHeader,
+                                                  start: start,
+                                                  end: end,
+                                                  repeats: .none,
+                                                  indentation: 0)
+                            
+                            self.env.schemes[i].schemes.insert(item, at: j)
+                        }
+                    }
+                }
+            
+                break
+            }
+        }
         
     }
     
-    func reminderControl() {
+    func remindersControl() {
         
-    }
-    
-    func runTasks() {
-        // 1. sync with file system (handled by envState)
-        // 2. sync with iCloud
-        // 3. sync with google calendar
-        // 4. state control: all calendar events that are unfinished that have already passed must be marked as finished
-        // 5. setting up reminders
     }
     
     func loadFileSystem() {
@@ -165,6 +228,8 @@ class SystemManager {
     }
     
     func force(_ completion: @escaping () -> ()) {
+        self.stateControl()
+        self.remindersControl()
         self.saveFileSystem(completion)
     }
 }
@@ -186,7 +251,7 @@ public class EnvState: ObservableObject, DatastoreManager {
     
     var manager: SystemManager!
     weak var undoManager: UndoManager?
-   
+    
     init() {
         manager = SystemManager(env: self)
         document = Datastore(env: self)
@@ -194,10 +259,16 @@ public class EnvState: ObservableObject, DatastoreManager {
             .autoconnect()
             .sink { val in
                 self.stdTime = val // makes it so clock position is not out of data
+                self.manager.stateControl()
                 self.manager.saveFileSystem({})
+                self.manager.gsyncControl() // handled on next iteration ...
             }
-
+        
         self.manager.loadFileSystem()
+    }
+    
+    public func startup() {
+        GIDSignIn.sharedInstance.restorePreviousSignIn() { _, _ in }
     }
     
     public func delete(uuid: UUID) {
@@ -241,7 +312,7 @@ public class EnvMiniState: ObservableObject, DatastoreManager {
             completion(self)
             return
         }
-    
+        
         Task.init {
             await document.load()
             await document.close()
@@ -257,7 +328,6 @@ public enum MenuAction: CustomStringConvertible {
     
     case indent
     case deindent
-    case delete
     
     case toggleStartView
     case disableStart
@@ -278,8 +348,6 @@ public enum MenuAction: CustomStringConvertible {
             return "Indent"
         case .deindent:
             return "Deindent"
-        case .delete:
-            return "Delete"
         case .toggleStartView:
             return "Toggle Start View"
         case .disableStart:

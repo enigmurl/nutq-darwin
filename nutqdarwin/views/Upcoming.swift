@@ -70,6 +70,8 @@ struct UpcomingAssignment: View {
                     .saturation(0.4)
                 
                 Text(item.text)
+                    .truncationMode(.tail)
+                    .lineLimit(1)
             }
             .offset(x: -3)
             

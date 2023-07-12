@@ -626,8 +626,6 @@ struct ItemEditor: View {
             self.indent()
         case .deindent:
             self.deindent()
-        case .delete:
-            self.delete()
         default:
             break
         }
@@ -743,12 +741,7 @@ struct Tree: View {
         #endif
     }
         
-    @State var text = "hello"
-    @State var position = CodeEditor.Position()
-    @State var messages: Set<Located<Message>> = Set()
-
     var body: some View {
-//        CodeEditor(text: $text, position: $position, messages: $messages)
         // allows standard editing configuration
         VStack {
             if env.scheme == scheme.id {
@@ -760,7 +753,6 @@ struct Tree: View {
                         .onChange(of: scheme.id) { _ in
                             reader.scrollTo(scheme.schemes.count - 1)
                         }
-
                 }
 
                 TextField("template", text: $keyBuffer)

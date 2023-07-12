@@ -98,21 +98,24 @@ struct UpcomingAssignmentWidget: View {
                 }
             }
         }
-        .foregroundColor(self.item.dateColor)
+        .foregroundColor(self.item.dateColor.opacity(0.7))
         .font(.system(size: 10).monospacedDigit())
     }
     
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
-                self.dateString
                 Text(item.text)
-                    .font(.system(size: 14))
+                    .font(.system(size: 13))
+                    .bold()
+                self.dateString
+                
             }
             .padding(.leading, 6)
 
             Spacer()
         }
+        .padding(.vertical, 2)
         .overlay(
             Rectangle()
                 .frame(maxWidth: 1.5, alignment: .leading)
@@ -120,6 +123,7 @@ struct UpcomingAssignmentWidget: View {
                 .saturation(0.4),
             alignment: .leading
         )
+        .background(.gray.opacity(0.15))
     }
 }
 
@@ -154,23 +158,30 @@ struct UpcomingWidgetView : View {
         VStack(spacing: 8) {
             self.date
                 .padding([.horizontal, .top], 12)
-           
-            
-            GeometryReader { proxy in
-                if proxy.size.width > 165 {
-                    HStack {
-                        self.miniList(Array(entry.assignments[0 ..< min(entry.assignments.count, columnSize)]))
-                        
-                        if entry.assignments.count > columnSize {
-                            self.miniList(Array(entry.assignments[columnSize ..< min(entry.assignments.count, columnSize * 2)]))
+          
+            if self.entry.assignments.count == 0 {
+                Spacer()
+                Text("No upcoming events")
+                    .fixedSize(horizontal: false, vertical: true)
+                    .multilineTextAlignment(.center)
+            }
+            else {
+                GeometryReader { proxy in
+                    if proxy.size.width > 165 {
+                        HStack(alignment: .top) {
+                            self.miniList(Array(entry.assignments[0 ..< min(entry.assignments.count, columnSize)]))
+                            
+                            if entry.assignments.count > columnSize {
+                                self.miniList(Array(entry.assignments[columnSize ..< min(entry.assignments.count, columnSize * 2)]))
+                            }
                         }
                     }
+                    else {
+                        self.miniList(Array(entry.assignments[0 ..< min(entry.assignments.count, columnSize)]))
+                    }
                 }
-                else {
-                    self.miniList(Array(entry.assignments[0 ..< min(entry.assignments.count, columnSize)]))
-                }
+                .padding(.leading, 12)
             }
-            .padding(.leading, 12)
             
             Spacer()
                 .frame(maxHeight: .infinity)

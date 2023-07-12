@@ -1,6 +1,8 @@
 #  Nutq Darwin
 
 
+## disclaimers
+- Uses NSUbiqutous as well as rather tense because I wanted these on my system. 
 
 ## Known Bugs
 - macOS

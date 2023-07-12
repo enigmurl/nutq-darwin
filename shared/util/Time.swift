@@ -32,7 +32,7 @@ extension Date {
         
         let day: String
         if diff == 0 {
-            day = "Today"
+            day = "" // "Today"
         }
         else if diff == 1 {
             day = "Tomorrow"
@@ -45,8 +45,8 @@ extension Date {
         }
         
         let time = hourFormatter.string(from: self)
-        
-        return day + " " + time
+       
+        return day + (day.count == 0 ? "" : " ") + time
     }
     
     var timeString: String {

@@ -196,7 +196,10 @@ struct CalendarEvents: View {
                                 .multilineTextAlignment(.center)
                                 .foregroundColor(colorIndexToColor(item.colorIndex))
                                 .saturation(item.state == -1 ? 0 : 0.7)
-                                .bold()
+                                .font(Font.system(size: 12).bold())
+                                .padding(.horizontal, 4)
+                                .lineLimit(2)
+                                .truncationMode(.tail)
                         }
                     }
                     .padding(.bottom, 5)
