@@ -26,9 +26,10 @@ struct UpcomingAssignment: View {
                         Text(start.dateString)
                     }
                     else {
-                        Text("Starts " + start.dateString)
+                        Text("At " + start.dateString)
                     }
                 }
+                
                 if let end = self.item.end {
                     if let s = self.item.start {
                         Text((end.dayDifference(with: s) == 0 ? end.timeString : end.dateString))
@@ -110,7 +111,7 @@ struct Upcoming: View {
     let assignmentSchemes: [SchemeSingularItem]
     let upcomingSchemes: [SchemeSingularItem]
     
-    init(schemes: [Binding<SchemeState>]) {
+    init(schemes: [ObservedObject<SchemeState>]) {
         let calendar = NSCalendar.current
         let mainSchemes = schemes.flattenToUpcomingSchemes(start: calendar.startOfDay(for: .now))
         
@@ -120,9 +121,11 @@ struct Upcoming: View {
                // $0.state != -1 && $1.state == -1 || ($0.state != -1) == ($1.state != -1) &&
                 $0.end! < $1.end!
             })
+        
         self.upcomingSchemes   = mainSchemes
             .filter({$0.start != nil})
             .sorted(by: {$0.start! < $1.start!})
+        
     }
     
     func title(_ name: String) -> some View {
@@ -143,7 +146,8 @@ struct Upcoming: View {
             else {
                 ForEach(Array(list.enumerated()), id: \.element.id) {
                     UpcomingAssignment(item: $0.element)
-                        .padding(4)
+                        .padding(.horizontal, 4)
+                        .padding(.vertical, 8)
                         .background( Color.blue.opacity(($0.offset + parity) % 2 == 0 ? 0 : 0.1)
                             .cornerRadius(3)
                         )
@@ -162,21 +166,15 @@ struct Upcoming: View {
         // then reminders and events
         ScrollView {
             self.itemList(title: "Assignments", items: self.assignmentSchemes, parity: 0)
-            
+//            
             self.itemList(title: "Upcoming", items: self.upcomingSchemes, parity: 0)
         }
         .padding(.horizontal, 4)
         #if os(macOS)
-        .frame(minWidth: 250, maxWidth: 250, maxHeight: .infinity)
+        .frame(minWidth: 300, maxWidth: 300, maxHeight: .infinity)
         #else
-        .frame(minWidth: 250, idealWidth: 250, maxHeight: .infinity)
+        .frame(minWidth: 300, idealWidth: 300, maxHeight: .infinity)
         #endif
         .padding(.vertical, 8)
-    }
-}
-
-struct Upcoming_Previews: PreviewProvider {
-    static var previews: some View {
-        Upcoming(schemes: debugSchemes.map({Binding.constant($0)}))
     }
 }

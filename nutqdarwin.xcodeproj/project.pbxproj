@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B40EE1452A5E737100EE5BCD /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = B40EE1442A5E737100EE5BCD /* GoogleSignIn */; };
+		B40EE1472A5E737100EE5BCD /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B40EE1462A5E737100EE5BCD /* GoogleSignInSwift */; };
+		B40EE1492A5E737100EE5BCD /* GoogleAPIClientForREST_Calendar in Frameworks */ = {isa = PBXBuildFile; productRef = B40EE1482A5E737100EE5BCD /* GoogleAPIClientForREST_Calendar */; };
+		B40EE14B2A5E737100EE5BCD /* GTMSessionFetcher in Frameworks */ = {isa = PBXBuildFile; productRef = B40EE14A2A5E737100EE5BCD /* GTMSessionFetcher */; };
+		B40EE14D2A5E737100EE5BCD /* GTMSessionFetcherCore in Frameworks */ = {isa = PBXBuildFile; productRef = B40EE14C2A5E737100EE5BCD /* GTMSessionFetcherCore */; };
+		B40EE14F2A5E737100EE5BCD /* GTMSessionFetcherFull in Frameworks */ = {isa = PBXBuildFile; productRef = B40EE14E2A5E737100EE5BCD /* GTMSessionFetcherFull */; };
 		B434A5E12A23D91B001D81E8 /* Nutq.swift in Sources */ = {isa = PBXBuildFile; fileRef = B434A5E02A23D91B001D81E8 /* Nutq.swift */; };
 		B434A5E32A23D91B001D81E8 /* NutqContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B434A5E22A23D91B001D81E8 /* NutqContentView.swift */; };
 		B434A5E52A23D91D001D81E8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B434A5E42A23D91D001D81E8 /* Assets.xcassets */; };
@@ -61,8 +67,6 @@
 		B46D18302A56546100D886ED /* Nutq.swift in Sources */ = {isa = PBXBuildFile; fileRef = B434A5E02A23D91B001D81E8 /* Nutq.swift */; };
 		B46D18312A56546100D886ED /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754ED72A381E0C00FB26C0 /* Theme.swift */; };
 		B46D18322A56546100D886ED /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754EE02A3A47D800FB26C0 /* CalendarView.swift */; };
-		B46D18342A56546100D886ED /* LanguageSupport in Frameworks */ = {isa = PBXBuildFile; productRef = B46D18232A56546100D886ED /* LanguageSupport */; };
-		B46D18352A56546100D886ED /* CodeEditorView in Frameworks */ = {isa = PBXBuildFile; productRef = B46D18212A56546100D886ED /* CodeEditorView */; };
 		B46D18372A56546100D886ED /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B434A5E72A23D91D001D81E8 /* Preview Assets.xcassets */; };
 		B46D18392A56546100D886ED /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B434A5E42A23D91D001D81E8 /* Assets.xcassets */; };
 		B4754ECE2A38019000FB26C0 /* EnvState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754ECD2A38019000FB26C0 /* EnvState.swift */; };
@@ -74,6 +78,12 @@
 		B4754EDE2A38F38000FB26C0 /* Tree.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754EDD2A38F38000FB26C0 /* Tree.swift */; };
 		B4754EE12A3A47D800FB26C0 /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754EE02A3A47D800FB26C0 /* CalendarView.swift */; };
 		B4754EE32A3E3C3800FB26C0 /* SchemeUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754EE22A3E3C3800FB26C0 /* SchemeUtil.swift */; };
+		B49946E32A998F30006783E6 /* Auth.swift in Sources */ = {isa = PBXBuildFile; fileRef = B49946E22A998F30006783E6 /* Auth.swift */; };
+		B49946E42A998F30006783E6 /* Auth.swift in Sources */ = {isa = PBXBuildFile; fileRef = B49946E22A998F30006783E6 /* Auth.swift */; };
+		B49946E62A99A7A0006783E6 /* Proxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = B49946E52A99A7A0006783E6 /* Proxy.swift */; };
+		B49946E72A99A7A0006783E6 /* Proxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = B49946E52A99A7A0006783E6 /* Proxy.swift */; };
+		B49946E82A99A7A2006783E6 /* Proxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = B49946E52A99A7A0006783E6 /* Proxy.swift */; };
+		B49946E92A99A7A2006783E6 /* Proxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = B49946E52A99A7A0006783E6 /* Proxy.swift */; };
 		B4A2F82C2A5675140073D472 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754ED72A381E0C00FB26C0 /* Theme.swift */; };
 		B4A2F82D2A5675140073D472 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754ED72A381E0C00FB26C0 /* Theme.swift */; };
 		B4F87EC92A5655F900A6753E /* Nut Q Widget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = B44F47A02A55084E008C8899 /* Nut Q Widget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -152,6 +162,8 @@
 		B4754EDF2A3A3A1A00FB26C0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B4754EE02A3A47D800FB26C0 /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
 		B4754EE22A3E3C3800FB26C0 /* SchemeUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SchemeUtil.swift; sourceTree = "<group>"; };
+		B49946E22A998F30006783E6 /* Auth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Auth.swift; sourceTree = "<group>"; };
+		B49946E52A99A7A0006783E6 /* Proxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Proxy.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -201,8 +213,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B46D18342A56546100D886ED /* LanguageSupport in Frameworks */,
-				B46D18352A56546100D886ED /* CodeEditorView in Frameworks */,
+				B40EE1452A5E737100EE5BCD /* GoogleSignIn in Frameworks */,
+				B40EE1492A5E737100EE5BCD /* GoogleAPIClientForREST_Calendar in Frameworks */,
+				B40EE14D2A5E737100EE5BCD /* GTMSessionFetcherCore in Frameworks */,
+				B40EE14F2A5E737100EE5BCD /* GTMSessionFetcherFull in Frameworks */,
+				B40EE14B2A5E737100EE5BCD /* GTMSessionFetcher in Frameworks */,
+				B40EE1472A5E737100EE5BCD /* GoogleSignInSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -276,6 +292,7 @@
 			children = (
 				B4754ED72A381E0C00FB26C0 /* Theme.swift */,
 				B44F47BE2A55143E008C8899 /* Time.swift */,
+				B49946E52A99A7A0006783E6 /* Proxy.swift */,
 			);
 			path = util;
 			sourceTree = "<group>";
@@ -284,7 +301,6 @@
 			isa = PBXGroup;
 			children = (
 				B4D693BD2A36CC9400E94D23 /* views */,
-				B4D693BA2A36BBE900E94D23 /* sync */,
 				B434A5E02A23D91B001D81E8 /* Nutq.swift */,
 				B434A5E22A23D91B001D81E8 /* NutqContentView.swift */,
 				B4754EDF2A3A3A1A00FB26C0 /* Info.plist */,
@@ -293,13 +309,6 @@
 				B434A5E62A23D91D001D81E8 /* Preview Content */,
 			);
 			path = nutqdarwin;
-			sourceTree = "<group>";
-		};
-		B4D693BA2A36BBE900E94D23 /* sync */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = sync;
 			sourceTree = "<group>";
 		};
 		B4D693BD2A36CC9400E94D23 /* views */ = {
@@ -311,6 +320,7 @@
 				B4754EDB2A38F14C00FB26C0 /* Upcoming.swift */,
 				B4754EE02A3A47D800FB26C0 /* CalendarView.swift */,
 				B4754EDD2A38F38000FB26C0 /* Tree.swift */,
+				B49946E22A998F30006783E6 /* Auth.swift */,
 			);
 			path = views;
 			sourceTree = "<group>";
@@ -419,8 +429,12 @@
 			);
 			name = "nutqdarwin (iOS)";
 			packageProductDependencies = (
-				B46D18212A56546100D886ED /* CodeEditorView */,
-				B46D18232A56546100D886ED /* LanguageSupport */,
+				B40EE1442A5E737100EE5BCD /* GoogleSignIn */,
+				B40EE1462A5E737100EE5BCD /* GoogleSignInSwift */,
+				B40EE1482A5E737100EE5BCD /* GoogleAPIClientForREST_Calendar */,
+				B40EE14A2A5E737100EE5BCD /* GTMSessionFetcher */,
+				B40EE14C2A5E737100EE5BCD /* GTMSessionFetcherCore */,
+				B40EE14E2A5E737100EE5BCD /* GTMSessionFetcherFull */,
 			);
 			productName = nutqdarwin;
 			productReference = B46D18402A56546100D886ED /* Nut Q.app */;
@@ -434,7 +448,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1430;
-				LastUpgradeCheck = 1430;
+				LastUpgradeCheck = 1500;
 				TargetAttributes = {
 					B434A5DC2A23D91B001D81E8 = {
 						CreatedOnToolsVersion = 14.3;
@@ -519,6 +533,7 @@
 				B44F47BF2A55143E008C8899 /* Time.swift in Sources */,
 				B434A5E32A23D91B001D81E8 /* NutqContentView.swift in Sources */,
 				B4754ECE2A38019000FB26C0 /* EnvState.swift in Sources */,
+				B49946E62A99A7A0006783E6 /* Proxy.swift in Sources */,
 				B4754ED32A380D1C00FB26C0 /* Union.swift in Sources */,
 				B4754EDE2A38F38000FB26C0 /* Tree.swift in Sources */,
 				B4754EDC2A38F14C00FB26C0 /* Upcoming.swift in Sources */,
@@ -526,6 +541,7 @@
 				B44F47B22A550850008C8899 /* nutqdarwin_widget.intentdefinition in Sources */,
 				B4754EE32A3E3C3800FB26C0 /* SchemeUtil.swift in Sources */,
 				B434A5E12A23D91B001D81E8 /* Nutq.swift in Sources */,
+				B49946E32A998F30006783E6 /* Auth.swift in Sources */,
 				B4754ED82A381E0C00FB26C0 /* Theme.swift in Sources */,
 				B4754EE12A3A47D800FB26C0 /* CalendarView.swift in Sources */,
 			);
@@ -535,6 +551,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B49946E82A99A7A2006783E6 /* Proxy.swift in Sources */,
 				B44F47A82A55084E008C8899 /* NutqWidgetBundle.swift in Sources */,
 				B44F47C02A551447008C8899 /* Time.swift in Sources */,
 				B44F47BC2A551048008C8899 /* SchemeUtil.swift in Sources */,
@@ -549,6 +566,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B49946E92A99A7A2006783E6 /* Proxy.swift in Sources */,
 				B44F47DA2A565197008C8899 /* UpcomingWidget.swift in Sources */,
 				B44F47DD2A5651AF008C8899 /* SchemeUtil.swift in Sources */,
 				B44F47DC2A5651AF008C8899 /* Time.swift in Sources */,
@@ -567,6 +585,7 @@
 				B46D18272A56546100D886ED /* Time.swift in Sources */,
 				B46D18282A56546100D886ED /* NutqContentView.swift in Sources */,
 				B46D18292A56546100D886ED /* EnvState.swift in Sources */,
+				B49946E72A99A7A0006783E6 /* Proxy.swift in Sources */,
 				B46D182A2A56546100D886ED /* Union.swift in Sources */,
 				B46D182B2A56546100D886ED /* Tree.swift in Sources */,
 				B46D182C2A56546100D886ED /* Upcoming.swift in Sources */,
@@ -574,6 +593,7 @@
 				B46D182E2A56546100D886ED /* nutqdarwin_widget.intentdefinition in Sources */,
 				B46D182F2A56546100D886ED /* SchemeUtil.swift in Sources */,
 				B46D18302A56546100D886ED /* Nutq.swift in Sources */,
+				B49946E42A998F30006783E6 /* Auth.swift in Sources */,
 				B46D18312A56546100D886ED /* Theme.swift in Sources */,
 				B46D18322A56546100D886ED /* CalendarView.swift in Sources */,
 			);
@@ -599,6 +619,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -628,9 +649,11 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -645,7 +668,8 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 13.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -659,6 +683,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -688,9 +713,11 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -699,7 +726,8 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 13.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
@@ -717,6 +745,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"nutqdarwin/Preview Content\"";
 				DEVELOPMENT_TEAM = T35KD9JHQ6;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -731,7 +760,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 13.3;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.enigmadux.nutqdarwin;
 				PRODUCT_NAME = "Nut Q";
@@ -752,6 +781,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"nutqdarwin/Preview Content\"";
 				DEVELOPMENT_TEAM = T35KD9JHQ6;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -766,7 +796,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 13.3;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.enigmadux.nutqdarwin;
 				PRODUCT_NAME = "Nut Q";
@@ -791,7 +821,7 @@
 				INFOPLIST_FILE = "nutqdarwin-widget/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Nut Q";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -822,7 +852,7 @@
 				INFOPLIST_FILE = "nutqdarwin-widget/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Nut Q";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -849,6 +879,7 @@
 				CODE_SIGN_ENTITLEMENTS = "nutqdarwin-widget/nutqdarwin-widgetExtension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = T35KD9JHQ6;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -860,7 +891,7 @@
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 13.3;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.enigmadux.nutqdarwin.widget;
 				PRODUCT_NAME = "Nut Q Widget";
@@ -878,6 +909,7 @@
 				CODE_SIGN_ENTITLEMENTS = "nutqdarwin-widget/nutqdarwin-widgetExtension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = T35KD9JHQ6;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -889,7 +921,7 @@
 					"@executable_path/../Frameworks",
 					"@executable_path/../../../../Frameworks",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 13.3;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.enigmadux.nutqdarwin.widget;
 				PRODUCT_NAME = "Nut Q Widget";
@@ -908,6 +940,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"nutqdarwin/Preview Content\"";
 				DEVELOPMENT_TEAM = T35KD9JHQ6;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -918,7 +951,7 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_UIRequiresFullScreen = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -945,6 +978,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"nutqdarwin/Preview Content\"";
 				DEVELOPMENT_TEAM = T35KD9JHQ6;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -955,7 +989,7 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_UIRequiresFullScreen = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -1048,17 +1082,39 @@
 				kind = branch;
 			};
 		};
-		B46D18222A56546100D886ED /* XCRemoteSwiftPackageReference "CodeEditorView" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/mchakravarty/CodeEditorView";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.11.0;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		B40EE1442A5E737100EE5BCD /* GoogleSignIn */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B4415EE52A57D22100725B22 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		B40EE1462A5E737100EE5BCD /* GoogleSignInSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B4415EE52A57D22100725B22 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignInSwift;
+		};
+		B40EE1482A5E737100EE5BCD /* GoogleAPIClientForREST_Calendar */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B4415EEA2A57D5A200725B22 /* XCRemoteSwiftPackageReference "google-api-objectivec-client-for-rest" */;
+			productName = GoogleAPIClientForREST_Calendar;
+		};
+		B40EE14A2A5E737100EE5BCD /* GTMSessionFetcher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B4415F042A5922D000725B22 /* XCRemoteSwiftPackageReference "gtm-session-fetcher" */;
+			productName = GTMSessionFetcher;
+		};
+		B40EE14C2A5E737100EE5BCD /* GTMSessionFetcherCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B4415F042A5922D000725B22 /* XCRemoteSwiftPackageReference "gtm-session-fetcher" */;
+			productName = GTMSessionFetcherCore;
+		};
+		B40EE14E2A5E737100EE5BCD /* GTMSessionFetcherFull */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B4415F042A5922D000725B22 /* XCRemoteSwiftPackageReference "gtm-session-fetcher" */;
+			productName = GTMSessionFetcherFull;
+		};
 		B4415EE62A57D22100725B22 /* GoogleSignIn */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = B4415EE52A57D22100725B22 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
@@ -1143,16 +1199,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B4415EEA2A57D5A200725B22 /* XCRemoteSwiftPackageReference "google-api-objectivec-client-for-rest" */;
 			productName = GoogleAPIClientForREST_Calendar;
-		};
-		B46D18212A56546100D886ED /* CodeEditorView */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B46D18222A56546100D886ED /* XCRemoteSwiftPackageReference "CodeEditorView" */;
-			productName = CodeEditorView;
-		};
-		B46D18232A56546100D886ED /* LanguageSupport */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = B46D18222A56546100D886ED /* XCRemoteSwiftPackageReference "CodeEditorView" */;
-			productName = LanguageSupport;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

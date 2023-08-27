@@ -23,14 +23,7 @@ struct Provider: IntentTimelineProvider {
             
             // not going to write anyways
             // so binding stuff can be kind of iffy
-            let flat = Array(0 ..< schemes.count)
-                .map { i in
-                    Binding(get: {
-                        schemes[i]
-                    }, set: {
-                        schemes[i] = $0
-                    })
-                }
+            let flat = env.schemes.map { ObservedObject(initialValue: $0) }
                 .flattenToUpcomingSchemes(start: Date.now)
                 .sorted(by: {
                     $0.start ?? $0.end! < $1.start ?? $1.end!
@@ -106,24 +99,28 @@ struct UpcomingAssignmentWidget: View {
         HStack {
             VStack(alignment: .leading) {
                 Text(item.text)
-                    .font(.system(size: 13))
-                    .bold()
+                    .font(.system(size: 12))
+                    .saturation(0.6)
+                    .fontWeight(.semibold)
                 self.dateString
                 
             }
             .padding(.leading, 6)
-
-            Spacer()
+            .frame(maxWidth: 155, alignment: .leading)
+            .padding(.vertical, 2)
+//            .overlay(
+//                Rectangle()
+//                    .frame(maxWidth: 2.5, alignment: .leading)
+//                    .foregroundColor(.indigo)
+//                    .saturation(0.4),
+//                alignment: .leading
+//            )
+            .padding(.trailing, 2)
+            .background(
+                RoundedRectangle(cornerRadius: 3)
+                    .fill(.black.opacity(0.65))
+            )
         }
-        .padding(.vertical, 2)
-        .overlay(
-            Rectangle()
-                .frame(maxWidth: 1.5, alignment: .leading)
-                .foregroundColor(color)
-                .saturation(0.4),
-            alignment: .leading
-        )
-        .background(.gray.opacity(0.15))
     }
 }
 
@@ -131,12 +128,15 @@ struct UpcomingWidgetView : View {
     var entry: UpcomingEntry
 
     var date: some View {
-        HStack {
+        HStack(spacing: 2) {
+            Spacer()
+            
             Text(weekdayFormatter.string(from: .now))
                 .foregroundColor(.red)
-            Text(dayFormatter.string(from: .now))
-                .foregroundColor(.blue)
+            Text(dayOfMonthFormatter.string(from: .now))
+                .foregroundColor(.red)
                 .saturation(0.8)
+            
             Spacer()
         }
         .font(.system(size: 13).smallCaps())
@@ -155,9 +155,8 @@ struct UpcomingWidgetView : View {
     }
     
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(alignment: .center, spacing: 8) {
             self.date
-                .padding([.horizontal, .top], 12)
           
             if self.entry.assignments.count == 0 {
                 Spacer()
@@ -180,14 +179,13 @@ struct UpcomingWidgetView : View {
                         self.miniList(Array(entry.assignments[0 ..< min(entry.assignments.count, columnSize)]))
                     }
                 }
-                .padding(.leading, 12)
             }
             
             Spacer()
                 .frame(maxHeight: .infinity)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(.background)
+        .containerBackground(.white, for: .widget)
     }
 }
 
@@ -203,7 +201,6 @@ struct UpcomingWidget: Widget {
         .supportedFamilies([.systemSmall, .systemMedium])
     }
 }
-
 
 struct NutqWidget_Previews: PreviewProvider {
     static var previews: some View {

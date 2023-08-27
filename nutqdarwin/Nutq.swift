@@ -61,8 +61,8 @@ struct Nutq: App {
                 .onAppear {
                     self.appDelegate.env = env
                 }
-                .onChange(of: phase) { phase in
-                    if phase == .inactive {
+                .onChange(of: phase, initial: false) { (phase, newPhase) in
+                    if newPhase == .inactive {
                         self.env.manager.force {}
                     }
                 }
@@ -71,13 +71,20 @@ struct Nutq: App {
             CommandGroup(after: .toolbar) {
                 Group {
                     self.commandMenu(menuAction: .gotoUnion, key: "h")
-                    self.commandMenu(menuAction: .prevScheme, key: "[", modifiers: .shift)
-                    self.commandMenu(menuAction: .nextScheme, key: "]", modifiers: .shift)
+                    self.commandMenu(menuAction: .prevScheme, key: "[", modifiers: .control)
+                    self.commandMenu(menuAction: .nextScheme, key: "]", modifiers: .control)
                 }
                 
                 Group {
                     self.commandMenu(menuAction: .deindent, key: "[")
                     self.commandMenu(menuAction: .indent, key: "]")
+                    self.commandMenu(menuAction: .blockIndent, key: "]", modifiers: .shift)
+                    self.commandMenu(menuAction: .blockDeindent, key: "[", modifiers: .shift)
+                    
+                    self.commandMenu(menuAction: .moveUp, key: .upArrow)
+                    self.commandMenu(menuAction: .moveDown, key: .downArrow)
+                    self.commandMenu(menuAction: .blockMoveUp, key: .upArrow, modifiers: .shift)
+                    self.commandMenu(menuAction: .blockMoveDown, key: .downArrow, modifiers: .shift)
                 }
                 
                 Group {

@@ -197,7 +197,7 @@ struct CalendarEvents: View {
                                 .foregroundColor(colorIndexToColor(item.colorIndex))
                                 .saturation(item.state == -1 ? 0 : 0.7)
                                 .font(Font.system(size: 12).bold())
-                                .padding(.horizontal, 4)
+                                .padding(.horizontal, 6)
                                 .lineLimit(2)
                                 .truncationMode(.tail)
                         }
@@ -245,19 +245,22 @@ struct CalendarEvents: View {
 }
 
 struct CalendarDay: View {
+    @EnvironmentObject var env: EnvState
+    
     let day: Date
     let schemes: [SchemeSingularItem]
     let isActive: Bool
     let isWeekend: Bool
-    
 
     var filledPixels: CGFloat {
-        if day > Date.now {
+        let now = env.stdTime
+        
+        if day > now {
             return 0
         }
         var ret: CGFloat = timeLegendYOffset
-        if day.dayDifference(with: Date.now) == 0 {
-            ret += hourHeight * Date.now.timeIntervalSince(day.startOfDay()) / TimeInterval.hour
+        if day.dayDifference(with: now) == 0 {
+            ret += hourHeight * now.timeIntervalSince(day.startOfDay()) / TimeInterval.hour
         }
         else {
             ret += 24 * hourHeight
@@ -325,7 +328,7 @@ struct CalendarDay: View {
 struct CalendarView: View {
     @EnvironmentObject var env: EnvState
     
-    let schemes: [Binding<SchemeState>]
+    let schemes: [ObservedObject<SchemeState>]
     @State var headDate = Date.now
     
     var body: some View {
@@ -472,9 +475,3 @@ class MacosSwipeRecognizer: NSView {
     }
 }
 #endif
-
-struct Calendar_Previews: PreviewProvider {
-    static var previews: some View {
-        CalendarView(schemes: debugSchemes.map({Binding.constant($0)}))
-    }
-}

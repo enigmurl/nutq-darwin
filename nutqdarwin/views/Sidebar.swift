@@ -16,19 +16,9 @@ struct SidebarLabel: View {
     @State var showingEditingWindow = false
     
     var body: some View {
-        #if os(macOS)
-        let undoableScheme = scheme == nil ? nil : Binding(get: {
-            scheme!.wrappedValue
-        }, set: {
-            env.writeBinding(binding: scheme!, newValue: $0)
-        })
-        #else
-        let undoableScheme = scheme
-        #endif
-        
         NavigationLink {
-            if let scheme = undoableScheme {
-                Scheme(scheme: scheme)
+            if let scheme = scheme {
+                Scheme(scheme: scheme.wrappedValue)
             }
             else {
                 Union()
@@ -39,30 +29,28 @@ struct SidebarLabel: View {
                 Text(undoableScheme?.wrappedValue.name ?? "Union")
                     .font(.title3)
                 #else
-                if let scheme = undoableScheme {
+                if let scheme = scheme {
                     TextField("", text: scheme.name)
-                        .padding(.leading, -4)
                         .textFieldStyle(.plain)
                         .font(.title3)
                 }
                 else {
                     Text("Union")
-                        .padding(.leading, 4)
                         .font(.title3)
                 }
                 #endif
 
             } icon: {
-                TagView(index: undoableScheme?.colorIndex ?? nil)
+                TagView(index: scheme?.color_index ?? nil)
             }
         }
-        .tag(undoableScheme?.wrappedValue.id ?? unionNullUUID)
+        .tag(scheme?.wrappedValue.id ?? unionNullUUID)
         .swipeActions {
             // necessarily iOS
             if scheme != nil {
                 /* role destructive deletes it automatically for some reason */
                 Button("Delete") {
-                    self.deletionID = undoableScheme?.wrappedValue.id
+                    self.deletionID = scheme?.wrappedValue.id
                 }
                 .tint(.red)
                 
@@ -73,12 +61,12 @@ struct SidebarLabel: View {
         }
         .popover(isPresented: $showingEditingWindow) {
             Label {
-                TextField("", text: undoableScheme!.name)
+                TextField("", text: scheme!.name)
                     .padding(.leading, -4)
                     .textFieldStyle(.plain)
                     .font(.title3)
             } icon: {
-                TagView(index: undoableScheme?.colorIndex ?? nil)
+                TagView(index: scheme?.color_index ?? nil)
             }
             .frame(minWidth: 140)
             .padding()
@@ -107,7 +95,7 @@ struct Sidebar: View {
             }
             
             Button("New") {
-                env.insert(scheme: SchemeState(name: "Scheme", colorIndex: 1, schemes: []), at: env.schemes.count)
+                env.insert(scheme: SchemeState(name: "Scheme", color_index: 1, scheme_list: SchemeItemList(schemes: [blankEditor("")])), at: env.schemes.count)
             }
             #if os(macOS)
             .buttonStyle(.link)

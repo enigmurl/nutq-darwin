@@ -20,11 +20,11 @@ struct Union: View {
     var body: some View {
         HStack(alignment: .top, spacing: 0) {
             #if os(macOS)
-                Upcoming(schemes: ($env.schemes).map({$0}))
+            Upcoming(schemes: env.schemes.map { ObservedObject(wrappedValue: $0) })
                 Divider()
                     .opacity(0.2)
             #endif
-            CalendarView(schemes: ($env.schemes).map({$0}))
+            CalendarView(schemes:  env.schemes.map { ObservedObject(wrappedValue: $0) })
         }
         #if os(iOS)
         .sheet(isPresented: $showingUpcoming) {

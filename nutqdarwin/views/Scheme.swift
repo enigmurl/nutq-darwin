@@ -15,7 +15,7 @@ import UIKit
 
 struct Scheme: View {
     @EnvironmentObject var env: EnvState
-    @Binding var scheme: SchemeState
+    @ObservedObject var scheme: SchemeState
     
     func removeFocus() {
         DispatchQueue.main.async {
@@ -30,10 +30,11 @@ struct Scheme: View {
     var body: some View {
         HStack(spacing: 0) {
             #if os(macOS)
-                Upcoming(schemes: [$scheme])
+                Upcoming(schemes: [_scheme])
                 Divider()
             #endif 
-            Tree(scheme: $scheme)
+            
+            Tree(scheme: scheme.scheme_list)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background {
@@ -45,7 +46,7 @@ struct Scheme: View {
         .toolbar {
             ToolbarItem(placement: .principal) {
                 HStack {
-                    TagView(index: $scheme.colorIndex)
+                    TagView(index: $scheme.color_index)
                     
                     Text(scheme.name)
                         .font(.headline)
@@ -57,16 +58,16 @@ struct Scheme: View {
             
             #if os(macOS)
             ToolbarItem(placement: .navigation) {
-                Button(scheme.syncsToGsync ? "unset gsync" : "set gsync") {
-                    if scheme.syncsToGsync {
-                        scheme.syncsToGsync = false
+                Button(scheme.syncs_to_gsync ? "unset gsync" : "set gsync") {
+                    if scheme.syncs_to_gsync {
+                        scheme.syncs_to_gsync = false
                     }
                     else {
                         for i in 0 ..< env.schemes.count {
-                            env.schemes[i].syncsToGsync = false
+                            env.schemes[i].syncs_to_gsync = false
                         }
                         
-                        scheme.syncsToGsync = true
+                        scheme.syncs_to_gsync = true
                     }
                 }
             }
@@ -76,11 +77,5 @@ struct Scheme: View {
         .navigationBarTitleDisplayMode(.inline)
         #endif
        
-    }
-}
-
-struct Scheme_Previews: PreviewProvider {
-    static var previews: some View {
-        Scheme(scheme: .constant(debugSchemes[0]))
     }
 }

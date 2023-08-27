@@ -13,20 +13,25 @@ struct NutqContentView: View {
     @Environment(\.scenePhase) private var scenePhase
     
     var body: some View {
-        NavigationView {
-            Sidebar()
-            Union()
+        Group {
+            if env.esotericToken == nil {
+                Auth()
+            }
+            else {
+                NavigationView {
+                    Sidebar()
+                    Union()
+                }
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .environmentObject(env)
-        .onChange(of: undo) { undo in
+        .onChange(of: undo) { (old, undo) in
             env.undoManager = undo
         }
     }
 }
 
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        NutqContentView()
-    }
+#Preview {
+    NutqContentView()
 }

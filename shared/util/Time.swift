@@ -37,7 +37,7 @@ extension Date {
         else if diff == 1 {
             day = "Tomorrow"
         }
-        else if diff < 7 {
+        else if diff < 7 && diff > 1 {
             day = weekdayFormatter.string(from: self)
         }
         else {
@@ -70,6 +70,12 @@ extension Date {
 let dayFormatter = {
     let dayFormatter = DateFormatter()
     dayFormatter.dateFormat = "MMMM dd"
+    return dayFormatter
+}()
+
+let dayOfMonthFormatter = {
+    let dayFormatter = DateFormatter()
+    dayFormatter.dateFormat = "dd"
     return dayFormatter
 }()
 

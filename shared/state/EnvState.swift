@@ -140,14 +140,7 @@ class SystemManager {
     
     func stateControl() {
         let count = env.schemes.count
-        let binding = (0 ..< count)
-            .map { i in
-                Binding(get: {
-                    self.env.schemes[i]
-                }, set: {
-                    self.env.schemes[i] = $0
-                })
-            }
+        let binding = env.schemes.map { ObservedObject(initialValue: $0) }
         
         for item in binding.flattenIncomplete() {
             // autocomplete events
@@ -175,17 +168,17 @@ class SystemManager {
         
         // replace gsyncs...
         for (i, scheme) in self.env.schemes.enumerated() {
-            if scheme.syncsToGsync {
+            if scheme.syncs_to_gsync {
                 
                 service.executeQuery(query) { (_, result, error) in
-                    self.env.schemes[i].schemes = scheme.schemes.filter {!$0.text.hasSuffix(gsyncHeader)}
-
                     if let error = error {
                         // Handle the error
-                        self.env.schemes[i].schemes.insert(SchemeItem(state: [0], text:  "ERR_{\(error.localizedDescription)} " + gsyncHeader, repeats: .none, indentation: 0), at: 0)
+                        self.env.schemes[i].scheme_list.schemes.insert(SchemeItem(state: [0], text:  "ERR_{\(error.localizedDescription)} " + gsyncHeader, repeats: .none, indentation: 0), at: 0)
                         print("Calendar events query error: \(error.localizedDescription)")
                         return
                     }
+                    
+                    self.env.schemes[i].scheme_list.schemes = scheme.scheme_list.schemes.filter {!$0.text.hasSuffix(gsyncHeader)}
                     
                     // Process the events returned in the response
                     if let events = (result as? GTLRCalendar_Events)?.items {
@@ -202,7 +195,7 @@ class SystemManager {
                                                   repeats: .none,
                                                   indentation: 0)
                             
-                            self.env.schemes[i].schemes.insert(item, at: j)
+                            self.env.schemes[i].scheme_list.schemes.insert(item, at: j)
                         }
                     }
                 }
@@ -234,12 +227,26 @@ class SystemManager {
     }
 }
 
+struct EsotericUser: Codable {
+    let id: Int
+    let username: String
+    var access: String
+    let refresh: String
+    var access_exp: Int
+    let refresh_exp: Int
+}
+
 public class EnvState: ObservableObject, DatastoreManager {
     var clock: AnyCancellable?
     
     @Published var stdTime: Date = .now
     @Published var scheme: UUID? = unionNullUUID
-    
+    @Published var esotericToken: EsotericUser? = nil {
+        didSet {
+            // save 
+            UserDefaults().setValue(try! JSONEncoder().encode(esotericToken), forKey: "esoteric_token")
+        }
+    }
     
     /* doubly buffered */
     var document: Datastore!
@@ -253,6 +260,8 @@ public class EnvState: ObservableObject, DatastoreManager {
     weak var undoManager: UndoManager?
     
     init() {
+        let raw = UserDefaults().data(forKey: "esoteric_token")
+        esotericToken = raw != nil ? try? JSONDecoder().decode(EsotericUser.self, from: raw!) : nil
         manager = SystemManager(env: self)
         document = Datastore(env: self)
         clock = Timer.publish(every: .minute, on: .main, in: .common)
@@ -268,7 +277,9 @@ public class EnvState: ObservableObject, DatastoreManager {
     }
     
     public func startup() {
-        GIDSignIn.sharedInstance.restorePreviousSignIn() { _, _ in }
+        GIDSignIn.sharedInstance.restorePreviousSignIn() { _, _ in
+            self.stdTime = .now
+        }
     }
     
     public func delete(uuid: UUID) {
@@ -288,14 +299,9 @@ public class EnvState: ObservableObject, DatastoreManager {
         undoManager?.registerUndo(withTarget: self) {$0.delete(uuid: scheme.id)}
     }
     
-    public func writeBinding<T>(binding: Binding<T>, newValue: T) where T: Equatable {
-        let oldValue = binding.wrappedValue
-        
-        if oldValue != newValue {
-            binding.wrappedValue = newValue
-            
-            undoManager?.registerUndo(withTarget: self, handler: {$0.writeBinding(binding: binding, newValue: oldValue)})
-        }
+    // regular state is way too expensive
+    public func refresh() {
+        self.stdTime = .now
     }
     
     deinit {
@@ -328,6 +334,13 @@ public enum MenuAction: CustomStringConvertible {
     
     case indent
     case deindent
+    case blockIndent
+    case blockDeindent
+    
+    case moveUp
+    case moveDown
+    case blockMoveUp
+    case blockMoveDown
     
     case toggleStartView
     case disableStart
@@ -348,6 +361,18 @@ public enum MenuAction: CustomStringConvertible {
             return "Indent"
         case .deindent:
             return "Deindent"
+        case .blockIndent:
+            return "Block Indent"
+        case .blockDeindent:
+            return "Block Deindent"
+        case .moveUp:
+            return "Move Up"
+        case .moveDown:
+            return "Move Down"
+        case .blockMoveUp:
+            return "Block Move Up"
+        case .blockMoveDown:
+            return "Block Move Down"
         case .toggleStartView:
             return "Toggle Start View"
         case .disableStart:

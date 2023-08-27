@@ -1,13 +1,9 @@
 #  Nutq Darwin
 
-
-## disclaimers
-- Uses NSUbiqutous as well as rather tense because I wanted these on my system. 
-
 ## Known Bugs
 - macOS
-    - sidebar cannot properly do prev scheme
-    - sidebar cannot enter to edit scheme name (workaround: swipe left)
+    - command s + command z should probably close the start menu.
+        - undo/redo is pretty bad in general
 - iOS
-- general
-    - cannot delete last scheme. Appears to be SwiftUI issue, hard to get around.
+    - strikethrough doesn't go away when it should
+    - text wrapping isnt ideal
