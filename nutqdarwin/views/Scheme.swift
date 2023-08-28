@@ -33,8 +33,9 @@ struct Scheme: View {
                 Upcoming(schemes: [_scheme])
                 Divider()
             #endif 
-            
-            Tree(scheme: scheme.scheme_list)
+           
+            TreeView(scheme: scheme.scheme_list)
+//            Tree(scheme: scheme.scheme_list)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background {
