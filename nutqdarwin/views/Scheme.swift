@@ -15,6 +15,7 @@ import UIKit
 
 struct Scheme: View {
     @EnvironmentObject var env: EnvState
+    @EnvironmentObject var menu: MenuState
     @ObservedObject var scheme: SchemeState
     
     func removeFocus() {
@@ -34,8 +35,7 @@ struct Scheme: View {
                 Divider()
             #endif 
            
-            TreeView(scheme: scheme.scheme_list)
-//            Tree(scheme: scheme.scheme_list)
+            TreeView(scheme: scheme.scheme_list, menu: menu)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background {

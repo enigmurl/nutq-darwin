@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 struct UpcomingAssignment: View {
     @EnvironmentObject var env: EnvState
@@ -80,9 +81,9 @@ struct UpcomingAssignment: View {
             
             self.dateString
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
         .contentShape(Rectangle())
         .allowsHitTesting(true)
+        .frame(maxWidth: .infinity, alignment: .leading)
        
         .grayscale(self.item.state == -1 ? 1 : 0)
         .opacity(self.item.state == -1 ? 0.3 : 1)
@@ -108,25 +109,11 @@ struct UpcomingAssignment: View {
 }
 
 struct Upcoming: View {
-    let assignmentSchemes: [SchemeSingularItem]
-    let upcomingSchemes: [SchemeSingularItem]
+    @State var assignmentSchemes: [SchemeSingularItem] = []
+    @State var upcomingSchemes: [SchemeSingularItem] = []
+    @State var refresh = 0
     
-    init(schemes: [ObservedObject<SchemeState>]) {
-        let calendar = NSCalendar.current
-        let mainSchemes = schemes.flattenToUpcomingSchemes(start: calendar.startOfDay(for: .now))
-        
-        self.assignmentSchemes = mainSchemes
-            .filter({$0.start == nil && $0.end != nil})
-            .sorted(by: {
-               // $0.state != -1 && $1.state == -1 || ($0.state != -1) == ($1.state != -1) &&
-                $0.end! < $1.end!
-            })
-        
-        self.upcomingSchemes   = mainSchemes
-            .filter({$0.start != nil})
-            .sorted(by: {$0.start! < $1.start!})
-        
-    }
+    let schemes: [ObservedObject<SchemeState>]
     
     func title(_ name: String) -> some View {
         Text(name)
@@ -176,5 +163,44 @@ struct Upcoming: View {
         .frame(minWidth: 300, idealWidth: 300, maxHeight: .infinity)
         #endif
         .padding(.vertical, 8)
+        .onAppear {
+            self.refresh += 1
+        }
+        .onChange(of: schemes.map {$0.wrappedValue}) {
+            self.refresh += 1
+        }
+        // names and colors
+        .onReceive(Publishers.MergeMany(schemes.map { $0.wrappedValue.objectWillChange })) { _ in
+            self.refresh += 1
+        }
+        // adds or removes
+        .onReceive(Publishers.MergeMany(schemes.map { $0.wrappedValue.scheme_list.objectWillChange })) { _ in
+            self.refresh += 1
+        }
+        // individual schemes
+        .onReceive(Publishers.MergeMany(
+            schemes.map { $0.wrappedValue.scheme_list.schemes.map { $0.objectWillChange } }.joined()
+        )) { _ in
+            self.refresh += 1
+        }
+        .onChange(of: self.refresh) { _, new in
+            self.recomp()
+        }
+    }
+    
+    func recomp() {
+        let calendar = NSCalendar.current
+        let mainSchemes = schemes.flattenToUpcomingSchemes(start: calendar.startOfDay(for: .now))
+        
+        self.assignmentSchemes = mainSchemes
+            .filter({$0.start == nil && $0.end != nil})
+            .sorted(by: {
+               // $0.state != -1 && $1.state == -1 || ($0.state != -1) == ($1.state != -1) &&
+                $0.end! < $1.end!
+            })
+        
+        self.upcomingSchemes   = mainSchemes
+            .filter({$0.start != nil})
+            .sorted(by: {$0.start! < $1.start!})
     }
 }

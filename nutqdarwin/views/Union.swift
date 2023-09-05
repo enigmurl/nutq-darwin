@@ -28,7 +28,7 @@ struct Union: View {
         }
         #if os(iOS)
         .sheet(isPresented: $showingUpcoming) {
-            Upcoming(schemes: ($env.schemes).map({$0}))
+            Upcoming(schemes: env.schemes.map { ObservedObject(wrappedValue: $0) })
                 .padding(.top, 20)
                 .presentationDetents([.medium, .large])
         }

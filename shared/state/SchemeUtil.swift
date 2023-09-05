@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import Combine
 
 func blankEditor(_ str: String, indentation: Int = 0) -> SchemeItem {
     return SchemeItem(state: [0], text: str, repeats: .none, indentation: indentation)
@@ -204,6 +205,10 @@ public final class SchemeItem: ObservableObject, Codable, Hashable, Identifiable
     
     public var complete: Bool {
         state.allSatisfy { $0 == -1 }
+    }
+    
+    public var statePublisher: AnyPublisher<[Int], Never> {
+        $state.eraseToAnyPublisher()
     }
     
     public static func == (lhs: SchemeItem, rhs: SchemeItem) -> Bool {

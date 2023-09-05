@@ -26,7 +26,7 @@ struct SidebarLabel: View {
         } label: {
             Label {
                 #if os(iOS)
-                Text(undoableScheme?.wrappedValue.name ?? "Union")
+                Text(scheme?.wrappedValue.name ?? "Union")
                     .font(.title3)
                 #else
                 if let scheme = scheme {

@@ -28,6 +28,7 @@ struct NutqContentView: View {
         .environmentObject(env)
         .onChange(of: undo) { (old, undo) in
             env.undoManager = undo
+            undo?.groupsByEvent = true
         }
     }
 }

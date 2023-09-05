@@ -71,22 +71,11 @@ struct Nutq: App {
             CommandGroup(after: .toolbar) {
                 Group {
                     self.commandMenu(menuAction: .gotoUnion, key: "h")
-                    self.commandMenu(menuAction: .prevScheme, key: "[", modifiers: .control)
-                    self.commandMenu(menuAction: .nextScheme, key: "]", modifiers: .control)
+                    self.commandMenu(menuAction: .prevScheme, key: "[")
+                    self.commandMenu(menuAction: .nextScheme, key: "]")
+                    self.commandMenu(menuAction: .toggle, key: "f")
                 }
-                
-                Group {
-                    self.commandMenu(menuAction: .deindent, key: "[")
-                    self.commandMenu(menuAction: .indent, key: "]")
-                    self.commandMenu(menuAction: .blockIndent, key: "]", modifiers: .shift)
-                    self.commandMenu(menuAction: .blockDeindent, key: "[", modifiers: .shift)
-                    
-                    self.commandMenu(menuAction: .moveUp, key: .upArrow)
-                    self.commandMenu(menuAction: .moveDown, key: .downArrow)
-                    self.commandMenu(menuAction: .blockMoveUp, key: .upArrow, modifiers: .shift)
-                    self.commandMenu(menuAction: .blockMoveDown, key: .downArrow, modifiers: .shift)
-                }
-                
+               
                 Group {
                     self.commandMenu(menuAction: .toggleStartView, key: "s")
                     self.commandMenu(menuAction: .disableStart, key: "s", modifiers: .shift)

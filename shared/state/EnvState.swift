@@ -139,7 +139,6 @@ class SystemManager {
     }
     
     func stateControl() {
-        let count = env.schemes.count
         let binding = env.schemes.map { ObservedObject(initialValue: $0) }
         
         for item in binding.flattenIncomplete() {
@@ -252,7 +251,7 @@ public class EnvState: ObservableObject, DatastoreManager {
     var document: Datastore!
     @Published var schemes: [SchemeState] = [] {
         didSet {
-            document.modCount += 1
+            document?.modCount += 1
         }
     }
     
@@ -332,15 +331,7 @@ public enum MenuAction: CustomStringConvertible {
     case nextScheme
     case prevScheme
     
-    case indent
-    case deindent
-    case blockIndent
-    case blockDeindent
-    
-    case moveUp
-    case moveDown
-    case blockMoveUp
-    case blockMoveDown
+    case toggle
     
     case toggleStartView
     case disableStart
@@ -357,22 +348,8 @@ public enum MenuAction: CustomStringConvertible {
             return "Prev Scheme"
         case .nextScheme:
             return "Next Scheme"
-        case .indent:
-            return "Indent"
-        case .deindent:
-            return "Deindent"
-        case .blockIndent:
-            return "Block Indent"
-        case .blockDeindent:
-            return "Block Deindent"
-        case .moveUp:
-            return "Move Up"
-        case .moveDown:
-            return "Move Down"
-        case .blockMoveUp:
-            return "Block Move Up"
-        case .blockMoveDown:
-            return "Block Move Down"
+        case .toggle:
+            return "Toggle Completion"
         case .toggleStartView:
             return "Toggle Start View"
         case .disableStart:

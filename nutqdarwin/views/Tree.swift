@@ -42,7 +42,6 @@ class TextCoordinator: NSObject {
     }
 }
 
-
 #if os(macOS)
 extension TextCoordinator: NSTextFieldDelegate {
     func controlTextDidChange(_ obj: Notification) {
@@ -924,22 +923,22 @@ struct ItemEditor: View {
                 self.showingBlock = false
                 focus?.subtoken = 0
             }
-        case .indent:
-            self.indent()
-        case .deindent:
-            self.deindent()
-        case .blockIndent:
-            self.blockIndent()
-        case .blockDeindent:
-            self.blockDeindent();
-        case .moveUp:
-            self.moveUp()
-        case .moveDown:
-            self.moveDown()
-        case .blockMoveUp:
-            self.blockMoveUp()
-        case .blockMoveDown:
-            self.blockMoveDown()
+//        case .indent:
+//            self.indent()
+//        case .deindent:
+//            self.deindent()
+//        case .blockIndent:
+//            self.blockIndent()
+//        case .blockDeindent:
+//            self.blockDeindent();
+//        case .moveUp:
+//            self.moveUp()
+//        case .moveDown:
+//            self.moveDown()
+//        case .blockMoveUp:
+//            self.blockMoveUp()
+//        case .blockMoveDown:
+//            self.blockMoveDown()
         default:
             break
         }
