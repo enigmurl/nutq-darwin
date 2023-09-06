@@ -16,6 +16,34 @@ fileprivate let digitWidth: CGFloat = 7.5
 fileprivate let digitWidth: CGFloat = 11
 #endif
 
+fileprivate struct BackgroundView: View {
+    let showStroke: Bool
+    let radius: CGFloat
+   
+    init(showStroke: Bool = true, radius: CGFloat = 3) {
+        self.showStroke = showStroke
+        self.radius = radius
+    }
+    
+    var body: some View {
+        ZStack {
+            BlurView()
+                .opacity(0.7)
+            
+            Color.gray
+                .opacity(0.1)
+           
+            if showStroke {
+                RoundedRectangle(cornerRadius: 5)
+                    .stroke(Color.gray, lineWidth: 1)
+            }
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 4))
+        .shadow(radius: self.radius)
+    }
+}
+
+
 fileprivate extension View {
     func blueBackground(padding: CGFloat = 3) -> some View {
         self
@@ -34,14 +62,15 @@ fileprivate extension View {
 //}
 
 struct Time: View {
-    @FocusState var focus: Int?
-    @State var timeBuffer: String? = ""
+    @FocusState private var focus: Int?
+    @State private var timeBuffer: String? = ""
+    @State private var component: Calendar.Component? = .year
     
+    @State var updater = 0
+   
+    let label: String
+    @Binding var date: Date?
     @Binding var showing: Bool
-    
-    @State var date: Date? = .now
-    @State var component: Calendar.Component? = .year
-    
     
     func reallySet(_ comp: Calendar.Component, value: Int, date: Date) -> Date {
         var components = NSCalendar.current.dateComponents([.minute, .hour, .day, .month, .year], from: date)
@@ -78,6 +107,10 @@ struct Time: View {
                 newVal = reallySet(.month, value: 1, date: newVal)
                 newVal = reallySet(.year, value: newComponent, date: newVal)
             }
+            else if comp == .hour && newComponent != oldComponent {
+                newVal = reallySet(.hour, value: newComponent, date: newVal)
+                newVal = reallySet(.minute, value: 0, date: newVal)
+            }
             
             date.wrappedValue = newVal
         }
@@ -87,14 +120,14 @@ struct Time: View {
         
         return TextField("", text: Binding(
             get: {
-                if let buffer = timeBuffer.wrappedValue, self.focus == fFocus {
+                if let buffer = timeBuffer.wrappedValue, self.focus == fFocus, timeComponent.wrappedValue == comp {
                     return buffer
                 }
                 else {
                     return raw
                 }
             }, set: { newValue in
-                if self.focus == fFocus {
+                if self.focus == fFocus && timeComponent.wrappedValue == comp {
                     timeBuffer.wrappedValue = String(
                         newValue
                         .filter { $0.isNumber }
@@ -102,66 +135,77 @@ struct Time: View {
                     )
                 }
             }))
-                .multilineTextAlignment(.trailing)
-                #if os(iOS)
-                .keyboardType(.numbersAndPunctuation)
-                #endif
-                .focused(self.$focus, equals: fFocus)
-                .frame(maxWidth: CGFloat(digits) * digitWidth)
-                .onAppear {
-                    timeComponent.wrappedValue = nil
-                }
-                .onChange(of: self.focus, initial: true) { focus, mf in
-                    if focus == fFocus {
-                        // absolute state...
-                        write(comp: timeComponent.wrappedValue)
-                    }
-                    if mf == fFocus {
-                        write(comp: timeComponent.wrappedValue)
-                        // NOTE: cannot be cached with other string
-                        // since may have changed as result of write
-                        let current = String(format: "%0\(digits)d", NSCalendar.current.component(comp, from: date.wrappedValue ?? Date.now))
-                        timeBuffer.wrappedValue = current
-                        timeComponent.wrappedValue = comp
-                    }
-                }
-                .onDisappear {
-                    if let comp = timeComponent.wrappedValue {
-                        write(comp: comp)
-                    }
-                    timeComponent.wrappedValue = nil
-                    timeBuffer.wrappedValue = nil
-                }
-                .onSubmit {
-                    write(comp: comp)
-                    
-                    self.focus = fFocus + delFocus
-                    
-                    // reset
-                    if fFocus + delFocus == 0 {
-                        self.showing = false
-                    }
-                }
+        .onChange(of: timeBuffer.wrappedValue) {
+            
+            if self.focus == fFocus && timeComponent.wrappedValue == comp {
+                updater += 1
+                timeBuffer.wrappedValue = String(
+                    timeBuffer.wrappedValue!
+                    .filter { $0.isNumber }
+                    .suffix(digits)
+                )
+            }
+        }
+        .multilineTextAlignment(.trailing)
+#if os(iOS)
+        .keyboardType(.numbersAndPunctuation)
+#endif
+        .focused(self.$focus, equals: fFocus)
+        .frame(maxWidth: CGFloat(digits) * digitWidth)
+        .onAppear {
+            timeComponent.wrappedValue = nil
+        }
+        .onChange(of: self.focus, initial: true) { focus, mf in
+            if focus == fFocus {
+                // absolute state...
+                write(comp: timeComponent.wrappedValue)
+            }
+            if mf == fFocus {
+                write(comp: timeComponent.wrappedValue)
+                // NOTE: cannot be cached with other string
+                // since may have changed as result of write
+                let current = String(format: "%0\(digits)d", NSCalendar.current.component(comp, from: date.wrappedValue ?? Date.now))
+                timeBuffer.wrappedValue = current
+                timeComponent.wrappedValue = comp
+            }
+        }
+        .onDisappear {
+            if let comp = timeComponent.wrappedValue {
+                write(comp: comp)
+            }
+            timeComponent.wrappedValue = nil
+            timeBuffer.wrappedValue = nil
+        }
+        .onSubmit {
+            write(comp: comp)
+            
+            self.focus = fFocus + delFocus
+            
+            // reset
+            if fFocus + delFocus == 0 {
+                self.showing = false
+            }
+        }
     }
     
     func dateEditor(_ label: String, date: Binding<Date?>, timeBuffer: Binding<String?>, timeComponent: Binding<Calendar.Component?>) -> some View {
         HStack {
-            #if os(macOS)
+#if os(macOS)
             Text(label)
                 .font(.body.bold())
-            #endif
+#endif
             
             HStack(spacing: 0) {
                 //YYYY
                 self.field(date: date, timeBuffer: timeBuffer, timeComponent: timeComponent, fFocus: 1, comp: .year)
                 Text("/")
                     .padding(.leading, 2)
-               
+                
                 //MM
                 self.field(date: date, timeBuffer: timeBuffer, timeComponent: timeComponent, fFocus: 2, comp: .month)
                 Text("/")
                     .padding(.leading, 2)
-               
+                
                 //DD
                 self.field(date: date, timeBuffer: timeBuffer, timeComponent: timeComponent, fFocus: 3, comp: .day)
             }
@@ -187,11 +231,22 @@ struct Time: View {
         }
     }
     
+    //    var calendar: some View {
+    //
+    //    }
+    
     var body: some View {
-        self.dateEditor("Start", date: $date, timeBuffer: $timeBuffer, timeComponent: $component)
+        VStack {
+            self.dateEditor("Start", date: $date, timeBuffer: $timeBuffer, timeComponent: $component)
+        }
+        .padding(6)
+        .background {
+            BackgroundView()
+        }
+        .padding(.vertical, 1)
     }
 }
 
 #Preview {
-    Time(showing: .constant(true))
+    Time(label: "Start", date: .constant(.now), showing: .constant(true))
 }

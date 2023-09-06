@@ -12,17 +12,20 @@ struct NutqContentView: View {
     @EnvironmentObject var env: EnvState
     @Environment(\.scenePhase) private var scenePhase
     
+    @State var aux: Date? = .now
+    
     var body: some View {
         Group {
-            if env.esotericToken == nil {
-                Auth()
-            }
-            else {
-                NavigationView {
-                    Sidebar()
-                    Union()
-                }
-            }
+//            if env.esotericToken == nil {
+//                Auth()
+//            }
+//            else {
+//                NavigationView {
+//                    Sidebar()
+//                    Union()
+//                }
+//            }
+            Time(label: "Start", date: $aux, showing: .constant(true))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .environmentObject(env)

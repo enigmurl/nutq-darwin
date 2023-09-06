@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B40230582AA8106900F2A18B /* TimeViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40230572AA8106800F2A18B /* TimeViews.swift */; };
+		B40230592AA8106900F2A18B /* TimeViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40230572AA8106800F2A18B /* TimeViews.swift */; };
 		B40EE1452A5E737100EE5BCD /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = B40EE1442A5E737100EE5BCD /* GoogleSignIn */; };
 		B40EE1472A5E737100EE5BCD /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B40EE1462A5E737100EE5BCD /* GoogleSignInSwift */; };
 		B40EE1492A5E737100EE5BCD /* GoogleAPIClientForREST_Calendar in Frameworks */ = {isa = PBXBuildFile; productRef = B40EE1482A5E737100EE5BCD /* GoogleAPIClientForREST_Calendar */; };
@@ -136,6 +138,7 @@
 
 /* Begin PBXFileReference section */
 		B40160AB2A5273F3002DC32B /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		B40230572AA8106800F2A18B /* TimeViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeViews.swift; sourceTree = "<group>"; };
 		B434A5DD2A23D91B001D81E8 /* Nut Q.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Nut Q.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B434A5E02A23D91B001D81E8 /* Nutq.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Nutq.swift; sourceTree = "<group>"; };
 		B434A5E22A23D91B001D81E8 /* NutqContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NutqContentView.swift; sourceTree = "<group>"; };
@@ -325,6 +328,7 @@
 				B4754EDD2A38F38000FB26C0 /* Tree.swift */,
 				B49946E22A998F30006783E6 /* Auth.swift */,
 				B47F3ED52A9BCEFB00D3CC09 /* TreeView.swift */,
+				B40230572AA8106800F2A18B /* TimeViews.swift */,
 			);
 			path = views;
 			sourceTree = "<group>";
@@ -538,6 +542,7 @@
 				B434A5E32A23D91B001D81E8 /* NutqContentView.swift in Sources */,
 				B4754ECE2A38019000FB26C0 /* EnvState.swift in Sources */,
 				B47F3ED62A9BCEFB00D3CC09 /* TreeView.swift in Sources */,
+				B40230582AA8106900F2A18B /* TimeViews.swift in Sources */,
 				B49946E62A99A7A0006783E6 /* Proxy.swift in Sources */,
 				B4754ED32A380D1C00FB26C0 /* Union.swift in Sources */,
 				B4754EDE2A38F38000FB26C0 /* Tree.swift in Sources */,
@@ -591,6 +596,7 @@
 				B46D18282A56546100D886ED /* NutqContentView.swift in Sources */,
 				B46D18292A56546100D886ED /* EnvState.swift in Sources */,
 				B47F3ED72A9BCEFB00D3CC09 /* TreeView.swift in Sources */,
+				B40230592AA8106900F2A18B /* TimeViews.swift in Sources */,
 				B49946E72A99A7A0006783E6 /* Proxy.swift in Sources */,
 				B46D182A2A56546100D886ED /* Union.swift in Sources */,
 				B46D182B2A56546100D886ED /* Tree.swift in Sources */,

@@ -108,7 +108,10 @@ final class TreeTextView: NSTextView, NSTextStorageDelegate {
         set { self.setSelectedRange(newValue)}
     }
     var ts: NSTextStorage { self.textStorage! }
-    var text: String { self.string }
+    var text: String {
+        get { self.string }
+        set { self.string = newValue}
+    }
 
     static func factory(schemes: Binding<[SchemeItem]>) -> TreeTextView {
         let ret = TreeTextView()
@@ -359,7 +362,7 @@ struct TreeNativeView: NSViewRepresentable {
     // we want to be notified of changes to specific schemes, but not insertions or deletions
     @ObservedObject var scheme: SchemeItemList
     let menu: MenuState
-    let scrollCounter: Int
+    let enabled: Bool
 
     func makeNSView(context: NSViewRepresentableContext<Self>) -> NSScrollView {
         let scroll = TouchThroughScrollView()
@@ -371,6 +374,7 @@ struct TreeNativeView: NSViewRepresentable {
         
         let ret = TreeTextView.factory(schemes: $scheme.schemes)
         ret.listen(to: menu)
+        ret.isEditable = enabled
         
         self.attribute(ret)
         
@@ -405,7 +409,7 @@ final class TreeTextView: UITextView, NSTextStorageDelegate, UITextViewDelegate 
     var gutterView: GutterView!
     var addNewLineFlag = false
     var pipe: AnyCancellable!
-    var deleteRange: NSRange?
+    var deleteRange: Range<Int>?
     
     var sr: NSRange {
         get { self.selectedRange }
@@ -572,13 +576,14 @@ struct TreeNativeView: UIViewRepresentable {
     // we want to be notified of changes to specific schemes, but not insertions or deletions
     @ObservedObject var scheme: SchemeItemList
     let menu: MenuState
-    let scrollCounter: Int
+    let enabled: Bool
 
     func makeUIView(context: UIViewRepresentableContext<Self>) -> UIScrollView {
         let ret = TreeTextView.factory(schemes: $scheme.schemes)
         ret.backgroundColor = backgroundColor
         ret.listen(to: menu)
         ret.textContainerInset = .zero
+        ret.isEnabled = enabled
         
         self.attribute(ret)
         
@@ -609,12 +614,12 @@ struct TreeView: View {
     // we want to be notified of changes to specific schemes, but not insertions or deletions
     let scheme: SchemeItemList
     let menu: MenuState
+    let enabled: Bool
     
-    @State var counter = 0
     @FocusState var focused
    
     var body: some View {
-        TreeNativeView(scheme: scheme, menu: menu, scrollCounter: counter)
+        TreeNativeView(scheme: scheme, menu: menu, enabled: enabled)
             .padding(.horizontal, 10)
             .padding(.vertical, 10)
             .background(Color(red: 0.841, green: 0.888, blue: 0.888))
@@ -793,28 +798,24 @@ extension TreeTextView {
     }
     
     func addAuxiliaryLine() {
-        let old = self.selectedRange()
+        let old = self.sr
         self.ts.append(NSAttributedString(string: "\n"))
-        self.setSelectedRange(old)
+        self.sr = old
         self.addNewLineFlag = false
         
         self.undoManager?.registerUndo(withTarget: self) {
             $0.removeAuxiliaryLine()
         }
-        
-        print("Add Schemes: ", self.schemes.count, "Handles", self.handles.count, "Lines", self.lines(startIndex: 0).count)
     }
     
     func removeAuxiliaryLine() {
-        let old = self.selectedRange()
-        self.string.removeLast()
-        self.setSelectedRange(old)
+        let old = self.sr
+        self.text.removeLast()
+        self.sr = old
         
         self.undoManager?.registerUndo(withTarget: self) {
             $0.addAuxiliaryLine()
         }
-        
-        print("Remove Schemes: ", self.schemes.count, "Handles", self.handles.count, "Lines", self.lines(startIndex: 0).count)
     }
     
     func delete(range: Range<Int>) {
@@ -827,7 +828,6 @@ extension TreeTextView {
             $0.gutterView.setNeedsLayout()
         }
         
-        print("Delete Schemes: ", self.schemes.count, "Handles", self.handles.count, "Lines", self.lines(startIndex: 0).count)
     }
         
     func insert(items: [SchemeItem], at index: Int) {
@@ -841,7 +841,6 @@ extension TreeTextView {
             $0.gutterView.setNeedsLayout()
         }
         
-        print("Insert Schemes: ", self.schemes.count, "Handles", self.handles.count, "Lines", self.lines(startIndex: 0).count)
     }
     
     // not perfect, but generally does what we want
@@ -913,7 +912,6 @@ extension TreeTextView {
         }
     
         gutterView.setNeedsLayout()
-        print("Fix Schemes: ", self.schemes.count, "Handles", self.handles.count, "Lines", self.lines(startIndex: 0).count)
     }
     
     func applyInitialAttributes() {

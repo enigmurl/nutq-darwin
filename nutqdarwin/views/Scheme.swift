@@ -18,6 +18,8 @@ struct Scheme: View {
     @EnvironmentObject var menu: MenuState
     @ObservedObject var scheme: SchemeState
     
+    @State var showingUpcoming = false
+    
     func removeFocus() {
         DispatchQueue.main.async {
             #if os(macOS)
@@ -35,7 +37,7 @@ struct Scheme: View {
                 Divider()
             #endif 
            
-            TreeView(scheme: scheme.scheme_list, menu: menu)
+            TreeView(scheme: scheme.scheme_list, menu: menu, enabled: !scheme.syncs_to_gsync)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background {
@@ -72,9 +74,20 @@ struct Scheme: View {
                     }
                 }
             }
+            #else
+            ToolbarItem(placement: .navigation) {
+                Button("Soon") {
+                    showingUpcoming = true
+                }
+            }
             #endif
         }
         #if os(iOS)
+        .sheet(isPresented: $showingUpcoming) {
+            Upcoming(schemes: [_scheme])
+                .padding(.top, 20)
+                .presentationDetents([.medium, .large])
+        }
         .navigationBarTitleDisplayMode(.inline)
         #endif
        
