@@ -43,7 +43,7 @@ struct UpcomingAssignment: View {
             .font(.caption2.monospaced())
             .multilineTextAlignment(.trailing)
             .bold()
-            .foregroundColor(self.item.dateColor)
+            .foregroundStyle(self.item.dateColor)
             
             Spacer()
         }
@@ -53,7 +53,7 @@ struct UpcomingAssignment: View {
         Text(self.item.path.joined(separator: "\u{00bb}"))
             .font(.caption2)
             .bold()
-            .foregroundColor(color)
+            .foregroundStyle(color)
     }
     
     var body: some View {
@@ -64,7 +64,7 @@ struct UpcomingAssignment: View {
         HStack {
             Rectangle()
                 .frame(maxWidth: 1.5, maxHeight: .infinity)
-                .foregroundColor(color)
+                .foregroundStyle(color)
                 .saturation(0.4)
         
             VStack(alignment: .leading) {

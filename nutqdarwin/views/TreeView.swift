@@ -27,7 +27,7 @@ typealias NativeColor = UIColor
 fileprivate let backgroundColor = NativeColor(red: 0.841, green: 0.888, blue: 0.888, alpha: 1)
 #if os(iOS)
 fileprivate let textAttributes: [NSAttributedString.Key: Any] = [
-    .foregroundColor: NativeColor.systemIndigo.withAlphaComponent(0.7),
+    .foregroundStyle: NativeColor.systemIndigo.withAlphaComponent(0.7),
     .backgroundColor: backgroundColor
 ]
 #else

@@ -55,11 +55,128 @@ fileprivate extension View {
     }
 }
 
-//struct Block: View {
-//    var body: some View {
-//        
-//    }
-//}
+struct Block: View {
+    @FocusState private var focus: Int?
+    @State private var blockBuffer = ""
+    
+    @Binding var showing: Bool
+    @ObservedObject var schemeNode: SchemeItem
+    
+    func blockEditor(_ label: String, schemeRepeat: Binding<SchemeRepeat>) -> some View {
+        let blockBinding = Binding(get: {
+            guard case let SchemeRepeat.block(block) = schemeRepeat.wrappedValue else {
+                return SchemeRepeat.Block()
+            }
+            
+            return block
+        }, set: { (val: SchemeRepeat.Block) in
+            schemeRepeat.wrappedValue = .block(block: val)
+            
+            /* ensure state is proper */
+            let target = val.remainders.count * val.blocks
+            if self.schemeNode.state.count > target {
+                self.schemeNode.state.removeLast(self.schemeNode.state.count - target)
+            }
+            else if self.schemeNode.state.count < target {
+                self.schemeNode.state.append(contentsOf: [Int](repeating: 0, count: target - self.schemeNode.state.count))
+            }
+            /* autocompletion of events may be slightly lagged, but generally it's fine */
+        })
+        
+        return (
+            HStack(spacing: 4) {
+                #if os(macOS)
+                Text(label)
+                    .font(.body.bold())
+                    .padding(.trailing, 4)
+                #endif
+                
+                Text("remainders")
+                TextField("", text: Binding(get: {
+                    blockBuffer
+                }, set: { str in
+                    blockBuffer = str.filter {$0.isNumber || $0 == ","}
+                    blockBinding.wrappedValue.remainders = blockBuffer
+                        .split(separator: ",")
+                        .map { Int($0) ?? 0 }
+                }))
+                    .focused($focus, equals: 1)
+                    .frame(maxWidth: 60)
+                    .blueBackground()
+                    .padding(.trailing, 4)
+                    .onSubmit {
+                        focus = 2
+                    }
+                
+                Text("blocks")
+                TextField("", text: Binding(digits: blockBinding.blocks, min: 1, max: SchemeRepeat.Block.maxBlocks))
+                    .focused($focus, equals: 2)
+                    .frame(maxWidth: 20)
+                    .blueBackground()
+                    .padding(.trailing, 4)
+                    .onSubmit {
+                        self.focus = 3
+                    }
+                
+                Text("mod")
+                TextField("", text: Binding(digits: blockBinding.modulus, min: 1))
+                    .focused($focus, equals: 3)
+                    .frame(maxWidth: 20)
+                    .blueBackground()
+                    .padding(.trailing, 2)
+                    .onSubmit {
+                        focus = 0
+                        showing = false
+                    }
+
+                Text("(days)")
+                    .font(.caption2.lowercaseSmallCaps())
+                
+                Button(role: .destructive) {
+                    self.schemeNode.repeats = .none
+                    self.showing = false
+                } label: {
+                    Image(systemName: "minus.square")
+                }
+                .buttonStyle(.link)
+                .foregroundStyle(.red)
+                
+            }
+            .textFieldStyle(.plain)
+            .multilineTextAlignment(.trailing)
+            .onAppear {
+                DispatchQueue.main.async {
+                    self.focus = 1
+                }
+                
+                blockBuffer = blockBinding.wrappedValue.remainders
+                    .map { String($0)}
+                    .joined(separator: ",")
+            }
+            .onDisappear {
+                // not necessary (or guaranteed to be called), but generally useful
+                if schemeRepeat.wrappedValue != .none {
+                    blockBinding.wrappedValue.remainders = Array(Set(
+                        blockBuffer
+                            .split(separator: ",")
+                            .map { min(blockBinding.wrappedValue.modulus - 1, max(Int($0) ?? 0, 0)) }
+                    )).sorted()
+                }
+            }
+        )
+    }
+    
+    var body: some View {
+        VStack {
+            self.blockEditor("Block Repeat", schemeRepeat: $schemeNode.repeats)
+        }
+        .padding(6)
+        .background {
+            BackgroundView()
+        }
+        .padding(.vertical, 1)
+    }
+}
 
 struct Time: View {
     @FocusState private var focus: Int?
@@ -135,17 +252,6 @@ struct Time: View {
                     )
                 }
             }))
-        .onChange(of: timeBuffer.wrappedValue) {
-            
-            if self.focus == fFocus && timeComponent.wrappedValue == comp {
-                updater += 1
-                timeBuffer.wrappedValue = String(
-                    timeBuffer.wrappedValue!
-                    .filter { $0.isNumber }
-                    .suffix(digits)
-                )
-            }
-        }
         .multilineTextAlignment(.trailing)
 #if os(iOS)
         .keyboardType(.numbersAndPunctuation)
@@ -167,6 +273,10 @@ struct Time: View {
                 let current = String(format: "%0\(digits)d", NSCalendar.current.component(comp, from: date.wrappedValue ?? Date.now))
                 timeBuffer.wrappedValue = current
                 timeComponent.wrappedValue = comp
+            }
+            else if mf == nil {
+                timeBuffer.wrappedValue = nil
+                timeComponent.wrappedValue = nil
             }
         }
         .onDisappear {
@@ -224,6 +334,16 @@ struct Time: View {
             }
             .monospaced()
             .blueBackground()
+            
+            
+            Button(role: .destructive) {
+                self.date = nil
+                self.showing = false
+            } label: {
+                Image(systemName: "minus.square")
+            }
+            .buttonStyle(.link)
+            .foregroundStyle(.red)
         }
         .textFieldStyle(.plain)
         .onAppear {
@@ -231,13 +351,83 @@ struct Time: View {
         }
     }
     
-    //    var calendar: some View {
-    //
-    //    }
+    var calendar: some View {
+        let date = self.date!
+        let calendar = Calendar.current
+      
+        let currentDay = calendar.dateComponents([.year, .month], from: date) == calendar.dateComponents([.year, .month], from: .now) ? calendar.component(.day, from: .now) : -1
+        
+        let firstDayOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: date))!
+        let firstWeekday = calendar.component(.weekday, from: firstDayOfMonth) - 1
+        let targetDayOfMonth = calendar.component(.day, from: date)
+        let days = calendar.range(of: .day, in: .month, for: date)!
+    
+        var weeks: [[Int]] = [[]]
+        for day in days {
+            let weekDay = (firstWeekday + day - 1) % 7
+            
+            weeks[weeks.count - 1].append(day)
+            
+            if weekDay == 6 && day != days.last {
+                weeks.append([])
+            }
+        }
+        
+        if weeks[0].count < 7 {
+            weeks[0].insert(contentsOf: Array(stride(from: -1, through: weeks[0].count - 7, by: -1)), at: 0)
+        }
+        
+        if weeks[weeks.count - 1].count < 7 {
+            weeks[weeks.count - 1].append(contentsOf: Array(stride(from: -8, through: weeks[weeks.count - 1].count - 14, by: -1)))
+        }
+        
+        return (
+            Grid {
+                ForEach(weeks, id: \.self) { week in
+                    GridRow {
+                        ForEach(week, id: \.self) { day in
+                            Button {
+                                if day > 0 {
+                                    if focus == 3 {
+                                        timeBuffer = String(format: "%02d", day)
+                                    }
+                                    
+                                    self.date = firstDayOfMonth + TimeInterval(day - 1) * .day
+                                }
+                            } label: {
+                                Group {
+                                    if day > 0 {
+                                        Text("\(day)")
+                                            .bold(day == targetDayOfMonth)
+                                            .foregroundStyle(day == currentDay && day != targetDayOfMonth ? Color.red : Color.primary)
+                                    }
+                                    else {
+                                        Color.clear
+                                    }
+                                }
+                                .frame(width: 25, height: 25)
+                                .background {
+                                    if day == targetDayOfMonth {
+                                        Circle()
+                                            .fill(Color.blue)
+                                    }
+                                }
+                                .contentShape(Rectangle())
+                                .allowsHitTesting(true)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                }
+            }
+        )
+    }
     
     var body: some View {
         VStack {
             self.dateEditor("Start", date: $date, timeBuffer: $timeBuffer, timeComponent: $component)
+            
+            self.calendar
         }
         .padding(6)
         .background {

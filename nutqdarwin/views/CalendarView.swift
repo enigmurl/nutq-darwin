@@ -22,7 +22,7 @@ struct TimeLegend: View {
             ForEach(0 ..< 24) { i in
                 Text(String(format: "%02d:00", i))
                     .font(.caption2.monospaced())
-                    .foregroundColor(.gray)
+                    .foregroundStyle(.gray)
                     .frame(width: 35, height: hourHeight, alignment: .topTrailing)
                     .padding(.horizontal, 4)
             }
@@ -59,17 +59,15 @@ struct DayHeader: View {
             if index == 0 || dayOfMonth == 1 {
                 Text(month)
                     .fontWeight(.heavy)
-                    .foregroundColor(date.dayDifference(with: .now) != 0 ? .primary : .red)
                     .saturation(0.7)
             }
             else {
                 Text(["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][dayOfWeek - 1])
-                    .foregroundColor(date.dayDifference(with: .now) != 0 ? .primary : .red)
             }
 
             Text(String(dayOfMonth))
-                .foregroundColor(date.dayDifference(with: .now) != 0 ? .primary : .red)
         }
+        .foregroundStyle(date.dayDifference(with: .now) != 0 ? Color.primary : Color.red)
         .font(.title3)
         .frame(maxWidth: .infinity, minHeight: hourHeight - 1, maxHeight: hourHeight - 1) /* for divider */
     }
@@ -194,7 +192,7 @@ struct CalendarEvents: View {
                             /* display */
                             Text(item.text)
                                 .multilineTextAlignment(.center)
-                                .foregroundColor(colorIndexToColor(item.colorIndex))
+                                .foregroundStyle(colorIndexToColor(item.colorIndex))
                                 .saturation(item.state == -1 ? 0 : 0.7)
                                 .font(Font.system(size: 12).bold())
                                 .padding(.horizontal, 6)
@@ -206,7 +204,7 @@ struct CalendarEvents: View {
                     .background(alignment: .top) {
                         if head.start == nil || head.end == nil {
                             Rectangle()
-                                .foregroundColor(.white.opacity(0.2))
+                                .foregroundStyle(.white.opacity(0.2))
                             GeometryReader { shape in
                                 Path { path in
                                     let w = shape.size.width
@@ -227,7 +225,7 @@ struct CalendarEvents: View {
                         else {
                             Group {
                                 RoundedRectangle(cornerRadius: 3)
-                                    .foregroundColor(.white.opacity(0.2))
+                                    .foregroundStyle(.white.opacity(0.2))
                                 RoundedRectangle(cornerRadius: 3)
                                     .stroke(.white, lineWidth: 2)
                             }
@@ -318,7 +316,7 @@ struct CalendarDay: View {
                     Rectangle()
                         .frame(height: 2)
                 }
-                    .foregroundColor(.red)
+                    .foregroundStyle(.red)
                     .padding(.top, filledPixels - 6) // accounts for circle height
             }
         }

@@ -22,7 +22,7 @@ struct Auth: View {
               
                 if error.count > 0 {
                     Text(error)
-                        .foregroundColor(.red)
+                        .foregroundStyle(.red)
                 }
                 
                 Button("Go") {

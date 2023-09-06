@@ -38,7 +38,7 @@ struct TagView: View {
         Image(systemName: "square.fill")
             .resizable()
             .frame(width: 20, height: 18)
-            .foregroundColor(colorIndexToColor(index))
+            .foregroundStyle(colorIndexToColor(index))
     }
     
     var body: some View {

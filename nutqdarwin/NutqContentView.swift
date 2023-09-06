@@ -13,6 +13,11 @@ struct NutqContentView: View {
     @Environment(\.scenePhase) private var scenePhase
     
     @State var aux: Date? = .now
+    @StateObject var test = {
+        let ret = blankEditor("")
+        ret.repeats = .block(block: .init())
+        return ret
+    }()
     
     var body: some View {
         Group {
@@ -26,6 +31,7 @@ struct NutqContentView: View {
 //                }
 //            }
             Time(label: "Start", date: $aux, showing: .constant(true))
+            Block(showing: .constant(true), schemeNode: test)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .environmentObject(env)

@@ -692,7 +692,7 @@ struct ItemEditor: View {
                         EmptyView()
                     case .block(_):
                         Text("block")
-                            .foregroundColor(.blue)
+                            .foregroundStyle(.blue)
                     }
                 }
                 .font(.caption2)
@@ -750,7 +750,7 @@ struct ItemEditor: View {
 //                Image(systemName: imageName)
 //                    .resizable()
 //                    .frame(width: 15, height: 15)
-//                    .foregroundColor(Color(red: 0.7, green: 0.7, blue: 1))
+//                    .foregroundStyle(Color(red: 0.7, green: 0.7, blue: 1))
 //            }
 //            .buttonStyle(.plain)
 

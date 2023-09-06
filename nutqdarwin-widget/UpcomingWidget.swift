@@ -91,7 +91,7 @@ struct UpcomingAssignmentWidget: View {
                 }
             }
         }
-        .foregroundColor(self.item.dateColor.opacity(0.7))
+        .foregroundStyle(self.item.dateColor.opacity(0.7))
         .font(.system(size: 10).monospacedDigit())
     }
     
@@ -111,7 +111,7 @@ struct UpcomingAssignmentWidget: View {
 //            .overlay(
 //                Rectangle()
 //                    .frame(maxWidth: 2.5, alignment: .leading)
-//                    .foregroundColor(.indigo)
+//                    .foregroundStyle(.indigo)
 //                    .saturation(0.4),
 //                alignment: .leading
 //            )
@@ -132,9 +132,9 @@ struct UpcomingWidgetView : View {
             Spacer()
             
             Text(weekdayFormatter.string(from: .now))
-                .foregroundColor(.red)
+                .foregroundStyle(.red)
             Text(dayOfMonthFormatter.string(from: .now))
-                .foregroundColor(.red)
+                .foregroundStyle(.red)
                 .saturation(0.8)
             
             Spacer()
