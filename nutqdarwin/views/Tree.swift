@@ -773,11 +773,11 @@ struct ItemEditor: View {
             .opacity(completed ? 0.7 : 1)
             
             #if os(iOS)
-            if focus?.uuid == self.schemeNode.id {
-                Button("Time") {
-                    showingModifierPopover = true
-                }
-            }
+//            if focus?.uuid == self.scheme.id {
+//                Button("Time") {
+//                    showingModifierPopover = true
+//                }
+//            }
             #endif
         }
         .focused($focus, equals: TreeFocusToken(uuid: schemeNode.id, subtoken: 0))

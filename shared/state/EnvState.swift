@@ -17,7 +17,6 @@ import GTMSessionFetcherFull
 let unionNullUUID = UUID(uuidString: "00000000-0000-0000-0000-ffffffffffff")!
 
 fileprivate let gsyncInterval = 15 * TimeInterval.minute
-fileprivate let gsyncHeader   = "[gc]"
 
 protocol DatastoreManager: AnyObject {
     var schemes: [SchemeState] {get set}
@@ -172,12 +171,12 @@ class SystemManager {
                 service.executeQuery(query) { (_, result, error) in
                     if let error = error {
                         // Handle the error
-                        self.env.schemes[i].scheme_list.schemes.insert(SchemeItem(state: [0], text:  "ERR_{\(error.localizedDescription)} " + gsyncHeader, repeats: .none, indentation: 0), at: 0)
+                        self.env.schemes[i].scheme_list.schemes.insert(SchemeItem(state: [0], text:  "ERR_{\(error.localizedDescription)}", repeats: .none, indentation: 0), at: 0)
                         print("Calendar events query error: \(error.localizedDescription)")
                         return
                     }
                     
-                    self.env.schemes[i].scheme_list.schemes = scheme.scheme_list.schemes.filter {!$0.text.hasSuffix(gsyncHeader)}
+                    self.env.schemes[i].scheme_list.schemes = []
                     
                     // Process the events returned in the response
                     if let events = (result as? GTLRCalendar_Events)?.items {
@@ -188,7 +187,7 @@ class SystemManager {
                             
                             let finished = Date.now > end ? -1 : 0
                             let item = SchemeItem(state: [finished],
-                                                  text: (event.summary ?? "") + " " + gsyncHeader,
+                                                  text: (event.summary ?? ""),
                                                   start: start,
                                                   end: end,
                                                   repeats: .none,

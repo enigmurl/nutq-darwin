@@ -47,7 +47,10 @@ struct SchemeSingularItem: Identifiable {
     var dateColor: Color {
         let time = self.start ?? self.end!
         // same day
-        if time.dayDifference(with: .now) <= 0 {
+        if time < .now {
+            return Color.red
+        }
+        else if time.dayDifference(with: .now) <= 0 {
             return Color(red: 0.75, green: 0.75, blue: 1)
         }
         else if time.dayDifference(with: .now) <= 1 {
@@ -142,7 +145,11 @@ public final class SchemeItem: ObservableObject, Codable, Hashable, Identifiable
     @Published public var start: Date?
     @Published public var end: Date?
   
-    @Published public var repeats: SchemeRepeat
+    @Published public var repeats: SchemeRepeat {
+        didSet {
+            print("Set to", repeats)
+        }
+    }
     
     @Published public var indentation: Int
     
@@ -207,8 +214,13 @@ public final class SchemeItem: ObservableObject, Codable, Hashable, Identifiable
         state.allSatisfy { $0 == -1 }
     }
     
-    public var statePublisher: AnyPublisher<[Int], Never> {
-        $state.eraseToAnyPublisher()
+    public var mergedStatePublisher: AnyPublisher<Void, Never> {
+        return Publishers.Merge4(
+            $state.map { _ in }.eraseToAnyPublisher(),
+            $start.map { _ in }.eraseToAnyPublisher(),
+            $end.map { _ in }.eraseToAnyPublisher(),
+            $repeats.map { _ in }.eraseToAnyPublisher()
+        ).eraseToAnyPublisher()
     }
     
     public static func == (lhs: SchemeItem, rhs: SchemeItem) -> Bool {

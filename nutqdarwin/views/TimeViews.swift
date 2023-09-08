@@ -28,10 +28,10 @@ fileprivate struct BackgroundView: View {
     var body: some View {
         ZStack {
             BlurView()
-                .opacity(0.7)
+                .opacity(1)
             
-            Color.gray
-                .opacity(0.1)
+            Color.black
+                .opacity(0.2)
            
             if showStroke {
                 RoundedRectangle(cornerRadius: 5)
@@ -42,7 +42,6 @@ fileprivate struct BackgroundView: View {
         .shadow(radius: self.radius)
     }
 }
-
 
 fileprivate extension View {
     func blueBackground(padding: CGFloat = 3) -> some View {
@@ -56,11 +55,16 @@ fileprivate extension View {
 }
 
 struct Block: View {
+    @Environment(\.undoManager) var undo: UndoManager?
+    
     @FocusState private var focus: Int?
     @State private var blockBuffer = ""
+    @State private var delete = false
     
-    @Binding var showing: Bool
-    @ObservedObject var schemeNode: SchemeItem
+    @ObservedObject var scheme: SchemeItem
+    let menuState: MenuState
+    let menuCallback: (MenuAction, MenuState) -> ()
+    let close: () -> ()
     
     func blockEditor(_ label: String, schemeRepeat: Binding<SchemeRepeat>) -> some View {
         let blockBinding = Binding(get: {
@@ -70,15 +74,17 @@ struct Block: View {
             
             return block
         }, set: { (val: SchemeRepeat.Block) in
-            schemeRepeat.wrappedValue = .block(block: val)
+            if !delete {
+                schemeRepeat.wrappedValue = .block(block: val)
+            }
             
             /* ensure state is proper */
             let target = val.remainders.count * val.blocks
-            if self.schemeNode.state.count > target {
-                self.schemeNode.state.removeLast(self.schemeNode.state.count - target)
+            if self.scheme.state.count > target {
+                self.scheme.state.removeLast(self.scheme.state.count - target)
             }
-            else if self.schemeNode.state.count < target {
-                self.schemeNode.state.append(contentsOf: [Int](repeating: 0, count: target - self.schemeNode.state.count))
+            else if self.scheme.state.count < target {
+                self.scheme.state.append(contentsOf: [Int](repeating: 0, count: target - self.scheme.state.count))
             }
             /* autocompletion of events may be slightly lagged, but generally it's fine */
         })
@@ -126,22 +132,30 @@ struct Block: View {
                     .padding(.trailing, 2)
                     .onSubmit {
                         focus = 0
-                        showing = false
+                        close()
                     }
 
                 Text("(days)")
                     .font(.caption2.lowercaseSmallCaps())
                 
-                Button(role: .destructive) {
-                    self.schemeNode.repeats = .none
-                    self.showing = false
-                } label: {
-                    Image(systemName: "minus.square")
-                }
+                Image(systemName: "minus.square")
+                    .onTapGesture {
+                        self.scheme.state = [scheme.state.first ?? 0]
+                        self.scheme.repeats = .none
+                        
+                        delete = true
+                        
+                        close()
+                    }
+#if os(macOS)
                 .buttonStyle(.link)
+#endif
                 .foregroundStyle(.red)
                 
             }
+#if os(macOS)
+            .focusSection()
+#endif
             .textFieldStyle(.plain)
             .multilineTextAlignment(.trailing)
             .onAppear {
@@ -155,7 +169,7 @@ struct Block: View {
             }
             .onDisappear {
                 // not necessary (or guaranteed to be called), but generally useful
-                if schemeRepeat.wrappedValue != .none {
+                if !delete {
                     blockBinding.wrappedValue.remainders = Array(Set(
                         blockBuffer
                             .split(separator: ",")
@@ -166,15 +180,35 @@ struct Block: View {
         )
     }
     
+    @State var hasPassedInit = false
+    
     var body: some View {
         VStack {
-            self.blockEditor("Block Repeat", schemeRepeat: $schemeNode.repeats)
+            self.blockEditor("Block Repeat", schemeRepeat: $scheme.repeats)
         }
         .padding(6)
         .background {
             BackgroundView()
         }
         .padding(.vertical, 1)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .onReceive(menuState) {
+            if hasPassedInit {
+                self.menuCallback($0, menuState)
+            }
+            else {
+                hasPassedInit = true
+            }
+        }
+        .onDisappear {
+            undo?.registerUndo(withTarget: <#T##TargetType#>, handler: <#T##(TargetType) -> Void#>)
+        }
+    }
+    
+    func undoChange(old: SchemeRepeat, new: SchemeRepeat) {
+        scheme.repeats = new
+        
+        
     }
 }
 
@@ -187,7 +221,9 @@ struct Time: View {
    
     let label: String
     @Binding var date: Date?
-    @Binding var showing: Bool
+    let menuState: MenuState
+    let menuCallback: (MenuAction, MenuState) -> ()
+    let close: () -> ()
     
     func reallySet(_ comp: Calendar.Component, value: Int, date: Date) -> Date {
         var components = NSCalendar.current.dateComponents([.minute, .hour, .day, .month, .year], from: date)
@@ -252,6 +288,7 @@ struct Time: View {
                     )
                 }
             }))
+        .tint(.red)
         .multilineTextAlignment(.trailing)
 #if os(iOS)
         .keyboardType(.numbersAndPunctuation)
@@ -293,7 +330,7 @@ struct Time: View {
             
             // reset
             if fFocus + delFocus == 0 {
-                self.showing = false
+                close()
             }
         }
     }
@@ -335,14 +372,17 @@ struct Time: View {
             .monospaced()
             .blueBackground()
             
+           
+            // cant do buttons because of our scuffed hitTest method
+            Image(systemName: "minus.square")
+                .onTapGesture {
+                    close()
+                    self.date = nil
+                }
             
-            Button(role: .destructive) {
-                self.date = nil
-                self.showing = false
-            } label: {
-                Image(systemName: "minus.square")
-            }
+#if os(macOS)
             .buttonStyle(.link)
+#endif
             .foregroundStyle(.red)
         }
         .textFieldStyle(.plain)
@@ -422,21 +462,33 @@ struct Time: View {
             }
         )
     }
+   
+    @State var hasPassedInit = false
     
     var body: some View {
         VStack {
-            self.dateEditor("Start", date: $date, timeBuffer: $timeBuffer, timeComponent: $component)
-            
-            self.calendar
+            if self.date != nil {
+                self.dateEditor(self.label, date: $date, timeBuffer: $timeBuffer, timeComponent: $component)
+                
+                self.calendar
+            }
         }
         .padding(6)
         .background {
             BackgroundView()
         }
         .padding(.vertical, 1)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .onReceive(menuState) {
+            if hasPassedInit {
+                self.menuCallback($0, menuState)
+            }
+            else {
+                hasPassedInit = true
+            }
+        }
+        .onDisappear {
+            
+        }
     }
-}
-
-#Preview {
-    Time(label: "Start", date: .constant(.now), showing: .constant(true))
 }

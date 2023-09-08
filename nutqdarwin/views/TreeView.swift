@@ -18,6 +18,8 @@ fileprivate let hangingIndent: CGFloat = 15
 fileprivate let timeHeight: CGFloat = 13
 fileprivate let timeOffset: CGFloat = 0
 
+fileprivate let bottomPadding: CGFloat = 200
+
 #if os(macOS)
 typealias NativeColor = NSColor
 #else
@@ -27,7 +29,7 @@ typealias NativeColor = UIColor
 fileprivate let backgroundColor = NativeColor(red: 0.841, green: 0.888, blue: 0.888, alpha: 1)
 #if os(iOS)
 fileprivate let textAttributes: [NSAttributedString.Key: Any] = [
-    .foregroundStyle: NativeColor.systemIndigo.withAlphaComponent(0.7),
+    .foregroundColor: NativeColor.systemIndigo.withAlphaComponent(0.7),
     .backgroundColor: backgroundColor
 ]
 #else
@@ -39,6 +41,22 @@ fileprivate let textAttributes: [NSAttributedString.Key: Any] = [
 fileprivate let mainHeight: CGFloat = {
     return NSString("0").size().height
 }()
+
+fileprivate let defaultStartOffset: TimeInterval = 9 * .hour
+fileprivate let defaultEndOffset: TimeInterval = 23 * .hour
+
+fileprivate func standardStart(_ end: Date?) -> Date {
+    if let end = end {
+        return end.startOfDay() + defaultStartOffset
+    }
+    else {
+        return .now + 15 * TimeInterval.minute
+    }
+}
+
+fileprivate func standardEnd(_ start: Date?) -> Date {
+    (start ?? .now).startOfDay() + defaultEndOffset
+}
 
 #if os(macOS)
 fileprivate let buttonRect = CGRect(x: -15, y: mainHeight / 2 - 7, width: 14, height: 14)
@@ -82,6 +100,12 @@ fileprivate func width(for scheme: SchemeItem) -> (NSAttributedString, CGRect) {
     return (nsString, rect)
 }
 
+enum Popover {
+    case start
+    case end
+    case block
+}
+
 #if os(macOS)
 extension NSImage {
     func tint(color: NSColor) -> NSImage {
@@ -103,11 +127,29 @@ final class TreeTextView: NSTextView, NSTextStorageDelegate {
     var pipe: AnyCancellable!
     var deleteRange: Range<Int>?
     
+    var popoverSubview: NSView? = nil
+    var popoverIndex: Int? = nil
+    var popover: Popover? {
+        didSet {
+            if popover == nil && oldValue != nil, let index = popoverIndex {
+                window?.makeFirstResponder(self)
+                let line = self.lines(startIndex: 0)[index].0
+                self.setSelectedRange(NSRange(location: line.upperBound - 1, length: 0))
+            }
+            
+            self.popoverSubview?.removeFromSuperview()
+            self.popoverSubview = nil
+            self.breakUndoCoalescing()
+        }
+    }
+    
     var sr: NSRange {
         get { self.selectedRange() }
         set { self.setSelectedRange(newValue)}
     }
+    
     var ts: NSTextStorage { self.textStorage! }
+    
     var text: String {
         get { self.string }
         set { self.string = newValue}
@@ -138,6 +180,7 @@ final class TreeTextView: NSTextView, NSTextStorageDelegate {
         ret.isAutomaticDashSubstitutionEnabled = false
         ret.isAutomaticLinkDetectionEnabled = false
         ret.isAutomaticDataDetectionEnabled = false
+        
         ret.textStorage?.delegate = ret
         
         return ret
@@ -200,9 +243,18 @@ final class TreeTextView: NSTextView, NSTextStorageDelegate {
     override func becomeFirstResponder() -> Bool {
         super.becomeFirstResponder()
         if !initialFocused {
+            if self.sr.location == self.ts.length && self.sr.location >= 1 {
+                self.sr.location -= 1
+            }
             self.scrollRangeToVisible(self.selectedRange())
             initialFocused = true
         }
+        
+        if self.popover != nil {
+            self.popoverIndex = nil // elide shift of selection
+            self.popover = nil
+        }
+        
         return true
     }
     
@@ -211,6 +263,14 @@ final class TreeTextView: NSTextView, NSTextStorageDelegate {
         self.handles = []
         self.pipe.cancel()
         initialFocused = false
+    }
+    
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        if let popover = self.popoverSubview, popover.frame.contains(point) {
+            return popover
+        }
+        
+        return self
     }
 }
 
@@ -244,12 +304,6 @@ class ItemButton: NSButton {
             self.imageName = imageName
         }
     }
-    
-//    override func resetCursorRects() {
-//        super.resetCursorRects()
-//
-//        addCursorRect(bounds, cursor: .pointingHand)
-//    }
    
     // not sure why this needs to be done in the first place?
     override func hitTest(_ point: NSPoint) -> NSView? {
@@ -347,14 +401,10 @@ class GutterView: NSView {
 
 class TouchThroughScrollView: NSScrollView {
     override func hitTest(_ point: NSPoint) -> NSView? {
-        let pointInView = convert(point, to: documentView)
+        var point = point
+        point.y = self.bounds.height - point.y
         
-        // If the point is inside the document view, return true to pass the event through
-        if documentView?.frame.contains(pointInView) ?? false {
-            return documentView
-        }
-        
-        return super.hitTest(point)
+        return documentView?.hitTest(self.convert(point, to: documentView))
     }
 }
 
@@ -371,6 +421,8 @@ struct TreeNativeView: NSViewRepresentable {
         scroll.hasVerticalScroller = true
         scroll.hasHorizontalRuler  = false
         scroll.backgroundColor = backgroundColor
+        scroll.contentInsets = NSEdgeInsets(top: 0, left: 0, bottom: bottomPadding, right: 0)
+        scroll.automaticallyAdjustsContentInsets = false
         
         let ret = TreeTextView.factory(schemes: $scheme.schemes)
         ret.listen(to: menu)
@@ -415,7 +467,23 @@ final class TreeTextView: UITextView, NSTextStorageDelegate, UITextViewDelegate 
         get { self.selectedRange }
         set { selectedRange = newValue }
     }
+    
     var ts: NSTextStorage { self.textStorage }
+    
+    var popoverSubview: UIView? = nil
+    var popoverIndex: Int? = nil
+    var popover: Popover? {
+        didSet {
+            if popover == nil && oldValue != nil, let index = popoverIndex {
+                self.becomeFirstResponder()
+                let line = self.lines(startIndex: 0)[index].0
+                self.sr = NSRange(location: line.upperBound - 1, length: 0)
+            }
+            
+            self.popoverSubview?.removeFromSuperview()
+            self.popoverSubview = nil
+        }
+    }
 
     static func factory(schemes: Binding<[SchemeItem]>) -> TreeTextView {
         let ret = TreeTextView()
@@ -470,7 +538,6 @@ final class TreeTextView: UITextView, NSTextStorageDelegate, UITextViewDelegate 
 
 class ItemLabel: UIView {
     private var string: NSAttributedString = NSAttributedString(string: "")
-    
     
     override func draw(_ dirtyRect: CGRect) {
         let rect = self.convert(self.frame, from: self.superview)
@@ -583,7 +650,7 @@ struct TreeNativeView: UIViewRepresentable {
         ret.backgroundColor = backgroundColor
         ret.listen(to: menu)
         ret.textContainerInset = .zero
-        ret.isEnabled = enabled
+        ret.isEditable = enabled
         
         self.attribute(ret)
         
@@ -623,10 +690,6 @@ struct TreeView: View {
             .padding(.horizontal, 10)
             .padding(.vertical, 10)
             .background(Color(red: 0.841, green: 0.888, blue: 0.888))
-        #if os(macOS)
-            .padding(.bottom, 75)
-            .background(.ultraThickMaterial)
-        #endif
             .focused($focused)
             .onAppear {
                 focused = true
@@ -637,12 +700,11 @@ struct TreeView: View {
     }
 }
 
-
 extension TreeTextView {
    
     func subscriber(for scheme: SchemeItem) -> AnyCancellable {
         var enabled = false
-        let ret = scheme.statePublisher.receive(on: RunLoop.main).sink { _ in
+        let ret = scheme.mergedStatePublisher.receive(on: RunLoop.main).sink { _ in
             if enabled {
                 let (ranges, _) = self.lines(startIndex: 0)[self.schemes.wrappedValue.firstIndex(of: scheme)!]
                 self.applyDerivedStyles(range: ranges)
@@ -654,45 +716,144 @@ extension TreeTextView {
         return ret
     }
     
+    func handle(action: MenuAction, publisher: MenuState) {
+#if os(macOS)
+        if self.window?.firstResponder != self && self.popoverSubview == nil {
+            return
+        }
+#else
+        if !self.isFirstResponder && self.popoverSubview == nil {
+            return
+        }
+#endif
+        
+        guard let schemeIndex = self.ts.attribute(.index, at: self.sr.location, effectiveRange: nil) as? Int else {
+            return
+        }
+        
+        let scheme = self.schemes.wrappedValue[schemeIndex]
+        
+        switch action {
+        case .toggle:
+            self.ts.enumerateAttribute(.index, in: self.lineRange()) { value, range, _ in
+                guard let index = value as? Int else {
+                    return
+                }
+                
+                if self.schemes.wrappedValue[index].state.count == 1 {
+                    self.schemes.wrappedValue[index].state[0] = -1 - self.schemes.wrappedValue[index].state[0]
+                }
+            }
+        case .toggleStartView:
+            scheme.start = scheme.start ?? standardStart(scheme.end)
+            
+            self.popover = self.popover == .start ? nil : .start
+            
+            if self.popover == .start {
+                self.popoverIndex = schemeIndex
+                
+                let binding = ObservedObject(wrappedValue: self.schemes.wrappedValue[schemeIndex]).projectedValue.start
+                let view = Time(label: "Start", date: binding, menuState: publisher, menuCallback: self.handle(action:publisher:)) {
+                    self.popover = nil
+                }
+                
+                self.addPopover(view: view, for: schemeIndex, width: 240, height: 200)
+            }
+            
+        case .toggleEndView:
+            scheme.end = scheme.end ?? standardEnd(scheme.start)
+            
+            self.popover = self.popover == .end ? nil : .end
+            
+            if self.popover == .end {
+                self.popoverIndex = schemeIndex
+                
+                let binding = ObservedObject(wrappedValue: self.schemes.wrappedValue[schemeIndex]).projectedValue.end
+                let view = Time(label: "End", date: binding, menuState: publisher, menuCallback: self.handle(action:publisher:)) {
+                    self.popover = nil
+                }
+                
+                self.addPopover(view: view, for: schemeIndex, width: 240, height: 200)
+            }
+            
+        case .toggleBlockView:
+            if case .block = scheme.repeats { }
+            else {
+                scheme.repeats = .block(block: .init())
+            }
+            
+            self.popover = self.popover == .block ? nil : .block
+            
+            if self.popover == .block {
+                self.popoverIndex = schemeIndex
+                
+                let view = Block(scheme: scheme, menuState: publisher, menuCallback: self.handle(action:publisher:)) {
+                    self.popover = nil
+                }
+                
+                self.addPopover(view: view, for: schemeIndex, width: 450, height: 50)
+            }
+            
+        case .disableStart:
+            scheme.start = nil
+            if self.popover == .start {
+                self.popover = nil
+            }
+            
+        case .disableEnd:
+            scheme.end = nil
+            if self.popover == .end {
+                self.popover = nil
+            }
+            
+        case .disableBlock:
+            scheme.repeats = .none
+            scheme.state = [scheme.state.first ?? 0]
+            
+            if self.popover == .block {
+                self.popover = nil
+            }
+            
+        default:
+            break
+        }
+        
+        self.applyDerivedStyles(range: self.lineRange())
+        self.gutterView.setNeedsLayout()
+    }
+    
     func listen(to publisher: MenuState) {
         self.pipe = publisher.sink { action in
-            #if os(macOS)
-            if self.window?.firstResponder != self {
-                return
-            }
-            #else
-            if !self.isFirstResponder {
-                return
-            }
-            #endif
-            
-            switch action {
-            case .toggle:
-                self.ts.enumerateAttribute(.index, in: self.lineRange()) { value, range, _ in
-                    guard let index = value as? Int else {
-                        return
-                    }
-                    
-                    if self.schemes.wrappedValue[index].state.count == 1 {
-                        self.schemes.wrappedValue[index].state[0] = -1 - self.schemes.wrappedValue[index].state[0]
-                    }
-                }
-            case .toggleStartView:
-                break;
-            case .toggleEndView:
-                break;
-            case .toggleBlockView:
-                break;
-            case .disableStart:
-                break;
-            case .disableEnd:
-                break
-            case .disableBlock:
-                break
-            default:
-                break
-            }
+            self.handle(action: action, publisher: publisher)
         }
+    }
+    
+    func addPopover(view: some View, for index: Int, width: CGFloat, height: CGFloat) {
+        let lm = self.gutterView.layoutManager
+        let tc = lm.textContainers[0]
+        let range = self.lines(startIndex: 0)[index].0
+        
+        let xRange = lm.glyphRange(forCharacterRange: NSRange(location: range.lowerBound, length: 0), actualCharacterRange: nil)
+        let yRange = lm.glyphRange(forCharacterRange: NSRange(location: range.upperBound - 1, length: 0), actualCharacterRange: nil)
+        
+        let xRect = lm.boundingRect(forGlyphRange: xRange, in: tc)
+        let yRect = lm.boundingRect(forGlyphRange: yRange, in: tc)
+        
+        var yStart = yRect.origin
+        yStart.y += yRect.height + timeHeight
+        
+        var xStart = xRect.origin
+        xStart.y += xRect.height
+        
+#if os(macOS)
+        let base = NSHostingController(rootView: view)
+#else
+        let base = UIHostingController(rootView: view)
+#endif
+        base.view.frame = .init(x: xStart.x, y: yStart.y, width: width, height: height)
+        
+        self.popoverSubview = base.view
+        self.addSubview(base.view)
     }
     
     func lineRange() -> NSRange {
@@ -726,6 +887,11 @@ extension TreeTextView {
             style.firstLineHeadIndent += hangingIndent
             
             ts.addAttribute(.paragraphStyle, value: style, range: range)
+        }
+        
+        // not perfect in the case that delta < 0
+        undoManager?.registerUndo(withTarget: self) {
+            $0.tab(delta: -delta)
         }
         
         gutterView.setNeedsLayout()
@@ -827,7 +993,6 @@ extension TreeTextView {
             $0.insert(items: items, at: range.lowerBound)
             $0.gutterView.setNeedsLayout()
         }
-        
     }
         
     func insert(items: [SchemeItem], at index: Int) {
@@ -887,10 +1052,6 @@ extension TreeTextView {
                 }
                 
                 index = pastIndex + 1
-            }
-            
-            if Float.random(in: 0...1) < 0.5 {
-                aux[0].start = .now
             }
            
             self.insert(items: aux, at: index)
