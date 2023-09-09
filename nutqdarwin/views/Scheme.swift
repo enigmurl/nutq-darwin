@@ -53,6 +53,9 @@ struct Scheme: View {
                     
                     Text(scheme.name)
                         .font(.headline)
+#if os(iOS)
+                        .foregroundStyle(.black)
+#endif
                 }
 #if os(macOS)
                 .frame(minWidth: 140, alignment: .leading)

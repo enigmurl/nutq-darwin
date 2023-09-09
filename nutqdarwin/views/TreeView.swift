@@ -475,7 +475,7 @@ final class TreeTextView: UITextView, NSTextStorageDelegate, UITextViewDelegate 
     var popover: Popover? {
         didSet {
             if popover == nil && oldValue != nil, let index = popoverIndex {
-                self.becomeFirstResponder()
+                let _ = self.becomeFirstResponder()
                 let line = self.lines(startIndex: 0)[index].0
                 self.sr = NSRange(location: line.upperBound - 1, length: 0)
             }
@@ -527,6 +527,17 @@ final class TreeTextView: UITextView, NSTextStorageDelegate, UITextViewDelegate 
     func textStorage(_ textStorage: NSTextStorage, didProcessEditing editedMask: NSTextStorage.EditActions, range editedRange: NSRange, changeInLength delta: Int) {
         // ensure scheme ids are consistent
         self.fixSchemes(range: editedRange)
+    }
+    
+    override func becomeFirstResponder() -> Bool {
+        super.becomeFirstResponder()
+        
+        if self.popover != nil {
+            self.popoverIndex = nil // elide shift of selection
+            self.popover = nil
+        }
+        
+        return true
     }
     
     override func removeFromSuperview() {
@@ -649,7 +660,7 @@ struct TreeNativeView: UIViewRepresentable {
         let ret = TreeTextView.factory(schemes: $scheme.schemes)
         ret.backgroundColor = backgroundColor
         ret.listen(to: menu)
-        ret.textContainerInset = .zero
+        ret.textContainerInset = .init(top: 0, left: 0, bottom: 200, right: 0)
         ret.isEditable = enabled
         
         self.attribute(ret)
@@ -684,12 +695,11 @@ struct TreeView: View {
     let enabled: Bool
     
     @FocusState var focused
-   
-    var body: some View {
+    
+    var mainView: some View {
         TreeNativeView(scheme: scheme, menu: menu, enabled: enabled)
             .padding(.horizontal, 10)
             .padding(.vertical, 10)
-            .background(Color(red: 0.841, green: 0.888, blue: 0.888))
             .focused($focused)
             .onAppear {
                 focused = true
@@ -698,6 +708,56 @@ struct TreeView: View {
                 focused = true
             }
     }
+    
+#if os(iOS)
+    var controls: some View {
+        HStack {
+            Button {
+                menu.send(.deindent)
+            } label: {
+                Image(systemName: "decrease.indent")
+            }
+            
+            Button {
+                menu.send(.indent)
+            } label: {
+                Image(systemName: "increase.indent")
+            }
+            
+            Spacer()
+            
+            Button("Start") {
+                menu.send(.toggleStartView)
+            }
+            
+            Button("End") {
+                menu.send(.toggleEndView)
+            }
+            
+            Button("Block") {
+                menu.send(.toggleBlockView)
+            }
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 4)
+    }
+    
+    var body: some View {
+        VStack {
+            mainView
+            self.controls
+        }
+        .background(Color(red: 0.841, green: 0.888, blue: 0.888))
+    }
+    
+#else
+    var body: some View {
+        self.mainView
+            .background(Color(red: 0.841, green: 0.888, blue: 0.888))
+    }
+#endif
+  
+    
 }
 
 extension TreeTextView {
@@ -716,24 +776,47 @@ extension TreeTextView {
         return ret
     }
     
+    func setBinding<T>(_ binding: Binding<T>, old: T, new: T) where T: Equatable {
+        if old == new {
+            return
+        }
+        
+        binding.wrappedValue = new
+        
+        undoManager?.registerUndo(withTarget: self) {
+            $0.setBinding(binding, old: new, new: old)
+        }
+    }
+    
     func handle(action: MenuAction, publisher: MenuState) {
 #if os(macOS)
         if self.window?.firstResponder != self && self.popoverSubview == nil {
             return
         }
+        let timeWidth: CGFloat = 240
+        let blockWidth: CGFloat = 450
 #else
         if !self.isFirstResponder && self.popoverSubview == nil {
             return
         }
+        let timeWidth: CGFloat = 250
+        let blockWidth: CGFloat = 330
 #endif
         
-        guard let schemeIndex = self.ts.attribute(.index, at: self.sr.location, effectiveRange: nil) as? Int else {
+        guard sr.location != self.ts.length, let schemeIndex = self.ts.attribute(.index, at: self.sr.location, effectiveRange: nil) as? Int else {
             return
         }
         
         let scheme = self.schemes.wrappedValue[schemeIndex]
+        let projected = ObservedObject(wrappedValue: self.schemes.wrappedValue[schemeIndex]).projectedValue
         
         switch action {
+        case .indent:
+            self.tab(delta: 1)
+            
+        case .deindent:
+            self.tab(delta: -1)
+            
         case .toggle:
             self.ts.enumerateAttribute(.index, in: self.lineRange()) { value, range, _ in
                 guard let index = value as? Int else {
@@ -744,7 +827,9 @@ extension TreeTextView {
                     self.schemes.wrappedValue[index].state[0] = -1 - self.schemes.wrappedValue[index].state[0]
                 }
             }
+            
         case .toggleStartView:
+            let initial = scheme.start
             scheme.start = scheme.start ?? standardStart(scheme.end)
             
             self.popover = self.popover == .start ? nil : .start
@@ -752,15 +837,16 @@ extension TreeTextView {
             if self.popover == .start {
                 self.popoverIndex = schemeIndex
                 
-                let binding = ObservedObject(wrappedValue: self.schemes.wrappedValue[schemeIndex]).projectedValue.start
-                let view = Time(label: "Start", date: binding, menuState: publisher, menuCallback: self.handle(action:publisher:)) {
+                let binding = projected.start
+                let view = Time(label: "Start", date: binding, menuState: publisher, callback: self, initial: initial) {
                     self.popover = nil
                 }
                 
-                self.addPopover(view: view, for: schemeIndex, width: 240, height: 200)
+                self.addPopover(view: view, for: schemeIndex, width: timeWidth, height: 200)
             }
             
         case .toggleEndView:
+            let initial = scheme.end
             scheme.end = scheme.end ?? standardEnd(scheme.start)
             
             self.popover = self.popover == .end ? nil : .end
@@ -768,15 +854,16 @@ extension TreeTextView {
             if self.popover == .end {
                 self.popoverIndex = schemeIndex
                 
-                let binding = ObservedObject(wrappedValue: self.schemes.wrappedValue[schemeIndex]).projectedValue.end
-                let view = Time(label: "End", date: binding, menuState: publisher, menuCallback: self.handle(action:publisher:)) {
+                let binding = projected.end
+                let view = Time(label: "End", date: binding, menuState: publisher, callback: self, initial: initial) {
                     self.popover = nil
                 }
                 
-                self.addPopover(view: view, for: schemeIndex, width: 240, height: 200)
+                self.addPopover(view: view, for: schemeIndex, width: timeWidth, height: 200)
             }
             
         case .toggleBlockView:
+            let initial = scheme.repeats
             if case .block = scheme.repeats { }
             else {
                 scheme.repeats = .block(block: .init())
@@ -787,27 +874,28 @@ extension TreeTextView {
             if self.popover == .block {
                 self.popoverIndex = schemeIndex
                 
-                let view = Block(scheme: scheme, menuState: publisher, menuCallback: self.handle(action:publisher:)) {
+                let view = Block(scheme: scheme, menuState: publisher, callback: self, initial: initial) {
                     self.popover = nil
                 }
                 
-                self.addPopover(view: view, for: schemeIndex, width: 450, height: 50)
+                self.addPopover(view: view, for: schemeIndex, width: blockWidth, height: 40)
             }
             
         case .disableStart:
+            self.setBinding(projected.start, old: scheme.start, new: nil)
             scheme.start = nil
             if self.popover == .start {
                 self.popover = nil
             }
             
         case .disableEnd:
-            scheme.end = nil
+            self.setBinding(projected.end, old: scheme.end, new: nil)
             if self.popover == .end {
                 self.popover = nil
             }
             
         case .disableBlock:
-            scheme.repeats = .none
+            self.setBinding(projected.repeats, old: scheme.repeats, new: .none)
             scheme.state = [scheme.state.first ?? 0]
             
             if self.popover == .block {
@@ -1005,7 +1093,6 @@ extension TreeTextView {
             $0.delete(range: index ..< index + items.count)
             $0.gutterView.setNeedsLayout()
         }
-        
     }
     
     // not perfect, but generally does what we want

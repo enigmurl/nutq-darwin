@@ -145,11 +145,7 @@ public final class SchemeItem: ObservableObject, Codable, Hashable, Identifiable
     @Published public var start: Date?
     @Published public var end: Date?
   
-    @Published public var repeats: SchemeRepeat {
-        didSet {
-            print("Set to", repeats)
-        }
-    }
+    @Published public var repeats: SchemeRepeat
     
     @Published public var indentation: Int
     

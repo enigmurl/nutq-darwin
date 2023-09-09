@@ -339,12 +339,19 @@ public enum MenuAction: CustomStringConvertible {
     case toggleBlockView
     case disableBlock
     
+    case indent
+    case deindent
+    
     public var description: String {
         switch self {
         case .gotoUnion:
             return "Goto Union"
         case .prevScheme:
             return "Prev Scheme"
+        case .indent:
+            return "Indent"
+        case .deindent:
+            return "Deindent"
         case .nextScheme:
             return "Next Scheme"
         case .toggle:

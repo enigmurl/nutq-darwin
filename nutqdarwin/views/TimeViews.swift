@@ -63,7 +63,8 @@ struct Block: View {
     
     @ObservedObject var scheme: SchemeItem
     let menuState: MenuState
-    let menuCallback: (MenuAction, MenuState) -> ()
+    unowned let callback: TreeTextView
+    let initial: SchemeRepeat
     let close: () -> ()
     
     func blockEditor(_ label: String, schemeRepeat: Binding<SchemeRepeat>) -> some View {
@@ -97,7 +98,7 @@ struct Block: View {
                     .padding(.trailing, 4)
                 #endif
                 
-                Text("remainders")
+                Text("rem")
                 TextField("", text: Binding(get: {
                     blockBuffer
                 }, set: { str in
@@ -166,6 +167,7 @@ struct Block: View {
                 blockBuffer = blockBinding.wrappedValue.remainders
                     .map { String($0)}
                     .joined(separator: ",")
+                
             }
             .onDisappear {
                 // not necessary (or guaranteed to be called), but generally useful
@@ -186,7 +188,8 @@ struct Block: View {
         VStack {
             self.blockEditor("Block Repeat", schemeRepeat: $scheme.repeats)
         }
-        .padding(6)
+        .padding(.vertical, 6)
+        .padding(.horizontal, 8)
         .background {
             BackgroundView()
         }
@@ -194,21 +197,15 @@ struct Block: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .onReceive(menuState) {
             if hasPassedInit {
-                self.menuCallback($0, menuState)
+                self.callback.handle(action: $0, publisher: menuState)
             }
             else {
                 hasPassedInit = true
             }
         }
         .onDisappear {
-            undo?.registerUndo(withTarget: <#T##TargetType#>, handler: <#T##(TargetType) -> Void#>)
+            callback.setBinding($scheme.repeats, old: initial, new: scheme.repeats)
         }
-    }
-    
-    func undoChange(old: SchemeRepeat, new: SchemeRepeat) {
-        scheme.repeats = new
-        
-        
     }
 }
 
@@ -222,7 +219,8 @@ struct Time: View {
     let label: String
     @Binding var date: Date?
     let menuState: MenuState
-    let menuCallback: (MenuAction, MenuState) -> ()
+    unowned let callback: TreeTextView
+    let initial: Date?
     let close: () -> ()
     
     func reallySet(_ comp: Calendar.Component, value: Int, date: Date) -> Date {
@@ -481,14 +479,14 @@ struct Time: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .onReceive(menuState) {
             if hasPassedInit {
-                self.menuCallback($0, menuState)
+                self.callback.handle(action: $0, publisher: menuState)
             }
             else {
                 hasPassedInit = true
             }
         }
         .onDisappear {
-            
+            callback.setBinding($date, old: initial, new: date)
         }
     }
 }

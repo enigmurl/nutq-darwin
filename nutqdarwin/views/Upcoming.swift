@@ -83,7 +83,7 @@ struct UpcomingAssignment: View {
         }
         .contentShape(Rectangle())
         .allowsHitTesting(true)
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity, minHeight: 35, alignment: .leading)
        
         .grayscale(self.item.state == -1 ? 1 : 0)
         .opacity(self.item.state == -1 ? 0.3 : 1)
