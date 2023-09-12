@@ -139,15 +139,31 @@ public enum SchemeRepeat: Codable, Hashable, CustomStringConvertible {
 
 public final class SchemeItem: ObservableObject, Codable, Hashable, Identifiable {
     public let id: UUID
-    @Published public var state: [Int] // 0 = not complete, -1 = finished. Open to intermediate states. Represents states of all events
-    @Published public var text: String
     
-    @Published public var start: Date?
-    @Published public var end: Date?
-  
-    @Published public var repeats: SchemeRepeat
+    @Published public var state: [Int] { // 0 = not complete, -1 = finished. Open to intermediate states. Represents states of all events
+        didSet { if state != oldValue { dirty = true } }
+    }
     
-    @Published public var indentation: Int
+    @Published public var text: String {
+        didSet { if text != oldValue { dirty = true } }
+    }
+    
+    @Published public var start: Date? {
+        didSet { if start != oldValue { dirty = true } }
+    }
+    
+    @Published public var end: Date? {
+        didSet { if end != oldValue { dirty = true } }
+    }
+    @Published public var repeats: SchemeRepeat {
+        didSet { if repeats != oldValue { dirty = true } }
+    }
+    
+    @Published public var indentation: Int {
+        didSet { if indentation != oldValue { dirty = true } }
+    }
+    
+    public var dirty = true
     
     public var scheme_type: SchemeType {
         if (start != nil && end != nil) {
@@ -193,6 +209,8 @@ public final class SchemeItem: ObservableObject, Codable, Hashable, Identifiable
         self.end = try container.decode(Optional<Date>.self, forKey: .end)
         self.repeats = try container.decode(SchemeRepeat.self, forKey: .repeats)
         self.indentation = try container.decode(Int.self, forKey: .indentation)
+        
+        self.dirty = false
     }
     
     public func encode(to encoder: Encoder) throws {
@@ -262,11 +280,21 @@ public final class SchemeItemList: ObservableObject, Codable, Hashable {
 public final class SchemeState: ObservableObject, Codable, Hashable, Identifiable {
     public let id: UUID
     
-    @Published public var name: String
-    @Published public var color_index: Int
-    @Published public var syncs_to_gsync: Bool = false
+    @Published public var name: String {
+        didSet { if name != oldValue { dirty = true } }
+    }
+    
+    @Published public var color_index: Int {
+        didSet { if color_index != oldValue { dirty = true } }
+    }
+    
+    @Published public var syncs_to_gsync: Bool = false {
+        didSet { if syncs_to_gsync != oldValue { dirty = true } }
+    }
     
     public var scheme_list: SchemeItemList
+    
+    public var dirty: Bool = true
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -293,6 +321,8 @@ public final class SchemeState: ObservableObject, Codable, Hashable, Identifiabl
         self.syncs_to_gsync = try container.decode(Bool.self, forKey: .syncs_to_gsync)
         self.scheme_list = try container.decode(SchemeItemList.self, forKey: .scheme_list)
         self.scheme_list.id = id
+        
+        self.dirty = false
     }
     
     public func encode(to encoder: Encoder) throws {
@@ -323,6 +353,126 @@ public final class SchemeType: OptionSet {
     static let assignment = SchemeType(rawValue: 0x2)
     static let procedure = SchemeType(rawValue: 0x4)
     static let event = SchemeType(rawValue: 0x8)
+}
+
+public struct SchemeHolder: Codable {
+    public var schemes: [SchemeState]
+    
+    func identityDelete() -> SystemManager.Update {
+        return SystemManager.Update(path: [AnyCodable(value: "schemes")], delta_type: .Delete, value: AnyCodable(value: 0))
+    }
+    
+    func identityUpdate() -> SystemManager.Update {
+        let data = try! JSONEncoder().encode(self.schemes)
+        let obj = try! JSONSerialization.jsonObject(with: data)
+        return SystemManager.Update(path: [AnyCodable(value: "schemes")], delta_type: .Create, value: AnyCodable(value: obj))
+    }
+    
+    func updatesSince(_ metas: [SchemeStateMeta]) -> [SystemManager.Update] {
+        // if any schemes were moved around (rare), rewrite entirely
+        
+        var deleteSchemes: [SystemManager.Update] = []
+        var createSchemes: [Int] = []
+        var deleteItems: [SystemManager.Update] = []
+        var createItems: [SystemManager.Update] = []
+        
+        // deleted schemes
+        var old_id_map = [UUID: Int](uniqueKeysWithValues: metas.enumerated().map { ($0.element.id, $0.offset) })
+       
+        // schemes plus
+        for (i, scheme) in schemes.enumerated() {
+            if scheme.dirty {
+                createSchemes.append(i)
+                
+                scheme.dirty = false
+            }
+            else {
+                // scheme items plus or minus
+                guard let index = old_id_map[scheme.id] else {
+                    // should never fail...
+                    continue
+                }
+                
+                var inner_map = [UUID: Int](uniqueKeysWithValues: metas[index].items.enumerated()
+                    .map { ($0.element, $0.offset) }
+                )
+                
+                for (j, item) in scheme.scheme_list.schemes.enumerated() {
+                    if item.dirty {
+                        let obj = try! JSONSerialization.jsonObject(with: try! JSONEncoder().encode(item))
+
+                        createItems.append (
+                            SystemManager.Update(
+                                path: [AnyCodable(value: "schemes"), AnyCodable(value: i), AnyCodable(value: "scheme_list"), AnyCodable(value: "schemes"), AnyCodable(value: j)],
+                                delta_type: .Create,
+                                value: AnyCodable(value: obj)
+                            )
+                        )
+                        
+                        item.dirty = false
+                    }
+                    else {
+                        inner_map.removeValue(forKey: item.id)
+                    }
+                }
+                
+                deleteItems += inner_map.map { $0.value }.sorted().map {
+                    SystemManager.Update(
+                        path: [AnyCodable(value: "schemes"), AnyCodable(value: i), AnyCodable(value: "scheme_list"),  AnyCodable(value: "schemes"),  AnyCodable(value: $0)],
+                        delta_type: .Delete,
+                        value: AnyCodable(value: 0)
+                    )
+                }.reversed()
+                
+                old_id_map.removeValue(forKey: scheme.id)
+            }
+        }
+        
+        // deleted schemes
+        deleteSchemes = old_id_map.map { $0.value }.sorted().map {
+            SystemManager.Update(
+                path: [AnyCodable(value: "schemes"), AnyCodable(value: $0)],
+                delta_type: .Delete,
+                value: AnyCodable(value: 0)
+            )
+        }.reversed()
+        
+        
+        var checkSum = metas.map { $0.id }
+        for update in deleteSchemes {
+            guard let last = update.path.last?.value as? Int else {
+                continue
+            }
+            
+            checkSum.remove(at: last)
+        }
+        
+        for ind in createSchemes {
+            checkSum.append(schemes[ind].id)
+        }
+        
+        // schemes were moved around (can't happen with items)
+        // rare event, so a full refresh is ok
+        if checkSum != schemes.map({ $0.id }) {
+            return [self.identityDelete(), self.identityUpdate()]
+        }
+        
+        // reverse deletes so indices are in correct order
+        return deleteSchemes + createSchemes.map {
+            let obj = try! JSONSerialization.jsonObject(with: try! JSONEncoder().encode(schemes[$0]))
+            
+            return SystemManager.Update(
+                path: [AnyCodable(value: "schemes"), AnyCodable(value: $0)],
+                delta_type: .Create,
+                value: AnyCodable(value: obj)
+            )
+        } + deleteItems + createItems
+    }
+}
+
+public struct SchemeStateMeta {
+    let id: UUID
+    let items: [UUID]
 }
 
 fileprivate func convertSingularScheme(color: Int, path: [String], start: Date?, end: Date?, scheme: Binding<SchemeItem>, index: Int) -> SchemeSingularItem {

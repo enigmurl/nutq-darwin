@@ -17,6 +17,17 @@ struct NutqContentView: View {
             if env.esotericToken == nil {
                 Auth()
             }
+            else if case .none = env.slaveState {
+                VStack {
+                    Text("Slave Unavailable")
+                    Button("Steal Slave") {
+                        env.stealSlave()
+                    }
+                }
+            }
+            else if case .loading = env.slaveState {
+                Text("Loading")
+            }
             else {
                 NavigationView {
                     Sidebar()

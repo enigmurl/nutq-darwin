@@ -15,6 +15,10 @@
 		B40EE14B2A5E737100EE5BCD /* GTMSessionFetcher in Frameworks */ = {isa = PBXBuildFile; productRef = B40EE14A2A5E737100EE5BCD /* GTMSessionFetcher */; };
 		B40EE14D2A5E737100EE5BCD /* GTMSessionFetcherCore in Frameworks */ = {isa = PBXBuildFile; productRef = B40EE14C2A5E737100EE5BCD /* GTMSessionFetcherCore */; };
 		B40EE14F2A5E737100EE5BCD /* GTMSessionFetcherFull in Frameworks */ = {isa = PBXBuildFile; productRef = B40EE14E2A5E737100EE5BCD /* GTMSessionFetcherFull */; };
+		B421A8162AB0085A00B44CEC /* AnyCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B421A8152AB0085A00B44CEC /* AnyCodable.swift */; };
+		B421A8172AB0085A00B44CEC /* AnyCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B421A8152AB0085A00B44CEC /* AnyCodable.swift */; };
+		B421A8182AB0085A00B44CEC /* AnyCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B421A8152AB0085A00B44CEC /* AnyCodable.swift */; };
+		B421A8192AB0085A00B44CEC /* AnyCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B421A8152AB0085A00B44CEC /* AnyCodable.swift */; };
 		B434A5E12A23D91B001D81E8 /* Nutq.swift in Sources */ = {isa = PBXBuildFile; fileRef = B434A5E02A23D91B001D81E8 /* Nutq.swift */; };
 		B434A5E32A23D91B001D81E8 /* NutqContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B434A5E22A23D91B001D81E8 /* NutqContentView.swift */; };
 		B434A5E52A23D91D001D81E8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B434A5E42A23D91D001D81E8 /* Assets.xcassets */; };
@@ -139,6 +143,7 @@
 /* Begin PBXFileReference section */
 		B40160AB2A5273F3002DC32B /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		B40230572AA8106800F2A18B /* TimeViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeViews.swift; sourceTree = "<group>"; };
+		B421A8152AB0085A00B44CEC /* AnyCodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyCodable.swift; sourceTree = "<group>"; };
 		B434A5DD2A23D91B001D81E8 /* Nut Q.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Nut Q.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B434A5E02A23D91B001D81E8 /* Nutq.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Nutq.swift; sourceTree = "<group>"; };
 		B434A5E22A23D91B001D81E8 /* NutqContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NutqContentView.swift; sourceTree = "<group>"; };
@@ -338,6 +343,7 @@
 			children = (
 				B4754ECD2A38019000FB26C0 /* EnvState.swift */,
 				B4754EE22A3E3C3800FB26C0 /* SchemeUtil.swift */,
+				B421A8152AB0085A00B44CEC /* AnyCodable.swift */,
 			);
 			path = state;
 			sourceTree = "<group>";
@@ -542,6 +548,7 @@
 				B434A5E32A23D91B001D81E8 /* NutqContentView.swift in Sources */,
 				B4754ECE2A38019000FB26C0 /* EnvState.swift in Sources */,
 				B47F3ED62A9BCEFB00D3CC09 /* TreeView.swift in Sources */,
+				B421A8162AB0085A00B44CEC /* AnyCodable.swift in Sources */,
 				B40230582AA8106900F2A18B /* TimeViews.swift in Sources */,
 				B49946E62A99A7A0006783E6 /* Proxy.swift in Sources */,
 				B4754ED32A380D1C00FB26C0 /* Union.swift in Sources */,
@@ -566,6 +573,7 @@
 				B44F47C02A551447008C8899 /* Time.swift in Sources */,
 				B44F47BC2A551048008C8899 /* SchemeUtil.swift in Sources */,
 				B44F47BB2A551045008C8899 /* EnvState.swift in Sources */,
+				B421A8182AB0085A00B44CEC /* AnyCodable.swift in Sources */,
 				B44F47AC2A55084E008C8899 /* UpcomingWidget.swift in Sources */,
 				B44F47B12A550850008C8899 /* nutqdarwin_widget.intentdefinition in Sources */,
 				B4A2F82C2A5675140073D472 /* Theme.swift in Sources */,
@@ -581,6 +589,7 @@
 				B44F47DD2A5651AF008C8899 /* SchemeUtil.swift in Sources */,
 				B44F47DC2A5651AF008C8899 /* Time.swift in Sources */,
 				B44F47DB2A5651AF008C8899 /* EnvState.swift in Sources */,
+				B421A8192AB0085A00B44CEC /* AnyCodable.swift in Sources */,
 				B46D181A2A5652D300D886ED /* nutqdarwin_widget.intentdefinition in Sources */,
 				B46D181B2A5652D900D886ED /* NutqWidgetBundle.swift in Sources */,
 				B4A2F82D2A5675140073D472 /* Theme.swift in Sources */,
@@ -596,6 +605,7 @@
 				B46D18282A56546100D886ED /* NutqContentView.swift in Sources */,
 				B46D18292A56546100D886ED /* EnvState.swift in Sources */,
 				B47F3ED72A9BCEFB00D3CC09 /* TreeView.swift in Sources */,
+				B421A8172AB0085A00B44CEC /* AnyCodable.swift in Sources */,
 				B40230592AA8106900F2A18B /* TimeViews.swift in Sources */,
 				B49946E72A99A7A0006783E6 /* Proxy.swift in Sources */,
 				B46D182A2A56546100D886ED /* Union.swift in Sources */,

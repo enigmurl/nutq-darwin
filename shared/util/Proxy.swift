@@ -8,11 +8,20 @@
 import Foundation
 
 fileprivate let auth_buffer: TimeInterval = .minute
-fileprivate func url_base() -> String {
+
+func url_base() -> String {
 #if DEBUG
     return "http://localhost:8000"
 #else
     return "https://api.esoteric.manubhat.com"
+#endif
+}
+
+func ws_url_base() -> String {
+#if DEBUG
+    return "ws://localhost:8000"
+#else
+    return "wss://api.esoteric.manubhat.com"
 #endif
 }
 
@@ -107,7 +116,7 @@ func sign_in(env: EnvState, username: String, password: String) async -> Bool {
 }
 
 fileprivate func refresh(env: EnvState) async -> Bool {
-    if let exp = env.esotericToken?.refresh_exp, Date.now.timeIntervalSince1970 + auth_buffer < TimeInterval(exp) {
+    if let exp = env.esotericToken?.refresh_exp, Date.now.timeIntervalSince1970 + auth_buffer > TimeInterval(exp) {
         DispatchQueue.main.async {
             env.esotericToken = nil
         }
@@ -123,7 +132,7 @@ fileprivate func refresh(env: EnvState) async -> Bool {
         return false
     }
     
-    DispatchQueue.main.async {
+    DispatchQueue.main.sync {
         env.esotericToken?.access = result.access_token
         env.esotericToken?.access_exp = result.access_claim.exp
     }
@@ -131,18 +140,47 @@ fileprivate func refresh(env: EnvState) async -> Bool {
     return true
 }
 
-func auth_request<T>(env: EnvState, _ path: String, body: Data? = nil, method: String = "GET") async -> T? where T: Decodable {
-    if let exp = env.esotericToken?.access_exp, Date.now.timeIntervalSince1970 + auth_buffer < TimeInterval(exp) {
+func updated_token(env: EnvState) async -> String? {
+    if let exp = env.esotericToken?.access_exp, Date.now.timeIntervalSince1970 + auth_buffer > TimeInterval(exp) {
         if !(await refresh(env: env)) {
             return nil
         }
     }
     
-    guard let token = env.esotericToken?.access else {
+    return env.esotericToken?.access
+}
+
+func auth_request<T>(env: EnvState, _ path: String, body: Data? = nil, method: String = "GET") async -> T? where T: Decodable {
+    guard let token = await updated_token(env: env) else {
         return nil
     }
 
     return await base(token: token, path: path, body: body, method: method)
+}
+
+func auth_void_request(env: EnvState, _ path: String, body: Data? = nil, method: String = "GET") async -> Bool{
+    guard let token = await updated_token(env: env), let url = URL(string: url_base() + path)  else {
+        return false
+    }
+    
+    var request = URLRequest(url: url)
+    request.httpMethod = method;
+    request.httpBody = body
+    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+    request.setValue("Bearer " + token, forHTTPHeaderField: "Authorization")
+   
+    let res: Bool? = try? await withCheckedThrowingContinuation { continuation in
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                continuation.resume(throwing: RequestError.networkError)
+                return
+            }
+            
+            continuation.resume(returning: true)
+        }
+    }
+    
+    return res ?? false
 }
 
 func sign_out(env: EnvState) {
