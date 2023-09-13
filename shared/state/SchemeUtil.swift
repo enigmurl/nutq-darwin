@@ -90,12 +90,19 @@ public enum SchemeRepeat: Codable, Hashable, CustomStringConvertible {
         case .none:
             return [(start, end)]
         case let .block(block):
+            let calendar = Calendar.current
+            
             var ret: [(start: Date?, end: Date?)] = []
             for i in 0 ..< block.blocks {
                 for r in block.remainders {
-                    let offset = Double(i * block.modulus + r) * block.block_unit
-                    ret.append((start != nil ? start! + offset : nil,
-                                end != nil ? end! + offset : nil))
+                    if block.block_unit == .day {
+                        let offset = i * block.modulus + r
+                        ret.append((start != nil ? calendar.date(byAdding: .day, value: offset, to: start!) : nil,
+                                    end != nil ? calendar.date(byAdding: .day, value: offset, to: end!) : nil))
+                    }
+                    else {
+                        fatalError()
+                    }
                 }
             }
     

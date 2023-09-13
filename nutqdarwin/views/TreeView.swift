@@ -495,7 +495,7 @@ final class TreeTextView: UITextView, NSTextStorageDelegate, UITextViewDelegate 
         
         ret.backgroundColor = .clear
         ret.textColor = .black
-
+        
         ret.textStorage.delegate = ret
         ret.delegate = ret
         

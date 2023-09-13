@@ -94,14 +94,16 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
         }
     }
     
-    private func listenForClose() async {
-        // second message, if ever, will be a close
-        let _ = try? await self.slaveSocket?.receive()
-        
+    func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didCloseWith closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) {
         DispatchQueue.main.async {
             self.slaveSocket = nil
             self.env.slaveState = .none
         }
+    }
+    
+    private func listenForClose() async {
+        // second message, if ever, will be a close
+        while (try? await self.slaveSocket?.receive()) != nil { }
     }
     
     func stealSlave() {
@@ -160,6 +162,7 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
                 let updates = self.findUpdates()
                 
                 guard updates.count > 0 else {
+                    self.slaveSocket?.sendPing { _ in }
                     return
                 }
                 
