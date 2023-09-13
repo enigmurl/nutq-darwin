@@ -24,113 +24,6 @@ protocol DatastoreManager: AnyObject {
     var schemes: [SchemeState] {get set}
 }
 
-#if os(macOS)
-class Datastore: NSDocument {
-    weak var env: DatastoreManager?
-    var lastSaveCount: Int = 0
-    var modCount: Int = 0
-    
-    init?(env: DatastoreManager) {
-        self.env = env
-    }
-    
-    override func data(ofType typeName: String) throws -> Data {
-        NSLog("[Datastore] perform write")
-        guard let env = self.env else {
-            throw NSError(domain: "[Datastore]", code: 1)
-        }
-        return try JSONEncoder().encode(env.schemes)
-    }
-    
-    override func read(from data: Data, ofType typeName: String) throws {
-        NSLog("[Datastore] perform read")
-        self.env?.schemes = try JSONDecoder().decode([SchemeState].self, from: data)
-    }
-    
-    func save(_ completion: @escaping () -> ()) {
-        guard self.lastSaveCount < self.modCount, let url = Self.url else {
-            completion()
-            return
-        }
-        
-        self.lastSaveCount = self.modCount
-        
-        Task.init {
-            try! await self.save(to: url, ofType: "nqd", for: .saveAsOperation)
-            DispatchQueue.main.async {
-                completion()
-            }
-        }
-    }
-    
-    func load() async {
-        guard let url = Self.url else {
-            return
-        }
-        
-        try? self.revert(toContentsOf: url, ofType: "nqd")
-    }
-}
-#else
-class Datastore: UIDocument {
-    weak var env: DatastoreManager?
-    var lastSaveCount: Int = 0
-    var modCount: Int = 0
-    
-    init?(env: DatastoreManager) {
-        guard let url = Self.url else {
-            return nil
-        }
-        
-        self.env = env
-        super.init(fileURL: url)
-    }
-    
-    override func contents(forType typeName: String) throws -> Any {
-        NSLog("[Datastore] perform write")
-        guard let env = self.env else {
-            throw NSError(domain: "[Datastore]", code: 1)
-        }
-        return try JSONEncoder().encode(env.schemes)
-    }
-    
-    override func load(fromContents contents: Any, ofType typeName: String?) throws {
-        guard let data = contents as? Data else {
-            throw NSError(domain: "[Datastore]", code: 1)
-        }
-        
-        NSLog("[Datastore] perform read")
-        self.env?.schemes = try JSONDecoder().decode([SchemeState].self, from: data)
-    }
-    
-    func save(_ completion: @escaping () -> ()) {
-        guard self.lastSaveCount < self.modCount, let url = Self.url else {
-            return
-        }
-        
-        self.lastSaveCount = self.modCount
-        
-        Task.init {
-            await self.save(to: url, for: .forOverwriting)
-            
-            DispatchQueue.main.async {
-                completion()
-            }
-        }
-    }
-    
-    func load() async {
-        await self.open()
-    }
-}
-#endif
-
-extension Datastore {
-    class var url: URL? {
-        FileManager.default.url(forUbiquityContainerIdentifier: nil)?.appendingPathComponent("main.nqd")
-    }
-}
-
 class SystemManager: NSObject, URLSessionWebSocketDelegate {
     unowned var env: EnvState
     var lastSave = Date.distantPast
@@ -142,81 +35,84 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
     }
     
     func acquireSlave() async {
-        guard let token = await updated_token(env: env) else {
-            return
-        }
-        
-        let session = URLSession(configuration: .default, delegate: self, delegateQueue: OperationQueue())
-        
-        guard let url = URL(string: ws_url_base() + "/sync/slave/nutq") else {
+        guard let token = await updated_token(env: env), let url = URL(string: ws_url_base() + "/sync/slave/nutq") else {
             return
         }
         
         var request = URLRequest(url: url)
         request.setValue("Bearer " + token, forHTTPHeaderField: "Authorization")
         
+        let session = URLSession(configuration: .default, delegate: self, delegateQueue: OperationQueue())
+        
         slaveSocket?.cancel()
+        
         slaveSocket = session.webSocketTask(with: request)
+        slaveSocket?.resume()
+        
         DispatchQueue.main.async {
             self.env.slaveState = .loading
         }
         
-        slaveSocket?.resume()
-        
         // receive initial data block, ensuring that the connection is not in conflict
-        self.slaveSocket?.receive { result in
-            guard let res = try? result.get() else {
-                self.slaveSocket = nil
-                DispatchQueue.main.async {
-                    self.env.slaveState = .none
-                }
-                return
-            }
-            
-            switch res {
-            case .data(_):
-                break
-            case let .string(str):
-                if str == takenSlave {
-                    break
-                }
-                else {
-                    // first iteration it will be null
-                    let holder = try? JSONDecoder().decode(SchemeHolder.self, from: str.data(using: .utf8)!)
-                    let current = holder ?? SchemeHolder(schemes: [])
-                    
-                    DispatchQueue.main.async {
-                        self.lastWrite = self.createOverview(old: holder)
-                        self.env.slaveState = .write
-                        self.env.schemeHolder = current
-                    }
-                    return
-                }
-            @unknown default:
-                break
-            }
-          
+        guard let res = try? await slaveSocket?.receive() else {
+            self.slaveSocket = nil
             DispatchQueue.main.async {
-                self.slaveSocket = nil
                 self.env.slaveState = .none
             }
+            return
+        }
+        
+        switch res {
+        case .data(_):
+            break
+        case let .string(str):
+            if str == takenSlave {
+                break
+            }
+            else {
+                // first iteration it will be null
+                let holder = try? JSONDecoder().decode(SchemeHolder.self, from: str.data(using: .utf8)!)
+                let current = holder ?? SchemeHolder(schemes: [])
+                
+                DispatchQueue.main.async {
+                    self.lastWrite = self.createOverview(old: holder)
+                    self.env.slaveState = .write
+                    self.env.schemeHolder = current
+                }
+                
+                await self.listenForClose()
+                
+                return
+            }
+        @unknown default:
+            break
+        }
+      
+        DispatchQueue.main.async {
+            self.slaveSocket = nil
+            self.env.slaveState = .none
         }
     }
     
-    func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didCloseWith closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) {
-        print("Session Closed")
-        self.slaveSocket = nil
-        self.env.slaveState = .none
+    private func listenForClose() async {
+        // second message, if ever, will be a close
+        let _ = try? await self.slaveSocket?.receive()
+        
+        DispatchQueue.main.async {
+            self.slaveSocket = nil
+            self.env.slaveState = .none
+        }
     }
     
     func stealSlave() {
+        self.env.slaveState = .loading
+        
         Task.init {
-            try await Task.sleep(for: .seconds(Int(saveRate))) // allow other to send all changes in case of conflicts
+//            try await Task.sleep(for: .seconds(Int(saveRate))) // allow other to send all changes in case of conflicts
             
-            guard await auth_void_request(env: self.env, "/sync/steal/nutq", method: "DELETE") else {
-                return
-            }
-            
+            let _ = await auth_void_request(env: self.env, "/sync/steal/nutq", method: "DELETE")
+           
+            // try acquiring (even if above fails), generally doesn't hurt
             await self.acquireSlave()
         }
     }
@@ -249,6 +145,10 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
     }
     
     func updateUpstream(_ completion: @escaping () -> ()) {
+        if self.env.slaveState != .write {
+            return
+        }
+        
         Task.init {
             do {
                 defer { 
@@ -386,8 +286,6 @@ public class EnvState: ObservableObject, DatastoreManager {
     }
     @Published var slaveState = SlaveMode.none
     
-    /* doubly buffered */
-    var document: Datastore!
     
     @Published var schemeHolder: SchemeHolder = SchemeHolder(schemes: [])
     var schemes: [SchemeState] {
@@ -402,7 +300,6 @@ public class EnvState: ObservableObject, DatastoreManager {
         let raw = UserDefaults().data(forKey: "esoteric_token")
         esotericToken = raw != nil ? try? JSONDecoder().decode(EsotericUser.self, from: raw!) : nil
         manager = SystemManager(env: self)
-        document = Datastore(env: self)
         clock = Timer.publish(every: saveRate, on: .main, in: .common)
             .autoconnect()
             .sink { val in
@@ -467,16 +364,7 @@ public class EnvMiniState: ObservableObject, DatastoreManager {
     }
     
     init(completion: @escaping (_ env: EnvMiniState) -> ()) {
-        guard let document = Datastore(env: self) else {
-            completion(self)
-            return
-        }
-        
-        Task.init {
-            await document.load()
-            await document.close()
-            completion(self)
-        }
+        fatalError()
     }
 }
 

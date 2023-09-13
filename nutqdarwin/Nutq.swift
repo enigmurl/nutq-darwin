@@ -29,7 +29,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func applicationDidEnterBackground(_ application: UIApplication) {
-        NSFileCoordinator.removeFilePresenter(env.document)
+        
     }
 }
 #endif

@@ -159,14 +159,12 @@ func auth_request<T>(env: EnvState, _ path: String, body: Data? = nil, method: S
 }
 
 func auth_void_request(env: EnvState, _ path: String, body: Data? = nil, method: String = "GET") async -> Bool{
-    guard let token = await updated_token(env: env), let url = URL(string: url_base() + path)  else {
+    guard let token = await updated_token(env: env), let url = URL(string: url_base() + path) else {
         return false
     }
     
     var request = URLRequest(url: url)
     request.httpMethod = method;
-    request.httpBody = body
-    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
     request.setValue("Bearer " + token, forHTTPHeaderField: "Authorization")
    
     let res: Bool? = try? await withCheckedThrowingContinuation { continuation in
@@ -177,7 +175,7 @@ func auth_void_request(env: EnvState, _ path: String, body: Data? = nil, method:
             }
             
             continuation.resume(returning: true)
-        }
+        }.resume()
     }
     
     return res ?? false

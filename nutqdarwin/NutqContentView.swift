@@ -19,14 +19,17 @@ struct NutqContentView: View {
             }
             else if case .none = env.slaveState {
                 VStack {
-                    Text("Slave Unavailable")
+                    Text("Slave Unavailable (stealing may invalidate last ~10 seconds of changes on other device)")
                     Button("Steal Slave") {
                         env.stealSlave()
                     }
                 }
             }
             else if case .loading = env.slaveState {
-                Text("Loading")
+                VStack {
+                    Text("Loading")
+                    ProgressView()
+                }
             }
             else {
                 NavigationView {
