@@ -25,20 +25,27 @@ struct SidebarLabel: View {
             }
         } label: {
             Label {
-                #if os(iOS)
-                Text(scheme?.wrappedValue.name ?? "Union")
-                    .font(.title3)
-                #else
-                if let scheme = scheme {
-                    TextField("", text: scheme.name)
-                        .textFieldStyle(.plain)
+                HStack {
+#if os(iOS)
+                    Text(scheme?.wrappedValue.name ?? "Union")
                         .font(.title3)
+#else
+                    if let scheme = scheme {
+                        TextField("", text: scheme.name)
+                            .textFieldStyle(.plain)
+                            .font(.title3)
+                    }
+                    else {
+                        Text("Union")
+                            .font(.title3)
+                    }
+#endif
+                    if scheme?.wrappedValue.remoteUpdated ?? false {
+                        Circle()
+                            .fill(.red)
+                            .frame(width: 7, height: 7)
+                    }
                 }
-                else {
-                    Text("Union")
-                        .font(.title3)
-                }
-                #endif
 
             } icon: {
                 TagView(index: scheme?.color_index ?? nil)

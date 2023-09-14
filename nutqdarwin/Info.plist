@@ -2,17 +2,49 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSUserNotificationAlertStyle</key>
+	<string>alert</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>api.push.apple.com</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSExceptionRequiresForwardSecrecy</key>
+				<false/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
+			<key>api.development.push.apple.com</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSExceptionRequiresForwardSecrecy</key>
+				<false/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
+		</dict>
+	</dict>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
+	<key>CFBundleIdentifier</key>
+	<string>com.enigmadux.nutqdarwin</string>
 	<key>GIDClientID</key>
-    <string>419826075228-p4p5is2cljc4kd1fh29jsqpkk2ak98dk.apps.googleusercontent.com</string>
-    <key>CFBundleURLTypes</key>
-    <array>
-      <dict>
-        <key>CFBundleURLSchemes</key>
-        <array>
-          <string>com.googleusercontent.apps.419826075228-p4p5is2cljc4kd1fh29jsqpkk2ak98dk</string>
-        </array>
-      </dict>
-    </array>
+	<string>419826075228-p4p5is2cljc4kd1fh29jsqpkk2ak98dk.apps.googleusercontent.com</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.419826075228-p4p5is2cljc4kd1fh29jsqpkk2ak98dk</string>
+			</array>
+		</dict>
+	</array>
 	<key>UILaunchScreen</key>
 	<dict>
 		<key>UIImageName</key>

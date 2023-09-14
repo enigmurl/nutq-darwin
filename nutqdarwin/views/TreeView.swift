@@ -127,6 +127,11 @@ final class TreeTextView: NSTextView, NSTextStorageDelegate {
     var pipe: AnyCancellable!
     var deleteRange: Range<Int>?
     
+    var _undoManager = UndoManager()
+    override var undoManager: UndoManager? {
+       _undoManager
+    }
+    
     var popoverSubview: NSView? = nil
     var popoverIndex: Int? = nil
     var popover: Popover? {
@@ -184,6 +189,27 @@ final class TreeTextView: NSTextView, NSTextStorageDelegate {
         ret.textStorage?.delegate = ret
         
         return ret
+    }
+    
+    override func keyDown(with event: NSEvent) {
+        if event.modifierFlags.contains(.command) {
+            if event.characters?.contains("z") ?? false {
+                if event.modifierFlags.contains(.shift) {
+                    if _undoManager.canRedo {
+                        _undoManager.redo()
+                    }
+                } else {
+                    if _undoManager.canUndo {
+                        _undoManager.undo()
+                    }
+                }
+                
+                return
+            }
+        }
+        
+        // Handle other key events as needed
+        super.keyDown(with: event)
     }
     
     override func insertNewline(_ sender: Any?) {

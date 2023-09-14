@@ -62,7 +62,7 @@ struct DayHeader: View {
                     .saturation(0.7)
             }
             else {
-                Text(["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][dayOfWeek - 1])
+                Text(daysOfWeek[dayOfWeek - 1])
             }
 
             Text(String(dayOfMonth))

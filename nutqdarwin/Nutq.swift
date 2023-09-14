@@ -10,6 +10,13 @@ import SwiftUI
 #if os(macOS)
 class AppDelegate: NSObject, NSApplicationDelegate {
     var env: EnvState!
+   
+    func application(_ application: NSApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        Task.init {
+            
+            env.registered = await auth_void_request(env: env, "/sync/device/", method: "POST")
+        }
+    }
     
     
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
@@ -41,7 +48,7 @@ struct Nutq: App {
     #else
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     #endif
-    
+        
     @StateObject private var env = EnvState()
     @StateObject private var commandDispatcher = MenuState()
     @Environment(\.scenePhase) var phase
@@ -60,6 +67,14 @@ struct Nutq: App {
                 .environmentObject(commandDispatcher)
                 .onAppear {
                     self.appDelegate.env = env
+                    
+                    if !env.registered {
+#if os(iOS)
+                        UIApplication.shared.registerForRemoteNotifications()
+#else
+                        NSApplication.shared.registerForRemoteNotifications()
+#endif
+                    }
                 }
                 .onChange(of: phase, initial: false) { (phase, newPhase) in
                     if newPhase == .inactive {
@@ -86,5 +101,6 @@ struct Nutq: App {
                 }
             }
         }
+        
     }
 }

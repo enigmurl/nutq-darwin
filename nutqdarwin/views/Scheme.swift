@@ -40,6 +40,9 @@ struct Scheme: View {
             TreeView(scheme: scheme.scheme_list, menu: menu, enabled: !scheme.syncs_to_gsync)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .onAppear {
+            scheme.remoteUpdated = false
+        }
         .background {
             Color.clear
                 .onTapGesture {

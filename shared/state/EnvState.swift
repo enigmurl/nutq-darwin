@@ -17,6 +17,7 @@ import GTMSessionFetcherFull
 let unionNullUUID = UUID(uuidString: "00000000-0000-0000-0000-ffffffffffff")!
 
 fileprivate let takenSlave = "\"Resource in Use\""
+fileprivate let slaveAboutToBeTaken = "\"Slave stolen\""
 fileprivate let saveRate: TimeInterval = 10
 fileprivate let gsyncInterval = 15 * TimeInterval.minute
 
@@ -59,6 +60,7 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
             DispatchQueue.main.async {
                 self.env.slaveState = .none
             }
+            
             return
         }
         
@@ -70,14 +72,25 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
                 break
             }
             else {
+                let localCopy = self.load(from: "latest.json")
+                
                 // first iteration it will be null
                 let holder = try? JSONDecoder().decode(SchemeHolder.self, from: str.data(using: .utf8)!)
                 let current = holder ?? SchemeHolder(schemes: [])
                 
                 DispatchQueue.main.async {
                     self.lastWrite = self.createOverview(old: holder)
+                 
+                    // not even that inefficient since ids are checked first
+                    for scheme in current.schemes {
+                        if !(localCopy?.schemes ?? []).contains(where: scheme.deepEquals(_:)) {
+                            scheme.remoteUpdated = true
+                        }
+                    }
+                    
                     self.env.slaveState = .write
                     self.env.schemeHolder = current
+                    self.saveLocal()
                 }
                 
                 await self.listenForClose()
@@ -94,25 +107,28 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
         }
     }
     
-    func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didCloseWith closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) {
-        DispatchQueue.main.async {
-            self.slaveSocket = nil
-            self.env.slaveState = .none
-        }
-    }
-    
     private func listenForClose() async {
-        // second message, if ever, will be a close
-        while (try? await self.slaveSocket?.receive()) != nil { }
+        while let message = try? await self.slaveSocket?.receive() {
+            if case .string(let string) = message, string == slaveAboutToBeTaken {
+                self.updateUpstream { 
+                    self.slaveSocket?.cancel()
+                    
+                    DispatchQueue.main.async {
+                        self.slaveSocket = nil
+                        self.env.slaveState = .none
+                    }
+                }
+            }
+        }
     }
     
     func stealSlave() {
         self.env.slaveState = .loading
         
         Task.init {
-//            try await Task.sleep(for: .seconds(Int(saveRate))) // allow other to send all changes in case of conflicts
-            
             let _ = await auth_void_request(env: self.env, "/sync/steal/nutq", method: "DELETE")
+            
+            try await Task.sleep(for: .seconds(1)) // allow to finish sending changes
            
             // try acquiring (even if above fails), generally doesn't hurt
             await self.acquireSlave()
@@ -166,6 +182,8 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
                     return
                 }
                 
+                self.saveLocal()
+                
                 let str = String(data: try! JSONEncoder().encode(updates), encoding: .utf8)!
                 try await self.slaveSocket?.send(URLSessionWebSocketTask.Message.string(str))
                
@@ -173,6 +191,35 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
                 self.lastWrite = self.createOverview(old: self.env.schemeHolder)
             } catch { }
         }
+    }
+    
+    func saveLocal() {
+        guard let total = try? JSONEncoder().encode(self.env.schemeHolder) else {
+            return
+        }
+       
+        let dayOfWeek = Calendar.current.component(.weekday, from: .now) - 1
+        
+        self.save(total, to: "\(daysOfWeek[dayOfWeek]).json")
+        self.save(total, to: "latest.json")
+    }
+    
+    func save(_ data: Data, to file: String) {
+        do {
+            let supportDir = try FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+            let jsonDir = supportDir.appendingPathComponent("backups/")
+            try FileManager.default.createDirectory(at: jsonDir, withIntermediateDirectories: true, attributes: nil)
+            
+            try data.write(to: jsonDir.appendingPathComponent(file))
+        } catch { }
+    }
+        
+    func load(from file: String) -> SchemeHolder? {
+        guard let url = try? FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true) else {
+            return nil
+        }
+        
+        return try? JSONDecoder().decode(SchemeHolder.self, from: Data(contentsOf: url.appending(components: "backups", file)))
     }
     
     func closeSlave() {
@@ -284,11 +331,12 @@ public class EnvState: ObservableObject, DatastoreManager {
     @Published var esotericToken: EsotericUser? = nil {
         didSet {
             // save 
-            UserDefaults().setValue(try! JSONEncoder().encode(esotericToken), forKey: "esoteric_token")
+            UserDefaults.standard.setValue(try! JSONEncoder().encode(esotericToken), forKey: "esoteric_token")
         }
     }
     @Published var slaveState = SlaveMode.none
-    
+   
+    @AppStorage("registeredDevice") var registered = false
     
     @Published var schemeHolder: SchemeHolder = SchemeHolder(schemes: [])
     var schemes: [SchemeState] {
@@ -300,7 +348,7 @@ public class EnvState: ObservableObject, DatastoreManager {
     weak var undoManager: UndoManager?
     
     init() {
-        let raw = UserDefaults().data(forKey: "esoteric_token")
+        let raw = UserDefaults.standard.data(forKey: "esoteric_token")
         esotericToken = raw != nil ? try? JSONDecoder().decode(EsotericUser.self, from: raw!) : nil
         manager = SystemManager(env: self)
         clock = Timer.publish(every: saveRate, on: .main, in: .common)

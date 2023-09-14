@@ -162,6 +162,7 @@ public final class SchemeItem: ObservableObject, Codable, Hashable, Identifiable
     @Published public var end: Date? {
         didSet { if end != oldValue { dirty = true } }
     }
+    
     @Published public var repeats: SchemeRepeat {
         didSet { if repeats != oldValue { dirty = true } }
     }
@@ -251,6 +252,10 @@ public final class SchemeItem: ObservableObject, Codable, Hashable, Identifiable
     public func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
+    
+    public func deepEquals(_ other: SchemeItem) -> Bool {
+        return self.id == other.id && self.state == other.state && self.text == other.text && self.start == other.start && self.end == other.end && self.repeats == other.repeats && self.indentation == other.indentation
+    }
 }
 
 public final class SchemeItemList: ObservableObject, Codable, Hashable {
@@ -300,7 +305,9 @@ public final class SchemeState: ObservableObject, Codable, Hashable, Identifiabl
     }
     
     public var scheme_list: SchemeItemList
-    
+   
+    #warning ("TODO not perfect since it resets after we shutdown")
+    public var remoteUpdated: Bool = false
     public var dirty: Bool = true
     
     enum CodingKeys: String, CodingKey {
@@ -343,6 +350,10 @@ public final class SchemeState: ObservableObject, Codable, Hashable, Identifiabl
     
     public static func == (lhs: SchemeState, rhs: SchemeState) -> Bool {
         return lhs.id == rhs.id
+    }
+    
+    public func deepEquals(_ other: SchemeState) -> Bool {
+        return self.id == other.id && name == other.name && color_index == other.color_index && syncs_to_gsync == other.syncs_to_gsync && scheme_list.schemes.count == other.scheme_list.schemes.count &&  zip(scheme_list.schemes, other.scheme_list.schemes).allSatisfy { $0.0.deepEquals($0.1) }
     }
     
     public func hash(into hasher: inout Hasher) {
