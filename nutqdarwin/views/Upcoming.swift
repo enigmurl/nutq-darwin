@@ -13,7 +13,7 @@ struct UpcomingAssignment: View {
     let item: SchemeSingularItem
     
     var color: Color {
-        if (item.state == -1) {
+        if (item.state.progress == -1) {
             return .gray
         }
         return colorIndexToColor(item.colorIndex)
@@ -85,9 +85,9 @@ struct UpcomingAssignment: View {
         .allowsHitTesting(true)
         .frame(maxWidth: .infinity, minHeight: 35, alignment: .leading)
        
-        .grayscale(self.item.state == -1 ? 1 : 0)
-        .opacity(self.item.state == -1 ? 0.3 : 1)
-        .strikethrough(self.item.state == -1, color: .red)
+        .grayscale(self.item.state.progress == -1 ? 1 : 0)
+        .opacity(self.item.state.progress == -1 ? 0.3 : 1)
+        .strikethrough(self.item.state.progress == -1, color: .red)
      
         .onTapGesture {
             self.switchState()
@@ -98,11 +98,11 @@ struct UpcomingAssignment: View {
     
     func switchState() {
 //        withAnimation {
-        if (self.item.state != -1) {
-            self.item.state = -1
+        if (self.item.state.progress != -1) {
+            self.item.state.progress = -1
         }
         else {
-            self.item.state = 0
+            self.item.state.progress = 0
         }
 //        }
     }

@@ -10,7 +10,12 @@ import SwiftUI
 import Combine
 
 func blankEditor(_ str: String, indentation: Int = 0) -> SchemeItem {
-    return SchemeItem(state: [0], text: str, repeats: .none, indentation: indentation)
+    return SchemeItem(state: [SchemeSingularState()], text: str, repeats: .None, indentation: indentation)
+}
+
+public struct SchemeSingularState: Codable, Hashable {
+    var progress: Int = 0
+    var delay: TimeInterval = 0
 }
 
 struct SchemeSingularItem: Identifiable {
@@ -23,7 +28,7 @@ struct SchemeSingularItem: Identifiable {
     public let colorIndex: Int
     public let path: [String]
     
-    @Binding public var state: Int
+    @Binding public var state: SchemeSingularState
     public var text: String
     
     public var start: Date?
@@ -64,10 +69,10 @@ struct SchemeSingularItem: Identifiable {
 
 /* polymorphism at some point? */
 public enum SchemeRepeat: Codable, Hashable, CustomStringConvertible {
-    case none
-    case block(block: Block)
+    case None
+    case Block(block: BlockRepeat)
     
-    public struct Block: Codable, Hashable {
+    public struct BlockRepeat: Codable, Hashable {
         static let maxBlocks = 256
         
         var blocks: Int = 1
@@ -78,18 +83,18 @@ public enum SchemeRepeat: Codable, Hashable, CustomStringConvertible {
     
     public var description: String {
         switch (self) {
-        case .none:
+        case .None:
             return "none"
-        case .block:
+        case .Block:
             return "block"
         }
     }
     
     public func events(start: Date?, end: Date?) -> [(start: Date?, end: Date?)] {
         switch(self) {
-        case .none:
+        case .None:
             return [(start, end)]
-        case let .block(block):
+        case let .Block(block):
             let calendar = Calendar.current
             
             var ret: [(start: Date?, end: Date?)] = []
@@ -112,9 +117,9 @@ public enum SchemeRepeat: Codable, Hashable, CustomStringConvertible {
     
     public func lowerBound(start: Date?, end: Date?) -> Date? {
         switch(self) {
-        case .none:
+        case .None:
             return start ?? end
-        case let .block(block):
+        case let .Block(block):
             let offset = Double(block.remainders.first ?? 0) * block.block_unit
             if start != nil {
                 return start! + offset
@@ -128,9 +133,9 @@ public enum SchemeRepeat: Codable, Hashable, CustomStringConvertible {
     
     public func upperBound(start: Date?, end: Date?) -> Date? {
         switch(self) {
-        case .none:
+        case .None:
             return end ?? start
-        case let .block(block):
+        case let .Block(block):
             let offset = Double((block.blocks - 1) * block.modulus + (block.remainders.last ?? 0)) * block.block_unit
             if end != nil {
                 return end! + offset
@@ -147,7 +152,7 @@ public enum SchemeRepeat: Codable, Hashable, CustomStringConvertible {
 public final class SchemeItem: ObservableObject, Codable, Hashable, Identifiable {
     public let id: UUID
     
-    @Published public var state: [Int] { // 0 = not complete, -1 = finished. Open to intermediate states. Represents states of all events
+    @Published public var state: [SchemeSingularState] { // 0 = not complete, -1 = finished. Open to intermediate states. Represents states of all events
         didSet { if state != oldValue { dirty = true } }
     }
     
@@ -198,7 +203,7 @@ public final class SchemeItem: ObservableObject, Codable, Hashable, Identifiable
         case indentation
     }
     
-    init(id: UUID = UUID(), state: [Int], text: String, start: Date? = nil, end: Date? = nil, repeats: SchemeRepeat, indentation: Int) {
+    init(id: UUID = UUID(), state: [SchemeSingularState], text: String, start: Date? = nil, end: Date? = nil, repeats: SchemeRepeat, indentation: Int) {
         self.id = id
         self.state = state
         self.text = text
@@ -211,7 +216,7 @@ public final class SchemeItem: ObservableObject, Codable, Hashable, Identifiable
     public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         self.id = try container.decode(UUID.self, forKey: .id)
-        self.state = try container.decode([Int].self, forKey: .state)
+        self.state = try container.decode([SchemeSingularState].self, forKey: .state)
         self.text = try container.decode(String.self, forKey: .text)
         self.start = try container.decode(Optional<Date>.self, forKey: .start)
         self.end = try container.decode(Optional<Date>.self, forKey: .end)
@@ -233,7 +238,7 @@ public final class SchemeItem: ObservableObject, Codable, Hashable, Identifiable
     }
     
     public var complete: Bool {
-        state.allSatisfy { $0 == -1 }
+        state.allSatisfy { $0.progress == -1 }
     }
     
     public var mergedStatePublisher: AnyPublisher<Void, Never> {
@@ -524,7 +529,7 @@ extension Binding<Array<SchemeItem>> {
                     schemes.append(base)
                     break
                 }
-                else if base.state == 0 {
+                else if base.state.progress != -1 {
                     schemes.append(base)
                 }
             }
@@ -550,7 +555,7 @@ extension Binding<Array<SchemeItem>> {
             let wrap = x.wrappedValue
             for (i, (s, e)) in wrap.repeats.events(start: wrap.start, end: wrap.end).enumerated() {
                 let base = convertSingularScheme(color: color, path: path, start: s, end: e, scheme: x, index: i)
-                if base.state != -1 {
+                if base.state.progress != -1 {
                     schemes.append(base)
                 }
             }

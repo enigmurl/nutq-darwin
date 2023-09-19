@@ -22,7 +22,7 @@ fileprivate let saveRate: TimeInterval = 10
 fileprivate let gsyncInterval = 15 * TimeInterval.minute
 
 protocol DatastoreManager: AnyObject {
-    var schemes: [SchemeState] {get set}
+    var esotericToken: EsotericUser? { get set }
 }
 
 class SystemManager: NSObject, URLSessionWebSocketDelegate {
@@ -84,7 +84,7 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
                     // not even that inefficient since ids are checked first
                     for scheme in current.schemes {
                         if !(localCopy?.schemes ?? []).contains(where: scheme.deepEquals(_:)) {
-                            scheme.remoteUpdated = true
+                            scheme.remoteUpdated = !scheme.syncs_to_gsync
                         }
                     }
                     
@@ -107,25 +107,37 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
         }
     }
     
+    func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didCloseWith closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) {
+        DispatchQueue.main.async {
+            self.slaveSocket = nil
+            self.env.slaveState = .none
+        }
+    }
+    
     private func listenForClose() async {
         while let message = try? await self.slaveSocket?.receive() {
             if case .string(let string) = message, string == slaveAboutToBeTaken {
                 self.updateUpstream { 
                     self.slaveSocket?.cancel()
-                    
-                    DispatchQueue.main.async {
-                        self.slaveSocket = nil
-                        self.env.slaveState = .none
-                    }
                 }
             }
+        }
+        
+        DispatchQueue.main.async {
+            self.slaveSocket = nil
+            self.env.slaveState = .none
         }
     }
     
     func stealSlave() {
-        self.env.slaveState = .loading
+        guard self.env.slaveState == .none else {
+            return
+        }
         
+        self.env.slaveState = .loading
+
         Task.init {
+            
             let _ = await auth_void_request(env: self.env, "/sync/steal/nutq", method: "DELETE")
             
             try await Task.sleep(for: .seconds(1)) // allow to finish sending changes
@@ -164,6 +176,7 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
     
     func updateUpstream(_ completion: @escaping () -> ()) {
         if self.env.slaveState != .write {
+            completion()
             return
         }
         
@@ -178,7 +191,7 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
                 let updates = self.findUpdates()
                 
                 guard updates.count > 0 else {
-                    self.slaveSocket?.sendPing { _ in }
+                    slaveSocket?.sendPing { _ in }
                     return
                 }
                 
@@ -186,10 +199,12 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
                 
                 let str = String(data: try! JSONEncoder().encode(updates), encoding: .utf8)!
                 try await self.slaveSocket?.send(URLSessionWebSocketTask.Message.string(str))
-               
+              
                 // recreate
                 self.lastWrite = self.createOverview(old: self.env.schemeHolder)
-            } catch { }
+            } catch let error {
+                print("Error:", error)
+            }
         }
     }
     
@@ -234,7 +249,7 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
         for item in binding.flattenIncomplete() {
             // autocomplete events
             if item.start != nil && item.end != nil && item.end! < .now {
-                item.state = -1
+                item.state.progress = -1
             }
         }
     }
@@ -262,7 +277,7 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
                 service.executeQuery(query) { (_, result, error) in
                     if let error = error {
                         // Handle the error
-                        self.env.schemes[i].scheme_list.schemes.insert(SchemeItem(state: [0], text:  "ERR_{\(error.localizedDescription)}", repeats: .none, indentation: 0), at: 0)
+                        self.env.schemes[i].scheme_list.schemes.insert(SchemeItem(state: [SchemeSingularState()], text:  "ERR_{\(error.localizedDescription)}", repeats: .None, indentation: 0), at: 0)
                         print("Calendar events query error: \(error.localizedDescription)")
                         return
                     }
@@ -277,11 +292,11 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
                             }
                             
                             let finished = Date.now > end ? -1 : 0
-                            let item = SchemeItem(state: [finished],
+                            let item = SchemeItem(state: [SchemeSingularState(progress: finished)],
                                                   text: (event.summary ?? ""),
                                                   start: start,
                                                   end: end,
-                                                  repeats: .none,
+                                                  repeats: .None,
                                                   indentation: 0)
                             
                             self.env.schemes[i].scheme_list.schemes.insert(item, at: j)
@@ -331,7 +346,7 @@ public class EnvState: ObservableObject, DatastoreManager {
     @Published var esotericToken: EsotericUser? = nil {
         didSet {
             // save 
-            UserDefaults.standard.setValue(try! JSONEncoder().encode(esotericToken), forKey: "esoteric_token")
+            UserDefaults(suiteName: "group.com.enigmadux.nutqdarwin")?.setValue(try! JSONEncoder().encode(esotericToken), forKey: "esoteric_token")
         }
     }
     @Published var slaveState = SlaveMode.none
@@ -348,7 +363,7 @@ public class EnvState: ObservableObject, DatastoreManager {
     weak var undoManager: UndoManager?
     
     init() {
-        let raw = UserDefaults.standard.data(forKey: "esoteric_token")
+        let raw = UserDefaults(suiteName: "group.com.enigmadux.nutqdarwin")?.data(forKey: "esoteric_token")
         esotericToken = raw != nil ? try? JSONDecoder().decode(EsotericUser.self, from: raw!) : nil
         manager = SystemManager(env: self)
         clock = Timer.publish(every: saveRate, on: .main, in: .common)
@@ -408,14 +423,18 @@ public class EnvState: ObservableObject, DatastoreManager {
 
 /* for widgets */
 public class EnvMiniState: ObservableObject, DatastoreManager {
-    @Published var schemeHolder: SchemeHolder = SchemeHolder(schemes: [])
-    var schemes: [SchemeState] {
-        get { schemeHolder.schemes }
-        set { schemeHolder.schemes = newValue }
+    var esotericToken: EsotericUser? = nil
+    
+    init() {
+        let raw = UserDefaults(suiteName: "group.com.enigmadux.nutqdarwin")?.data(forKey: "esoteric_token")
+        esotericToken = raw != nil ? try? JSONDecoder().decode(EsotericUser.self, from: raw!) : nil
     }
     
-    init(completion: @escaping (_ env: EnvMiniState) -> ()) {
-        fatalError()
+    func retrieve(_ completion: @escaping (_ schemes: SchemeHolder) -> ()) {
+        Task.init {
+            let res: SchemeHolder? = await auth_request(env: self, "/sync/bucket/nutq")
+            completion(res ?? SchemeHolder(schemes: []))
+        }
     }
 }
 

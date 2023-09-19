@@ -19,7 +19,7 @@ struct NutqContentView: View {
             }
             else if case .none = env.slaveState {
                 VStack {
-                    Text("Slave Unavailable (stealing may invalidate last ~10 seconds of changes on other device)")
+                    Text("Slave not claimed")
                     Button("Steal Slave") {
                         env.stealSlave()
                     }

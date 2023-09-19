@@ -12,18 +12,19 @@ import Intents
 #if DEBUG
 fileprivate let updatePeriod: TimeInterval = .minute
 #else
-fileprivate let updatePeriod = 15 * TimeInterval.minute
+fileprivate let updatePeriod = 30 * TimeInterval.minute
 #endif
 
 struct Provider: IntentTimelineProvider {
     
     fileprivate func getCurrentEntry(_ intent: ConfigurationIntent, completion: @escaping (_ upcoming: UpcomingEntry) -> ()) {
-        let _ = EnvMiniState { env in
-            var schemes = env.schemes
+        let env = EnvMiniState()
+        env.retrieve { schemes in
+            let schemes = schemes.schemes
             
             // not going to write anyways
             // so binding stuff can be kind of iffy
-            let flat = env.schemes.map { ObservedObject(initialValue: $0) }
+            let flat = schemes.map { ObservedObject(initialValue: $0) }
                 .flattenToUpcomingSchemes(start: Date.now)
                 .sorted(by: {
                     $0.start ?? $0.end! < $1.start ?? $1.end!
@@ -68,7 +69,7 @@ struct UpcomingAssignmentWidget: View {
     let item: SchemeSingularItem
     
     var color: Color {
-        if (item.state == -1) {
+        if (item.state.progress == -1) {
             return .gray
         }
         return colorIndexToColor(item.colorIndex)
@@ -91,7 +92,7 @@ struct UpcomingAssignmentWidget: View {
                 }
             }
         }
-        .foregroundStyle(self.item.dateColor.opacity(0.7))
+        .foregroundStyle(item.dateColor)
         .font(.system(size: 10).monospacedDigit())
     }
     
@@ -99,6 +100,7 @@ struct UpcomingAssignmentWidget: View {
         HStack {
             VStack(alignment: .leading) {
                 Text(item.text)
+                    .foregroundStyle(Color.black.opacity(0.8))
                     .font(.system(size: 12))
                     .saturation(0.6)
                     .fontWeight(.semibold)
@@ -116,10 +118,10 @@ struct UpcomingAssignmentWidget: View {
 //                alignment: .leading
 //            )
             .padding(.trailing, 2)
-            .background(
-                RoundedRectangle(cornerRadius: 3)
-                    .fill(.black.opacity(0.65))
-            )
+//            .background(
+//                RoundedRectangle(cornerRadius: 5)
+//                    .fill(.black.opacity(0.5))
+//            )
         }
     }
 }

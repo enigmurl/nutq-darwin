@@ -98,7 +98,7 @@ where T: Decodable
     return result
 }
 
-func sign_in(env: EnvState, username: String, password: String) async -> Bool {
+func sign_in(env: DatastoreManager, username: String, password: String) async -> Bool {
     guard let result: AuthResponse = await base(
         token: nil,
         path: "/auth/authorize",
@@ -115,7 +115,7 @@ func sign_in(env: EnvState, username: String, password: String) async -> Bool {
     return true
 }
 
-fileprivate func refresh(env: EnvState) async -> Bool {
+fileprivate func refresh(env: DatastoreManager) async -> Bool {
     if let exp = env.esotericToken?.refresh_exp, Date.now.timeIntervalSince1970 + auth_buffer > TimeInterval(exp) {
         DispatchQueue.main.async {
             env.esotericToken = nil
@@ -140,7 +140,7 @@ fileprivate func refresh(env: EnvState) async -> Bool {
     return true
 }
 
-func updated_token(env: EnvState) async -> String? {
+func updated_token(env: DatastoreManager) async -> String? {
     if let exp = env.esotericToken?.access_exp, Date.now.timeIntervalSince1970 + auth_buffer > TimeInterval(exp) {
         if !(await refresh(env: env)) {
             return nil
@@ -150,7 +150,7 @@ func updated_token(env: EnvState) async -> String? {
     return env.esotericToken?.access
 }
 
-func auth_request<T>(env: EnvState, _ path: String, body: Data? = nil, method: String = "GET") async -> T? where T: Decodable {
+func auth_request<T>(env: DatastoreManager, _ path: String, body: Data? = nil, method: String = "GET") async -> T? where T: Decodable {
     guard let token = await updated_token(env: env) else {
         return nil
     }
@@ -158,15 +158,17 @@ func auth_request<T>(env: EnvState, _ path: String, body: Data? = nil, method: S
     return await base(token: token, path: path, body: body, method: method)
 }
 
-func auth_void_request(env: EnvState, _ path: String, body: Data? = nil, method: String = "GET") async -> Bool{
+func auth_void_request(env: DatastoreManager, _ path: String, body: Data? = nil, method: String = "GET") async -> Bool{
     guard let token = await updated_token(env: env), let url = URL(string: url_base() + path) else {
         return false
     }
     
     var request = URLRequest(url: url)
     request.httpMethod = method;
+    request.httpBody = body;
     request.setValue("Bearer " + token, forHTTPHeaderField: "Authorization")
-   
+    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
     let res: Bool? = try? await withCheckedThrowingContinuation { continuation in
         URLSession.shared.dataTask(with: request) { data, response, error in
             guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {

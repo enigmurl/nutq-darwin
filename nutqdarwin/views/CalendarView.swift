@@ -193,7 +193,7 @@ struct CalendarEvents: View {
                             Text(item.text)
                                 .multilineTextAlignment(.center)
                                 .foregroundStyle(colorIndexToColor(item.colorIndex))
-                                .saturation(item.state == -1 ? 0 : 0.7)
+                                .saturation(item.state.progress == -1 ? 0 : 0.7)
                                 .font(Font.system(size: 12).bold())
                                 .padding(.horizontal, 6)
                                 .lineLimit(2)

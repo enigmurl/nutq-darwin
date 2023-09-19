@@ -97,6 +97,12 @@ let hourFormatter = {
     return formatter
 }()
 
+let serializeFormatter = {
+    let dateFormatter = DateFormatter()
+    dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZZZZZ"
+    return dateFormatter
+}()
+
 //use march since it has 31 days, some date in the past
 let referenceDate = {
     let dateFormatter = DateFormatter()
@@ -105,5 +111,7 @@ let referenceDate = {
     dateFormatter.locale = Locale.current
     return dateFormatter.date(from: "2000-03-14T12:00:00")!
 }()
+
+
 
 let daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]

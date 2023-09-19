@@ -69,15 +69,12 @@ struct Block: View {
     
     func blockEditor(_ label: String, schemeRepeat: Binding<SchemeRepeat>) -> some View {
         let blockBinding = Binding(get: {
-            guard case let SchemeRepeat.block(block) = schemeRepeat.wrappedValue else {
-                return SchemeRepeat.Block()
+            guard case let SchemeRepeat.Block(block) = schemeRepeat.wrappedValue else {
+                return SchemeRepeat.BlockRepeat()
             }
             
             return block
-        }, set: { (val: SchemeRepeat.Block) in
-            if !delete {
-                schemeRepeat.wrappedValue = .block(block: val)
-            }
+        }, set: { (val: SchemeRepeat.BlockRepeat) in
             
             /* ensure state is proper */
             let target = val.remainders.count * val.blocks
@@ -85,7 +82,11 @@ struct Block: View {
                 self.scheme.state.removeLast(self.scheme.state.count - target)
             }
             else if self.scheme.state.count < target {
-                self.scheme.state.append(contentsOf: [Int](repeating: 0, count: target - self.scheme.state.count))
+                self.scheme.state.append(contentsOf: [SchemeSingularState](repeating: SchemeSingularState(), count: target - self.scheme.state.count))
+            }
+            
+            if !delete {
+                schemeRepeat.wrappedValue = .Block(block: val)
             }
             /* autocompletion of events may be slightly lagged, but generally it's fine */
         })
@@ -116,7 +117,7 @@ struct Block: View {
                     }
                 
                 Text("blocks")
-                TextField("", text: Binding(digits: blockBinding.blocks, min: 1, max: SchemeRepeat.Block.maxBlocks))
+                TextField("", text: Binding(digits: blockBinding.blocks, min: 1, max: SchemeRepeat.BlockRepeat.maxBlocks))
                     .focused($focus, equals: 2)
                     .frame(maxWidth: 20)
                     .blueBackground()
@@ -141,8 +142,8 @@ struct Block: View {
                 
                 Image(systemName: "minus.square")
                     .onTapGesture {
-                        self.scheme.state = [scheme.state.first ?? 0]
-                        self.scheme.repeats = .none
+                        self.scheme.state = [scheme.state.first ?? SchemeSingularState()]
+                        self.scheme.repeats = .None
                         
                         delete = true
                         
@@ -218,6 +219,7 @@ struct Time: View {
    
     let label: String
     @Binding var date: Date?
+    @Binding var state: [SchemeSingularState]
     let menuState: MenuState
     unowned let callback: TreeTextView
     let initial: Date?
@@ -259,11 +261,21 @@ struct Time: View {
                 newVal = reallySet(.year, value: newComponent, date: newVal)
             }
             else if comp == .hour && newComponent != oldComponent {
-                newVal = reallySet(.hour, value: newComponent, date: newVal)
                 newVal = reallySet(.minute, value: 0, date: newVal)
+                newVal = reallySet(.hour, value: newComponent, date: newVal)
             }
             
-            date.wrappedValue = newVal
+            newVal = reallySet(.second, value: 0, date: newVal)
+            
+            if newVal != date.wrappedValue {
+                date.wrappedValue = newVal
+                
+                for item in $state {
+                    item.wrappedValue.progress = 0
+                    item.wrappedValue.delay = 0
+                }
+            }
+            
         }
         
         let digits = digitMap[comp]!

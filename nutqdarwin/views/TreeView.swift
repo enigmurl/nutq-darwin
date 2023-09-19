@@ -50,7 +50,8 @@ fileprivate func standardStart(_ end: Date?) -> Date {
         return end.startOfDay() + defaultStartOffset
     }
     else {
-        return .now + 15 * TimeInterval.minute
+        let raw = Date.now + 15 * TimeInterval.minute
+        return Calendar.current.date(bySetting: .second, value: 0, of: raw) ?? raw
     }
 }
 
@@ -81,9 +82,9 @@ fileprivate func width(for scheme: SchemeItem) -> (NSAttributedString, CGRect) {
     }
     
     switch scheme.repeats {
-    case.none:
+    case .None:
         break
-    case .block:
+    case .Block:
         string += " block"
     }
     
@@ -301,10 +302,10 @@ final class TreeTextView: NSTextView, NSTextStorageDelegate {
 }
 
 class ItemButton: NSButton {
-    @Binding var schemeState: [Int]
+    @Binding var schemeState: [SchemeSingularState]
     var imageName: String?
     
-    init(schemeState: Binding<[Int]>) {
+    init(schemeState: Binding<[SchemeSingularState]>) {
         self._schemeState = schemeState
         super.init(frame: .zero)
         
@@ -322,7 +323,7 @@ class ItemButton: NSButton {
         self.frame = box
         self.needsDisplay = true
         
-        let imageName = schemeState.allSatisfy { $0 == -1 } ? "checkmark.square" : (schemeState.count > 1 ? "dot.square" : "square")
+        let imageName = schemeState.allSatisfy { $0.progress == -1 } ? "checkmark.square" : (schemeState.count > 1 ? "dot.square" : "square")
         
         if imageName != self.imageName {
             self.image = NSImage(systemSymbolName: imageName, accessibilityDescription: nil)?
@@ -338,7 +339,7 @@ class ItemButton: NSButton {
     
     func toggle() {
         if schemeState.count == 1 {
-            schemeState[0] = -1 - schemeState[0]
+            schemeState[0].progress = -1 - schemeState[0].progress
             self.update(self.frame)
         }
     }
@@ -589,10 +590,10 @@ class ItemLabel: UIView {
 }
 
 class ItemButton: UIButton {
-    @Binding var schemeState: [Int]
+    @Binding var schemeState: [SchemeSingularState]
     var imageName: String?
     
-    init(schemeState: Binding<[Int]>) {
+    init(schemeState: Binding<[SchemeSingularState]>) {
         self._schemeState = schemeState
         super.init(frame: .zero)
         
@@ -608,7 +609,7 @@ class ItemButton: UIButton {
         self.frame = box
         self.setNeedsDisplay()
         
-        let imageName = schemeState.allSatisfy { $0 == -1 } ? "checkmark.square" : (schemeState.count > 1 ? "dot.square" : "square")
+        let imageName = schemeState.allSatisfy { $0.progress == -1 } ? "checkmark.square" : (schemeState.count > 1 ? "dot.square" : "square")
         
         if imageName != self.imageName {
             self.setImage(UIImage(systemName: imageName)?
@@ -624,7 +625,7 @@ class ItemButton: UIButton {
     @objc
     func toggle() {
         if schemeState.count == 1 {
-            schemeState[0] = -1 - schemeState[0]
+            schemeState[0].progress = -1 - schemeState[0].progress
             self.update(self.frame)
         }
     }
@@ -850,7 +851,7 @@ extension TreeTextView {
                 }
                 
                 if self.schemes.wrappedValue[index].state.count == 1 {
-                    self.schemes.wrappedValue[index].state[0] = -1 - self.schemes.wrappedValue[index].state[0]
+                    self.schemes.wrappedValue[index].state[0].progress = -1 - self.schemes.wrappedValue[index].state[0].progress
                 }
             }
             
@@ -864,7 +865,7 @@ extension TreeTextView {
                 self.popoverIndex = schemeIndex
                 
                 let binding = projected.start
-                let view = Time(label: "Start", date: binding, menuState: publisher, callback: self, initial: initial) {
+                let view = Time(label: "Start", date: binding, state: projected.state, menuState: publisher, callback: self, initial: initial) {
                     self.popover = nil
                 }
                 
@@ -881,7 +882,7 @@ extension TreeTextView {
                 self.popoverIndex = schemeIndex
                 
                 let binding = projected.end
-                let view = Time(label: "End", date: binding, menuState: publisher, callback: self, initial: initial) {
+                let view = Time(label: "End", date: binding, state: projected.state, menuState: publisher, callback: self, initial: initial) {
                     self.popover = nil
                 }
                 
@@ -890,9 +891,9 @@ extension TreeTextView {
             
         case .toggleBlockView:
             let initial = scheme.repeats
-            if case .block = scheme.repeats { }
+            if case .Block = scheme.repeats { }
             else {
-                scheme.repeats = .block(block: .init())
+                scheme.repeats = .Block(block: .init())
             }
             
             self.popover = self.popover == .block ? nil : .block
@@ -921,8 +922,8 @@ extension TreeTextView {
             }
             
         case .disableBlock:
-            self.setBinding(projected.repeats, old: scheme.repeats, new: .none)
-            scheme.state = [scheme.state.first ?? 0]
+            self.setBinding(projected.repeats, old: scheme.repeats, new: .None)
+            scheme.state = [scheme.state.first ?? SchemeSingularState()]
             
             if self.popover == .block {
                 self.popover = nil
@@ -1023,13 +1024,13 @@ extension TreeTextView {
         style.headIndent = style.firstLineHeadIndent
         style.firstLineHeadIndent += hangingIndent
         
-        if scheme.start != nil || scheme.end != nil || scheme.repeats != .none {
+        if scheme.start != nil || scheme.end != nil || scheme.repeats != .None {
             style.paragraphSpacing = timeHeight
         }
         
         ts.addAttribute(.paragraphStyle, value: style, range: range)
         
-        if scheme.state.allSatisfy({ $0 == -1 }) {
+        if scheme.complete {
             ts.addAttribute(.strikethroughStyle, value: NSUnderlineStyle.single.rawValue, range: range)
             ts.addAttribute(.foregroundColor, value: NativeColor.black.withAlphaComponent(0.6), range: range)
             ts.addAttribute(.strikethroughColor, value: NativeColor.black.withAlphaComponent(0.3), range: range)
