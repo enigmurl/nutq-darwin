@@ -204,6 +204,9 @@ struct Block: View {
                 hasPassedInit = true
             }
         }
+        .onExitCommand {
+            close()
+        }
         .onDisappear {
             callback.setBinding($scheme.repeats, old: initial, new: scheme.repeats)
         }
@@ -499,6 +502,9 @@ struct Time: View {
             else {
                 hasPassedInit = 1
             }
+        }
+        .onExitCommand {
+            close()
         }
         .onDisappear {
             callback.setBinding($date, old: initial, new: date)
