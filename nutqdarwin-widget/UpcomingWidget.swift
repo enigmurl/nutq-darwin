@@ -92,7 +92,7 @@ struct UpcomingAssignmentWidget: View {
                 }
             }
         }
-        .foregroundStyle(item.dateColor)
+        .foregroundStyle(item.widgetDateColor)
         .font(.system(size: 10).monospacedDigit())
     }
     

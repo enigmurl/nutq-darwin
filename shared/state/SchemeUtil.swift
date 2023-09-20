@@ -65,6 +65,23 @@ struct SchemeSingularItem: Identifiable {
             return .primary
         }
     }
+    
+    var widgetDateColor: Color {
+        let time = self.start ?? self.end!
+        // same day
+        if time < .now {
+            return Color.red
+        }
+        else if time.dayDifference(with: .now) <= 0 {
+            return Color(red: 0.5, green: 0.3, blue: 1)
+        }
+        else if time.dayDifference(with: .now) <= 1 {
+            return Color(red: 0.5, green: 0.3, blue: 0.7)
+        }
+        else {
+            return .primary
+        }
+    }
 }
 
 /* polymorphism at some point? */
