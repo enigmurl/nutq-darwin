@@ -378,6 +378,7 @@ public class EnvState: ObservableObject, DatastoreManager {
             }
         
         self.manager.loadFileSystem()
+        self.startup()
     }
     
     public func closeSlave() {
@@ -389,7 +390,7 @@ public class EnvState: ObservableObject, DatastoreManager {
     }
     
     public func startup() {
-        GIDSignIn.sharedInstance.restorePreviousSignIn() { _, _ in
+        GIDSignIn.sharedInstance.restorePreviousSignIn() { user, error in
             self.stdTime = .now
         }
     }

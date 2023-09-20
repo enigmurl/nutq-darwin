@@ -12,7 +12,7 @@ import Intents
 #if DEBUG
 fileprivate let updatePeriod: TimeInterval = .minute
 #else
-fileprivate let updatePeriod = 30 * TimeInterval.minute
+fileprivate let updatePeriod = 15 * TimeInterval.minute
 #endif
 
 struct Provider: IntentTimelineProvider {
@@ -187,6 +187,7 @@ struct UpcomingWidgetView : View {
                 .frame(maxHeight: .infinity)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .environment(\.colorScheme, .light)
         .containerBackground(.white, for: .widget)
     }
 }

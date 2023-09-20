@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import GoogleSignIn
 import UserNotifications
 
 #if os(macOS)
@@ -29,8 +30,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         
         return .terminateLater
-    }
-    
+    }    
 }
 #else
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -84,6 +84,7 @@ struct Nutq: App {
             NSApplication.shared.registerForRemoteNotifications()
 #endif
         }
+
         
         notifDelegate.registerLocal()
     }
@@ -120,7 +121,7 @@ struct Nutq: App {
         .commands {
             CommandGroup(after: .toolbar) {
                 Group {
-                    self.commandMenu(menuAction: .gotoUnion, key: "h")
+                    self.commandMenu(menuAction: .gotoUnion, key: "u")
                     self.commandMenu(menuAction: .prevScheme, key: "[")
                     self.commandMenu(menuAction: .nextScheme, key: "]")
                     self.commandMenu(menuAction: .toggle, key: "f")
@@ -136,7 +137,6 @@ struct Nutq: App {
                 }
             }
         }
-        
     }
 }
 

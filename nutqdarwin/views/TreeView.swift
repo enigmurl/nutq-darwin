@@ -60,9 +60,9 @@ fileprivate func standardEnd(_ start: Date?) -> Date {
 }
 
 #if os(macOS)
-fileprivate let buttonRect = CGRect(x: -15, y: mainHeight / 2 - 7, width: 14, height: 14)
+fileprivate let buttonRect = CGRect(x: -16, y: mainHeight / 2 - 6.5, width: 15, height: 15)
 #else
-fileprivate let buttonRect = CGRect(x: -15, y: -mainHeight / 2 - 7, width: 14, height: 14)
+fileprivate let buttonRect = CGRect(x: -15, y: -mainHeight / 2 - 6.5, width: 14, height: 14)
 #endif
 
 // rect relative to the line, last parameter is total width
@@ -1029,6 +1029,11 @@ extension TreeTextView {
         }
         
         ts.addAttribute(.paragraphStyle, value: style, range: range)
+        #if os(iOS)
+        ts.addAttribute(.font, value: UIFont.systemFont(ofSize: 14), range: range)
+        #else
+        ts.addAttribute(.font, value: NSFont.systemFont(ofSize: 14), range: range)
+        #endif
         
         if scheme.complete {
             ts.addAttribute(.strikethroughStyle, value: NSUnderlineStyle.single.rawValue, range: range)

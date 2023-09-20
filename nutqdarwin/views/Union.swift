@@ -26,6 +26,9 @@ struct Union: View {
             #endif
             CalendarView(schemes:  env.schemes.map { ObservedObject(wrappedValue: $0) })
         }
+        .onAppear {
+            env.stdTime = .now
+        }
         #if os(iOS)
         .sheet(isPresented: $showingUpcoming) {
             Upcoming(schemes: env.schemes.map { ObservedObject(wrappedValue: $0) })
@@ -33,10 +36,6 @@ struct Union: View {
                 .presentationDetents([.medium, .large])
         }
         .navigationBarTitleDisplayMode(.inline)
-        #else
-        .onAppear {
-            env.startup()
-        }
         #endif
         .toolbar {
             ToolbarItem(placement:. principal) {
@@ -65,7 +64,6 @@ struct Union: View {
                     }
                   
                     GIDSignIn.sharedInstance.signIn(withPresenting: window, hint: nil, additionalScopes:  ["https://www.googleapis.com/auth/calendar.readonly", "https://www.googleapis.com/auth/calendar.events"]) { result, error in
-                        
                     }
                 }
             }

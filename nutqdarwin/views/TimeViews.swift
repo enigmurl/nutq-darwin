@@ -441,6 +441,9 @@ struct Time: View {
                                     if focus == 3 {
                                         timeBuffer = String(format: "%02d", day)
                                     }
+                                    else {
+                                        self.hasPassedInit += 1 // refresh
+                                    }
                                     
                                     self.date = firstDayOfMonth + TimeInterval(day - 1) * .day
                                 }
@@ -473,7 +476,7 @@ struct Time: View {
         )
     }
    
-    @State var hasPassedInit = false
+    @State var hasPassedInit = 0
     
     var body: some View {
         VStack {
@@ -490,11 +493,11 @@ struct Time: View {
         .padding(.vertical, 1)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .onReceive(menuState) {
-            if hasPassedInit {
+            if hasPassedInit != 0 {
                 self.callback.handle(action: $0, publisher: menuState)
             }
             else {
-                hasPassedInit = true
+                hasPassedInit = 1
             }
         }
         .onDisappear {

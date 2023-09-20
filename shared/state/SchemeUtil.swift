@@ -62,7 +62,7 @@ struct SchemeSingularItem: Identifiable {
             return Color(red: 0.9, green: 0.9, blue: 1)
         }
         else {
-            return .white
+            return .primary
         }
     }
 }
