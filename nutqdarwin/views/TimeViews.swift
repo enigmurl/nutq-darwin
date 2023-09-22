@@ -204,9 +204,11 @@ struct Block: View {
                 hasPassedInit = true
             }
         }
+        #if os(macOS)
         .onExitCommand {
             close()
         }
+        #endif
         .onDisappear {
             callback.setBinding($scheme.repeats, old: initial, new: scheme.repeats)
         }
@@ -503,9 +505,11 @@ struct Time: View {
                 hasPassedInit = 1
             }
         }
+        #if os(macOS)
         .onExitCommand {
             close()
         }
+        #endif
         .onDisappear {
             callback.setBinding($date, old: initial, new: date)
         }

@@ -36,6 +36,8 @@
 	<string>com.enigmadux.nutqdarwin</string>
 	<key>GIDClientID</key>
 	<string>419826075228-p4p5is2cljc4kd1fh29jsqpkk2ak98dk.apps.googleusercontent.com</string>
+	<key>FirebaseAppDelegateProxyEnabled</key>
+	<false/>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

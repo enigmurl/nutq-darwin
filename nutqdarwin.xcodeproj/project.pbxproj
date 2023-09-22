@@ -74,6 +74,12 @@
 		B46D18322A56546100D886ED /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754EE02A3A47D800FB26C0 /* CalendarView.swift */; };
 		B46D18372A56546100D886ED /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B434A5E72A23D91D001D81E8 /* Preview Assets.xcassets */; };
 		B46D18392A56546100D886ED /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B434A5E42A23D91D001D81E8 /* Assets.xcassets */; };
+		B4701F9A2ABCD7570043FB2E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B4701F992ABCD7570043FB2E /* GoogleService-Info.plist */; };
+		B4701F9B2ABCD7570043FB2E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B4701F992ABCD7570043FB2E /* GoogleService-Info.plist */; };
+		B4701F9E2ABCD7E60043FB2E /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = B4701F9D2ABCD7E60043FB2E /* FirebaseMessaging */; };
+		B4701FA02ABCD8140043FB2E /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = B4701F9F2ABCD8140043FB2E /* FirebaseMessaging */; };
+		B4701FA22ABD08D30043FB2E /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = B4701FA12ABD08D30043FB2E /* .gitignore */; };
+		B4701FA32ABD08D30043FB2E /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = B4701FA12ABD08D30043FB2E /* .gitignore */; };
 		B4754ECE2A38019000FB26C0 /* EnvState.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754ECD2A38019000FB26C0 /* EnvState.swift */; };
 		B4754ED02A38097800FB26C0 /* Sidebar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754ECF2A38097800FB26C0 /* Sidebar.swift */; };
 		B4754ED32A380D1C00FB26C0 /* Union.swift in Sources */ = {isa = PBXBuildFile; fileRef = B4754ED22A380D1C00FB26C0 /* Union.swift */; };
@@ -160,6 +166,8 @@
 		B44F47C12A55181E008C8899 /* nutqdarwin-widgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "nutqdarwin-widgetExtension.entitlements"; sourceTree = "<group>"; };
 		B44F47C62A5536EC008C8899 /* Nut Q Widget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Nut Q Widget.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B46D18402A56546100D886ED /* Nut Q.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Nut Q.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B4701F992ABCD7570043FB2E /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		B4701FA12ABD08D30043FB2E /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		B4754ECD2A38019000FB26C0 /* EnvState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvState.swift; sourceTree = "<group>"; };
 		B4754ECF2A38097800FB26C0 /* Sidebar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sidebar.swift; sourceTree = "<group>"; };
 		B4754ED22A380D1C00FB26C0 /* Union.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Union.swift; sourceTree = "<group>"; };
@@ -179,6 +187,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B4701F9E2ABCD7E60043FB2E /* FirebaseMessaging in Frameworks */,
 				B4415F082A5922D000725B22 /* GTMSessionFetcherCore in Frameworks */,
 				B4415F062A5922D000725B22 /* GTMSessionFetcher in Frameworks */,
 				B4415EEC2A57D5A200725B22 /* GoogleAPIClientForRESTCore in Frameworks */,
@@ -223,6 +232,7 @@
 			files = (
 				B40EE1452A5E737100EE5BCD /* GoogleSignIn in Frameworks */,
 				B40EE1492A5E737100EE5BCD /* GoogleAPIClientForREST_Calendar in Frameworks */,
+				B4701FA02ABCD8140043FB2E /* FirebaseMessaging in Frameworks */,
 				B40EE14D2A5E737100EE5BCD /* GTMSessionFetcherCore in Frameworks */,
 				B40EE14F2A5E737100EE5BCD /* GTMSessionFetcherFull in Frameworks */,
 				B40EE14B2A5E737100EE5BCD /* GTMSessionFetcher in Frameworks */,
@@ -311,7 +321,9 @@
 				B4D693BD2A36CC9400E94D23 /* views */,
 				B434A5E02A23D91B001D81E8 /* Nutq.swift */,
 				B434A5E22A23D91B001D81E8 /* NutqContentView.swift */,
+				B4701F992ABCD7570043FB2E /* GoogleService-Info.plist */,
 				B4754EDF2A3A3A1A00FB26C0 /* Info.plist */,
+				B4701FA12ABD08D30043FB2E /* .gitignore */,
 				B434A5E42A23D91D001D81E8 /* Assets.xcassets */,
 				B434A5E92A23D91D001D81E8 /* nutqdarwin.entitlements */,
 				B434A5E62A23D91D001D81E8 /* Preview Content */,
@@ -370,6 +382,7 @@
 				B4415F072A5922D000725B22 /* GTMSessionFetcherCore */,
 				B4415F092A5922D000725B22 /* GTMSessionFetcherFull */,
 				B4415F172A59255E00725B22 /* GoogleAPIClientForREST_Calendar */,
+				B4701F9D2ABCD7E60043FB2E /* FirebaseMessaging */,
 			);
 			productName = nutqdarwin;
 			productReference = B434A5DD2A23D91B001D81E8 /* Nut Q.app */;
@@ -445,6 +458,7 @@
 				B40EE14A2A5E737100EE5BCD /* GTMSessionFetcher */,
 				B40EE14C2A5E737100EE5BCD /* GTMSessionFetcherCore */,
 				B40EE14E2A5E737100EE5BCD /* GTMSessionFetcherFull */,
+				B4701F9F2ABCD8140043FB2E /* FirebaseMessaging */,
 			);
 			productName = nutqdarwin;
 			productReference = B46D18402A56546100D886ED /* Nut Q.app */;
@@ -484,6 +498,7 @@
 				B4415EE52A57D22100725B22 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
 				B4415EEA2A57D5A200725B22 /* XCRemoteSwiftPackageReference "google-api-objectivec-client-for-rest" */,
 				B4415F042A5922D000725B22 /* XCRemoteSwiftPackageReference "gtm-session-fetcher" */,
+				B4701F9C2ABCD7E60043FB2E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			productRefGroup = B434A5DE2A23D91B001D81E8 /* Products */;
 			projectDirPath = "";
@@ -502,8 +517,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B4701FA22ABD08D30043FB2E /* .gitignore in Resources */,
 				B434A5E82A23D91D001D81E8 /* Preview Assets.xcassets in Resources */,
 				B434A5E52A23D91D001D81E8 /* Assets.xcassets in Resources */,
+				B4701F9A2ABCD7570043FB2E /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -527,8 +544,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B4701FA32ABD08D30043FB2E /* .gitignore in Resources */,
 				B46D18372A56546100D886ED /* Preview Assets.xcassets in Resources */,
 				B46D18392A56546100D886ED /* Assets.xcassets in Resources */,
+				B4701F9B2ABCD7570043FB2E /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1106,6 +1125,14 @@
 				kind = branch;
 			};
 		};
+		B4701F9C2ABCD7E60043FB2E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 10.15.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1223,6 +1250,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B4415EEA2A57D5A200725B22 /* XCRemoteSwiftPackageReference "google-api-objectivec-client-for-rest" */;
 			productName = GoogleAPIClientForREST_Calendar;
+		};
+		B4701F9D2ABCD7E60043FB2E /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B4701F9C2ABCD7E60043FB2E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
+		};
+		B4701F9F2ABCD8140043FB2E /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B4701F9C2ABCD7E60043FB2E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

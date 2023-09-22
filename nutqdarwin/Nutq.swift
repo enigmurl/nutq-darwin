@@ -7,17 +7,23 @@
 
 import SwiftUI
 import GoogleSignIn
+import FirebaseCore
+import FirebaseMessaging
 import UserNotifications
 
 #if os(macOS)
-class AppDelegate: NSObject, NSApplicationDelegate {
+class AppDelegate: NSObject, NSApplicationDelegate, MessagingDelegate {
     var env: EnvState!
+    
+    
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        FirebaseApp.configure()
+        Messaging.messaging().delegate = self
+    }
   
+ 
     func application(_ application: NSApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        let token = deviceToken.map { String(format: "%02hhx", $0) }.joined()
-        Task.init {
-            env.registered = await auth_void_request(env: env, "/sync/device/\(token)", method: "POST")
-        }
+        Messaging.messaging().apnsToken = deviceToken
     }
     
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
@@ -33,25 +39,40 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }    
 }
 #else
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate {
     var env: EnvState!
+    
+    func application(_ application: UIApplication,
+                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+        FirebaseApp.configure()
+        Messaging.messaging().delegate = self
+        return true
+    }
     
     func applicationWillEnterForeground(_ application: UIApplication) {
         
     }
     
     func applicationDidEnterBackground(_ application: UIApplication) {
+        
     }
     
    
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        let token = deviceToken.map { String(format: "%02hhx", $0) }.joined()
-        Task.init {
-            env.registered = await auth_void_request(env: env, "/sync/device/\(token)", method: "POST")
-        }
+        Messaging.messaging().apnsToken = deviceToken
     }
 }
 #endif
+
+extension AppDelegate {
+    func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
+        if let token = fcmToken {
+            Task.init {
+                await auth_void_request(env: env, "/sync/device/\(token)", method: "POST")
+            }
+        }
+    }
+}
 
 @main
 struct Nutq: App {
@@ -77,14 +98,11 @@ struct Nutq: App {
     }
     
     func notificationSetup() {
-        if !env.registered {
 #if os(iOS)
-            UIApplication.shared.registerForRemoteNotifications()
+        UIApplication.shared.registerForRemoteNotifications()
 #else
-            NSApplication.shared.registerForRemoteNotifications()
+        NSApplication.shared.registerForRemoteNotifications()
 #endif
-        }
-
         
         notifDelegate.registerLocal()
     }
@@ -171,26 +189,22 @@ fileprivate class NotificationDelegate: NSObject, UNUserNotificationCenterDelega
     struct DateHolder: Codable {
         let dispatch_time: Date
     }
-    
+
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
-        guard let path = response.notification.request.content.userInfo["nutq_path"] as? [String: Any] else {
-            return
-        }
+        let user_info = response.notification.request.content.userInfo
         
-        guard let time = response.notification.request.content.userInfo["nutq_time"] as? [String: Any] else {
+        guard let scheme_id_ = user_info["scheme_id"] as? String,
+              let item_id_   = user_info["item_id"] as? String,
+              let index_     = user_info["index"] as? String else {
             return
         }
         
         let env = EnvMiniState()
         
-        let index = path["index"] as! Int
-        let scheme_id = UUID(uuidString: path["scheme_id"] as! String)!
-        let item_id = UUID(uuidString: path["item_id"] as! String)!
+        let index = Int(index_, radix: 10)!
+        let scheme_id = UUID(uuidString: scheme_id_)!
+        let item_id = UUID(uuidString: item_id_)!
        
-        let json_time = try? JSONSerialization.data(withJSONObject: time)
-        let dispatch_time = json_time == nil ? nil : try? JSONDecoder().decode(DateHolder.self, from: json_time!)
-        let delay = (dispatch_time?.dispatch_time ?? .now).distance(to: .now)
-        
         let command: String
         let arg_path = "\(scheme_id)/\(item_id)/\(index)"
         let body: Data?
@@ -204,10 +218,10 @@ fileprivate class NotificationDelegate: NSObject, UNUserNotificationCenterDelega
             
             let time: TimeInterval
             if response.actionIdentifier == "remind-0" {
-                time = .minute * 10 + delay
+                time = .minute * 10
             }
             else if response.actionIdentifier == "remind-1" {
-                time = .minute * 60 + delay
+                time = .minute * 60
             }
             else if response.actionIdentifier == "remind-2" {
                 // tonight
@@ -218,16 +232,16 @@ fileprivate class NotificationDelegate: NSObject, UNUserNotificationCenterDelega
                 time = max(.minute, Date.now.distance(to: Calendar.current.date(bySettingHour: 8, minute: 0, second: 0, of: .now + .day) ?? .now))
             }
             else if response.actionIdentifier == "remind-4" {
-                time = .day + delay
+                time = .day
             }
             else if response.actionIdentifier == "remind-5" {
-                time = .week + delay
+                time = .week
             }
             else {
-                time = .minute + delay
+                time = .minute
             }
-            
-            body = "\(time)".data(using: .utf8)
+           
+            body = try? JSONEncoder().encode(DateHolder(dispatch_time: .now + time))
         }
        
         Task.init {

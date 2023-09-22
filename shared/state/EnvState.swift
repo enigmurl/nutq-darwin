@@ -25,6 +25,25 @@ protocol DatastoreManager: AnyObject {
     var esotericToken: EsotericUser? { get set }
 }
 
+fileprivate func save(_ data: Data, to file: String) {
+    do {
+        let supportDir = try FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+        let jsonDir = supportDir.appendingPathComponent("backups/")
+        try FileManager.default.createDirectory(at: jsonDir, withIntermediateDirectories: true, attributes: nil)
+        
+        try data.write(to: jsonDir.appendingPathComponent(file))
+    } catch { }
+}
+    
+fileprivate func load(from file: String) -> SchemeHolder? {
+    guard let url = try? FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true) else {
+        return nil
+    }
+    
+    return try? JSONDecoder().decode(SchemeHolder.self, from: Data(contentsOf: url.appending(components: "backups", file)))
+}
+
+
 class SystemManager: NSObject, URLSessionWebSocketDelegate {
     unowned var env: EnvState
     var lastSave = Date.distantPast
@@ -72,7 +91,7 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
                 break
             }
             else {
-                let localCopy = self.load(from: "latest.json")
+                let localCopy = load(from: "latest.json")
                 
                 // first iteration it will be null
                 let holder = try? JSONDecoder().decode(SchemeHolder.self, from: str.data(using: .utf8)!)
@@ -215,27 +234,10 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
        
         let dayOfWeek = Calendar.current.component(.weekday, from: .now) - 1
         
-        self.save(total, to: "\(daysOfWeek[dayOfWeek]).json")
-        self.save(total, to: "latest.json")
+        save(total, to: "\(daysOfWeek[dayOfWeek]).json")
+        save(total, to: "latest.json")
     }
     
-    func save(_ data: Data, to file: String) {
-        do {
-            let supportDir = try FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
-            let jsonDir = supportDir.appendingPathComponent("backups/")
-            try FileManager.default.createDirectory(at: jsonDir, withIntermediateDirectories: true, attributes: nil)
-            
-            try data.write(to: jsonDir.appendingPathComponent(file))
-        } catch { }
-    }
-        
-    func load(from file: String) -> SchemeHolder? {
-        guard let url = try? FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true) else {
-            return nil
-        }
-        
-        return try? JSONDecoder().decode(SchemeHolder.self, from: Data(contentsOf: url.appending(components: "backups", file)))
-    }
     
     func closeSlave() {
         Task.init {
@@ -433,7 +435,15 @@ public class EnvMiniState: ObservableObject, DatastoreManager {
     
     func retrieve(_ completion: @escaping (_ schemes: SchemeHolder) -> ()) {
         Task.init {
-            let res: SchemeHolder? = await auth_request(env: self, "/sync/bucket/nutq")
+            var res: SchemeHolder? = await auth_request(env: self, "/sync/bucket/nutq")
+            
+            if res == nil {
+                res = load(from: "latest.json")
+            }
+            else if let data = try? JSONEncoder().encode(res) {
+                save(data, to: "latest.json")
+            }
+            
             completion(res ?? SchemeHolder(schemes: []))
         }
     }
