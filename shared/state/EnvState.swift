@@ -13,6 +13,7 @@ import GoogleSignIn
 import GoogleAPIClientForREST_Calendar
 import GTMSessionFetcherCore
 import GTMSessionFetcherFull
+import UserNotifications
 
 let unionNullUUID = UUID(uuidString: "00000000-0000-0000-0000-ffffffffffff")!
 
@@ -23,9 +24,13 @@ fileprivate let gsyncInterval = 15 * TimeInterval.minute
 
 protocol DatastoreManager: AnyObject {
     var esotericToken: EsotericUser? { get set }
+    var schemes: [SchemeState] { get set }
+    var slaveState: SlaveMode { get set }
+    var schemeHolder: SchemeHolder { get set }
+    var manager: SystemManager! { get set }
 }
 
-fileprivate func save(_ data: Data, to file: String) {
+fileprivate func save_scheme(_ data: Data, to file: String) {
     do {
         let supportDir = try FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
         let jsonDir = supportDir.appendingPathComponent("backups/")
@@ -35,7 +40,7 @@ fileprivate func save(_ data: Data, to file: String) {
     } catch { }
 }
     
-fileprivate func load(from file: String) -> SchemeHolder? {
+fileprivate func load_scheme(from file: String) -> SchemeHolder? {
     guard let url = try? FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true) else {
         return nil
     }
@@ -44,13 +49,18 @@ fileprivate func load(from file: String) -> SchemeHolder? {
 }
 
 
+struct Notifications: Codable {
+    let lastWrite: Date?
+    var identifiers: [String]
+}
+
 class SystemManager: NSObject, URLSessionWebSocketDelegate {
-    unowned var env: EnvState
+    unowned var env: DatastoreManager
     var lastSave = Date.distantPast
     var lastWrite: [SchemeStateMeta]? = nil
     var slaveSocket: URLSessionWebSocketTask? = nil
     
-    init(env: EnvState) {
+    init(env: DatastoreManager) {
         self.env = env
     }
     
@@ -91,7 +101,7 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
                 break
             }
             else {
-                let localCopy = load(from: "latest.json")
+                let localCopy = load_scheme(from: "latest.json")
                 
                 // first iteration it will be null
                 let holder = try? JSONDecoder().decode(SchemeHolder.self, from: str.data(using: .utf8)!)
@@ -234,8 +244,8 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
        
         let dayOfWeek = Calendar.current.component(.weekday, from: .now) - 1
         
-        save(total, to: "\(daysOfWeek[dayOfWeek]).json")
-        save(total, to: "latest.json")
+        save_scheme(total, to: "\(daysOfWeek[dayOfWeek]).json")
+        save_scheme(total, to: "latest.json")
     }
     
     
@@ -309,6 +319,77 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
         }
     }
     
+    func oldNotifications() -> Notifications {
+        guard let url = try? FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true) else {
+            return Notifications(lastWrite: nil, identifiers: [])
+        }
+        
+        guard let raw_data = try? Data(contentsOf: url.appending(path: "notifications.json", directoryHint: .notDirectory)) else {
+            return Notifications(lastWrite: nil, identifiers: [])
+        }
+        
+        guard let data = try? JSONDecoder().decode(Notifications.self, from: raw_data) else {
+            return Notifications(lastWrite: nil, identifiers: [])
+        }
+        
+        return data
+    }
+    
+    func notificationControl() {
+        // remove all current scheduled notifications
+        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+        
+        var notifications = Notifications(lastWrite: .now, identifiers: [])
+        // schedule all new notifications
+        let flat = env.schemes.map { ObservedObject(initialValue: $0) }
+            .flattenToUpcomingSchemes(start: Date.now)
+    
+        for event in flat {
+            if event.notificationStart < .now || event.state.progress == -1 {
+                continue
+            }
+            
+            let content = UNMutableNotificationContent()
+            content.title = event.text + " [\(event.path[0])]"
+            // duplicate code...
+            var string = ""
+            if let start = event.start {
+                string += start.dateString
+                string += " \u{2192}"
+            }
+            if let end = event.end {
+                if string.count == 0 {
+                    string += "\u{2192} " + end.dateString
+                }
+                else {
+                    string += " " + (end.dayDifference(with: event.start!) == 0 ? end.timeString :  end.dateString)
+                }
+            }
+            content.body = string
+            content.categoryIdentifier = "nutq-reminder"
+            content.sound = .defaultCritical
+            content.userInfo["scheme_id"] = event.scheme_id.uuidString
+            content.userInfo["item_id"] = event.id.uuid.uuidString
+            content.userInfo["index"] = event.id.index.description
+
+            let id = event.id.uuid.uuidString + event.id.index.description
+            let trigger = UNCalendarNotificationTrigger(dateMatching: Calendar.current.dateComponents([.year, .month, .day, .hour, .minute, .second], from: event.notificationStart), repeats: false)
+            let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
+            
+            let notificationCenter = UNUserNotificationCenter.current()
+            notificationCenter.add(request) { _ in }
+            
+            notifications.identifiers.append(id)
+        }
+        
+        // save notifications
+        guard let url = try? FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true) else {
+            return
+        }
+        
+        try? (try? JSONEncoder().encode(notifications))?.write(to: url.appending(path: "notifications.json", directoryHint: .notDirectory))
+    }
+    
     func loadFileSystem() {
         Task.init {
             await self.acquireSlave()
@@ -341,6 +422,8 @@ enum SlaveMode {
 }
 
 public class EnvState: ObservableObject, DatastoreManager {
+    static var shared: EnvState!
+    
     var clock: AnyCancellable?
     
     @Published var stdTime: Date = .now
@@ -377,10 +460,13 @@ public class EnvState: ObservableObject, DatastoreManager {
                     
                 }
                 self.manager.gsyncControl() // handled on next iteration ...
+                self.manager.notificationControl()
             }
         
         self.manager.loadFileSystem()
         self.startup()
+        
+        Self.shared = self
     }
     
     public func closeSlave() {
@@ -427,10 +513,18 @@ public class EnvState: ObservableObject, DatastoreManager {
 /* for widgets */
 public class EnvMiniState: ObservableObject, DatastoreManager {
     var esotericToken: EsotericUser? = nil
+    var schemeHolder = SchemeHolder(schemes: [])
+    var schemes: [SchemeState] {
+        get { schemeHolder.schemes }
+        set { schemeHolder.schemes = newValue }
+    }
+    var slaveState: SlaveMode = .none
+    var manager: SystemManager!
     
     init() {
         let raw = UserDefaults(suiteName: "group.com.enigmadux.nutqdarwin")?.data(forKey: "esoteric_token")
         esotericToken = raw != nil ? try? JSONDecoder().decode(EsotericUser.self, from: raw!) : nil
+        manager = SystemManager(env: self)
     }
     
     func retrieve(_ completion: @escaping (_ schemes: SchemeHolder) -> ()) {
@@ -438,13 +532,14 @@ public class EnvMiniState: ObservableObject, DatastoreManager {
             var res: SchemeHolder? = await auth_request(env: self, "/sync/bucket/nutq")
             
             if res == nil {
-                res = load(from: "latest.json")
+                res = load_scheme(from: "latest.json")
             }
             else if let data = try? JSONEncoder().encode(res) {
-                save(data, to: "latest.json")
+                save_scheme(data, to: "latest.json")
             }
-            
-            completion(res ?? SchemeHolder(schemes: []))
+           
+            schemeHolder = res ?? SchemeHolder(schemes: [])
+            completion(schemeHolder)
         }
     }
 }

@@ -12,7 +12,7 @@ import Intents
 #if DEBUG
 fileprivate let updatePeriod: TimeInterval = .minute
 #else
-fileprivate let updatePeriod = 15 * TimeInterval.minute
+fileprivate let updatePeriod = 10 * TimeInterval.minute
 #endif
 
 struct Provider: IntentTimelineProvider {
@@ -31,6 +31,10 @@ struct Provider: IntentTimelineProvider {
                 })
             
             completion(UpcomingEntry(date: .now, configuration: intent, assignments: flat))
+        }
+       
+        if (env.manager.oldNotifications().lastWrite ?? .distantPast) + updatePeriod < .now {
+            env.manager.notificationControl()
         }
     }
     

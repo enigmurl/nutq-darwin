@@ -11,6 +11,12 @@ import FirebaseCore
 import FirebaseMessaging
 import UserNotifications
 
+#if DEBUG
+let updatePeriod: TimeInterval = .minute
+#else
+let updatePeriod = 10 * TimeInterval.minute
+#endif
+
 #if os(macOS)
 class AppDelegate: NSObject, NSApplicationDelegate, MessagingDelegate {
     var env: EnvState!
@@ -37,6 +43,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, MessagingDelegate {
         
         return .terminateLater
     }    
+    
+    
+    func application(_ application: NSApplication, didReceiveRemoteNotification userInfo: [String : Any]) {
+        self.refresh()
+    }
 }
 #else
 class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate {
@@ -56,10 +67,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate {
     func applicationDidEnterBackground(_ application: UIApplication) {
         
     }
-    
    
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         Messaging.messaging().apnsToken = deviceToken
+    }
+    
+    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any]) async -> UIBackgroundFetchResult {
+        // update
+        self.refresh()
+        
+        return .newData
     }
 }
 #endif
@@ -69,6 +86,20 @@ extension AppDelegate {
         if let token = fcmToken {
             Task.init {
                 await auth_void_request(env: env, "/sync/device/\(token)", method: "POST")
+            }
+        }
+    }
+    
+    func refresh() {
+        if let e = EnvState.shared, e.slaveState == .write {
+            e.manager.notificationControl()
+        }
+        else {
+            let env = EnvMiniState()
+            if env.manager.oldNotifications().lastWrite ?? .distantPast < .now - .minute {
+                env.retrieve { _ in
+                    env.manager.notificationControl()
+                }
             }
         }
     }
@@ -88,8 +119,6 @@ struct Nutq: App {
     
     @State var skippedFirstAppear = false
     
-    fileprivate let notifDelegate = NotificationDelegate()
-    
     func commandMenu(menuAction: MenuAction, key: KeyEquivalent, modifiers: EventModifiers = []) -> some View {
         Button(menuAction.description) {
             commandDispatcher.send(menuAction)
@@ -98,13 +127,14 @@ struct Nutq: App {
     }
     
     func notificationSetup() {
+        // not using anymore
 #if os(iOS)
         UIApplication.shared.registerForRemoteNotifications()
 #else
         NSApplication.shared.registerForRemoteNotifications()
 #endif
         
-        notifDelegate.registerLocal()
+        NotificationDelegate.shared.registerLocal()
     }
 
     var body: some Scene {
@@ -158,7 +188,9 @@ struct Nutq: App {
     }
 }
 
-fileprivate class NotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
+class NotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
+    static let shared = NotificationDelegate()
+    
     func registerLocal() {
         let center = UNUserNotificationCenter.current()
         center.requestAuthorization(options: [.alert, .sound, .badge]) { (_, _) in }
@@ -176,20 +208,33 @@ fileprivate class NotificationDelegate: NSObject, UNUserNotificationCenterDelega
         UNUserNotificationCenter.current().setNotificationCategories([main])
     }
     
+    
+    func spawn_notif(title: String, body: String, scheme_id: Any, item_id: Any, index: Any) {
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = body
+        content.userInfo = [
+            "scheme_id": scheme_id,
+            "item_id": item_id,
+            "index": index
+        ]
+        content.categoryIdentifier = "nutq-reminder"
+
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 0.1, repeats: false)
+        let request = UNNotificationRequest(identifier: "nutq_reminder " + (item_id as! String), content: content, trigger: trigger)
+        
+        let notificationCenter = UNUserNotificationCenter.current()
+        notificationCenter.add(request) { _ in }
+    }
+    
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
         return [.banner, .sound]
     }
-    
-    struct SchemePath: Codable {
-        let index: Int
-        let scheme_id: UUID
-        let item_id: UUID
-    }
-    
-    struct DateHolder: Codable {
-        let dispatch_time: Date
-    }
 
+    struct DateHolder: Codable {
+        let dispatch_time: Date?
+    }
+    
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
         let user_info = response.notification.request.content.userInfo
         
@@ -238,18 +283,16 @@ fileprivate class NotificationDelegate: NSObject, UNUserNotificationCenterDelega
                 time = .week
             }
             else {
-                time = .minute
+                return
             }
            
             body = try? JSONEncoder().encode(DateHolder(dispatch_time: .now + time))
         }
        
-        Task.init {
-            let success = await auth_void_request(env: env, command + arg_path, body: body, method: "PUT")
-            
-            if !success {
-                spawnErrorNotification(command)
-            }
+        let success = await auth_void_request(env: env, command + arg_path, body: body, method: "PUT")
+        
+        if !success {
+            spawnErrorNotification(command)
         }
     }
     

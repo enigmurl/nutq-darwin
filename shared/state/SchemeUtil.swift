@@ -9,6 +9,13 @@ import Foundation
 import SwiftUI
 import Combine
 
+fileprivate let reminderOffset: TimeInterval = 0
+fileprivate let eventOffset: TimeInterval = .minute * -10
+fileprivate let assignmentOffset: TimeInterval = .hour * -2
+
+fileprivate let eventEndDelay: TimeInterval = .hour
+fileprivate let assignmentEndDelay: TimeInterval = 10 * .minute
+
 func blankEditor(_ str: String, indentation: Int = 0) -> SchemeItem {
     return SchemeItem(state: [SchemeSingularState()], text: str, repeats: .None, indentation: indentation)
 }
@@ -25,6 +32,7 @@ struct SchemeSingularItem: Identifiable {
     }
     
     public var id: Self.IDPath
+    public let scheme_id: UUID
     public let colorIndex: Int
     public let path: [String]
     
@@ -33,6 +41,9 @@ struct SchemeSingularItem: Identifiable {
     
     public var start: Date?
     public var end: Date?
+    
+    public var notificationStart: Date
+    public var notificationEnd: Date?
     
     public var schemeType: SchemeType {
         if (start != nil && end != nil) {
@@ -515,24 +526,43 @@ public struct SchemeStateMeta {
     let items: [UUID]
 }
 
-fileprivate func convertSingularScheme(color: Int, path: [String], start: Date?, end: Date?, scheme: Binding<SchemeItem>, index: Int) -> SchemeSingularItem {
+fileprivate func convertSingularScheme(scheme_id: UUID, color: Int, path: [String], start: Date?, end: Date?, scheme: Binding<SchemeItem>, index: Int) -> SchemeSingularItem {
     let wrap = scheme.wrappedValue
+  
+    let start_delay: TimeInterval
+    var end_delay: TimeInterval = 0
+    
+    switch wrap.scheme_type {
+    case .reminder:
+        start_delay = reminderOffset
+    case .assignment:
+        start_delay = assignmentOffset
+        end_delay = assignmentEndDelay
+    case .event:
+        start_delay = eventOffset
+        end_delay = eventEndDelay
+    default:
+        start_delay = 0
+    }
     
     return SchemeSingularItem(
         id: SchemeSingularItem.IDPath(uuid: scheme.id, index: index),
+        scheme_id: scheme_id,
         colorIndex: color,
         path: path,
         state: scheme.state[index],
         text: wrap.text,
         start: start,
-        end: end
+        end: end,
+        notificationStart: (start ?? end ?? .now) + start_delay + wrap.state[index].delay,
+        notificationEnd: wrap.state[index].delay == 0 ? end?.addingTimeInterval(end_delay) : nil
     )
 }
 
 #warning("TODO specialized flattens can be made more efficient (bisect)")
 extension Binding<Array<SchemeItem>> {
     /* if it's unfinished, or if it's in future and first event*/
-    func flattenToUpcomingSchemes(color: Int, path: [String], start: Date) -> [SchemeSingularItem] {
+    func flattenToUpcomingSchemes(scheme_id: UUID, color: Int, path: [String], start: Date) -> [SchemeSingularItem] {
         var schemes: [SchemeSingularItem] = []
         for x in self {
             let wrap = x.wrappedValue
@@ -541,7 +571,7 @@ extension Binding<Array<SchemeItem>> {
             }
             
             for (i, (s, e)) in wrap.repeats.events(start: wrap.start, end: wrap.end).enumerated() {
-                let base = convertSingularScheme(color: color, path: path, start: s, end: e, scheme: x, index: i)
+                let base = convertSingularScheme(scheme_id: scheme_id, color: color, path: path, start: s, end: e, scheme: x, index: i)
                 if base.start != nil && base.start! > start || base.end != nil && base.end! > start {
                     schemes.append(base)
                     break
@@ -554,24 +584,24 @@ extension Binding<Array<SchemeItem>> {
         return schemes
     }
     
-    func flattenFullSchemes(color: Int, path: [String]) -> [SchemeSingularItem] {
+    func flattenFullSchemes(scheme_id: UUID, color: Int, path: [String]) -> [SchemeSingularItem] {
         var schemes: [SchemeSingularItem] = []
         for x in self {
             let wrap = x.wrappedValue
             for (i, (s, e)) in wrap.repeats.events(start: wrap.start, end: wrap.end).enumerated() {
-                let base = convertSingularScheme(color: color, path: path, start: s, end: e, scheme: x, index: i)
+                let base = convertSingularScheme(scheme_id: scheme_id, color: color, path: path, start: s, end: e, scheme: x, index: i)
                 schemes.append(base)
             }
         }
         return schemes
     }
     
-    func flattenIncomplete(color: Int, path: [String]) -> [SchemeSingularItem] {
+    func flattenIncomplete(scheme_id: UUID, color: Int, path: [String]) -> [SchemeSingularItem] {
         var schemes: [SchemeSingularItem] = []
         for x in self {
             let wrap = x.wrappedValue
             for (i, (s, e)) in wrap.repeats.events(start: wrap.start, end: wrap.end).enumerated() {
-                let base = convertSingularScheme(color: color, path: path, start: s, end: e, scheme: x, index: i)
+                let base = convertSingularScheme(scheme_id: scheme_id, color: color, path: path, start: s, end: e, scheme: x, index: i)
                 if base.state.progress != -1 {
                     schemes.append(base)
                 }
@@ -580,7 +610,7 @@ extension Binding<Array<SchemeItem>> {
         return schemes
     }
     
-    func flattenEventsInRange(color: Int, path: [String], start: Date?, end: Date?, schemeTypes: SchemeType) -> [SchemeSingularItem] {
+    func flattenEventsInRange(scheme_id: UUID, color: Int, path: [String], start: Date?, end: Date?, schemeTypes: SchemeType) -> [SchemeSingularItem] {
         var schemes: [SchemeSingularItem] = []
         for x in self {
             let wrap = x.wrappedValue
@@ -589,7 +619,7 @@ extension Binding<Array<SchemeItem>> {
             }
             
             for (i, (s, e)) in wrap.repeats.events(start: wrap.start, end: wrap.end).enumerated() {
-                let base = convertSingularScheme(color: color, path: path, start: s, end: e, scheme: x, index: i)
+                let base = convertSingularScheme(scheme_id: scheme_id, color: color, path: path, start: s, end: e, scheme: x, index: i)
                 if (base.start == nil || end == nil || base.start! < end!) &&
                     (base.end == nil || start == nil || base.end! > start!) {
                     schemes.append(base)
@@ -607,7 +637,7 @@ extension Array<ObservedObject<SchemeState>> {
     func flattenToUpcomingSchemes(start: Date) -> [SchemeSingularItem] {
         var schemes: [SchemeSingularItem] = []
         for x in self {
-            schemes.append(contentsOf: x.projectedValue.scheme_list.schemes.flattenToUpcomingSchemes(color: x.wrappedValue.color_index, path: [x.wrappedValue.name], start: start))
+            schemes.append(contentsOf: x.projectedValue.scheme_list.schemes.flattenToUpcomingSchemes(scheme_id: x.wrappedValue.id, color: x.wrappedValue.color_index, path: [x.wrappedValue.name], start: start))
         }
         return schemes
     }
@@ -615,7 +645,7 @@ extension Array<ObservedObject<SchemeState>> {
     func flattenFullSchemes() -> [SchemeSingularItem] {
         var schemes: [SchemeSingularItem] = []
         for x in self {
-            schemes.append(contentsOf: x.projectedValue.scheme_list.schemes.flattenFullSchemes(color: x.wrappedValue.color_index, path: [x.wrappedValue.name]))
+            schemes.append(contentsOf: x.projectedValue.scheme_list.schemes.flattenFullSchemes(scheme_id: x.wrappedValue.id, color: x.wrappedValue.color_index, path: [x.wrappedValue.name]))
         }
         return schemes
     }
@@ -623,7 +653,7 @@ extension Array<ObservedObject<SchemeState>> {
     func flattenIncomplete() -> [SchemeSingularItem] {
         var schemes: [SchemeSingularItem] = []
         for x in self {
-            schemes.append(contentsOf: x.projectedValue.scheme_list.schemes.flattenIncomplete(color: x.wrappedValue.color_index, path: [x.wrappedValue.name]))
+            schemes.append(contentsOf: x.projectedValue.scheme_list.schemes.flattenIncomplete(scheme_id: x.wrappedValue.id, color: x.wrappedValue.color_index, path: [x.wrappedValue.name]))
         }
         return schemes
     }
@@ -631,7 +661,7 @@ extension Array<ObservedObject<SchemeState>> {
     func flattenEventsInRange(start: Date?, end: Date?, schemeTypes: SchemeType) -> [SchemeSingularItem] {
         var schemes: [SchemeSingularItem] = []
         for x in self {
-            schemes.append(contentsOf: x.projectedValue.scheme_list.schemes.flattenEventsInRange(color: x.wrappedValue.color_index, path: [x.wrappedValue.name], start: start, end: end, schemeTypes: schemeTypes))
+            schemes.append(contentsOf: x.projectedValue.scheme_list.schemes.flattenEventsInRange(scheme_id: x.wrappedValue.id, color: x.wrappedValue.color_index, path: [x.wrappedValue.name], start: start, end: end, schemeTypes: schemeTypes))
         }
         return schemes
     }
