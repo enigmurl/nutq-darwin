@@ -526,13 +526,11 @@ public struct SchemeStateMeta {
     let items: [UUID]
 }
 
-fileprivate func convertSingularScheme(scheme_id: UUID, color: Int, path: [String], start: Date?, end: Date?, scheme: Binding<SchemeItem>, index: Int) -> SchemeSingularItem {
-    let wrap = scheme.wrappedValue
-  
+func singularSchemeNotificationDelay(scheme: SchemeItem, index: Int) -> (TimeInterval, TimeInterval) {
     let start_delay: TimeInterval
     var end_delay: TimeInterval = 0
     
-    switch wrap.scheme_type {
+    switch scheme.scheme_type {
     case .reminder:
         start_delay = reminderOffset
     case .assignment:
@@ -545,6 +543,14 @@ fileprivate func convertSingularScheme(scheme_id: UUID, color: Int, path: [Strin
         start_delay = 0
     }
     
+    return (start_delay + scheme.state[index].delay, end_delay)
+}
+
+fileprivate func convertSingularScheme(scheme_id: UUID, color: Int, path: [String], start: Date?, end: Date?, scheme: Binding<SchemeItem>, index: Int) -> SchemeSingularItem {
+    let wrap = scheme.wrappedValue
+  
+    let (start_delay, end_delay) = singularSchemeNotificationDelay(scheme: wrap, index: index)
+    
     return SchemeSingularItem(
         id: SchemeSingularItem.IDPath(uuid: scheme.id, index: index),
         scheme_id: scheme_id,
@@ -554,7 +560,7 @@ fileprivate func convertSingularScheme(scheme_id: UUID, color: Int, path: [Strin
         text: wrap.text,
         start: start,
         end: end,
-        notificationStart: (start ?? end ?? .now) + start_delay + wrap.state[index].delay,
+        notificationStart: (start ?? end ?? .now) + start_delay,
         notificationEnd: wrap.state[index].delay == 0 ? end?.addingTimeInterval(end_delay) : nil
     )
 }

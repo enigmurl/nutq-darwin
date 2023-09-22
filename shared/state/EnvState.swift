@@ -372,12 +372,14 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
             content.userInfo["item_id"] = event.id.uuid.uuidString
             content.userInfo["index"] = event.id.index.description
 
-            let id = event.id.uuid.uuidString + event.id.index.description
-            let trigger = UNCalendarNotificationTrigger(dateMatching: Calendar.current.dateComponents([.year, .month, .day, .hour, .minute, .second], from: event.notificationStart), repeats: false)
+            let id = UUID().uuidString
+            let trigger = UNCalendarNotificationTrigger(dateMatching: Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: event.notificationStart), repeats: false)
             let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
             
             let notificationCenter = UNUserNotificationCenter.current()
-            notificationCenter.add(request) { _ in }
+            notificationCenter.add(request) { error in
+                print("Error!", error, "For", event.text, "At", event.notificationStart)
+            }
             
             notifications.identifiers.append(id)
         }
@@ -455,12 +457,14 @@ public class EnvState: ObservableObject, DatastoreManager {
             .autoconnect()
             .sink { val in
                 self.stdTime = val // makes it so clock position is not out of data
-                self.manager.stateControl()
-                self.manager.saveFileSystem {
-                    
+                if self.slaveState == .write {
+                    self.manager.stateControl()
+                    self.manager.saveFileSystem {
+                        
+                    }
+                    self.manager.gsyncControl() // handled on next iteration ...
+                    self.manager.notificationControl()
                 }
-                self.manager.gsyncControl() // handled on next iteration ...
-                self.manager.notificationControl()
             }
         
         self.manager.loadFileSystem()

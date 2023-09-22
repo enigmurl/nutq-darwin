@@ -21,6 +21,9 @@ let updatePeriod = 10 * TimeInterval.minute
 class AppDelegate: NSObject, NSApplicationDelegate, MessagingDelegate {
     var env: EnvState!
     
+    func applicationWillFinishLaunching(_ notification: Notification) {
+        NotificationDelegate.shared.registerLocal()
+    }
     
     func applicationDidFinishLaunching(_ notification: Notification) {
         FirebaseApp.configure()
@@ -52,6 +55,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, MessagingDelegate {
 #else
 class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate {
     var env: EnvState!
+    
+    func application(_ application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+        NotificationDelegate.shared.registerLocal()
+        return true
+    }
     
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
@@ -96,10 +104,8 @@ extension AppDelegate {
         }
         else {
             let env = EnvMiniState()
-            if env.manager.oldNotifications().lastWrite ?? .distantPast < .now - .minute {
-                env.retrieve { _ in
-                    env.manager.notificationControl()
-                }
+            env.retrieve { _ in
+                env.manager.notificationControl()
             }
         }
     }
@@ -132,9 +138,7 @@ struct Nutq: App {
         UIApplication.shared.registerForRemoteNotifications()
 #else
         NSApplication.shared.registerForRemoteNotifications()
-#endif
-        
-        NotificationDelegate.shared.registerLocal()
+#endif        
     }
 
     var body: some Scene {

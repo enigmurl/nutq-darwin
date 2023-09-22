@@ -88,6 +88,13 @@ fileprivate func width(for scheme: SchemeItem) -> (NSAttributedString, CGRect) {
         string += " block"
     }
     
+    if let first = scheme.state.firstIndex(where: { $0.progress != -1 }), scheme.state[first].delay != 0 {
+        let (start_delay, _) = singularSchemeNotificationDelay(scheme: scheme, index: first)
+        if let time = (scheme.start ?? scheme.end)?.addingTimeInterval(start_delay) {
+            string += "       notify \(time.dateString)"
+        }
+    }
+    
     let nsString = NSAttributedString(string: string, attributes: textAttributes)
     let size = nsString.size()
     let containerWidth = size.width
