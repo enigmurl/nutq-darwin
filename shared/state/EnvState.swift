@@ -19,7 +19,7 @@ let unionNullUUID = UUID(uuidString: "00000000-0000-0000-0000-ffffffffffff")!
 
 fileprivate let takenSlave = "\"Resource in Use\""
 fileprivate let slaveAboutToBeTaken = "\"Slave stolen\""
-fileprivate let saveRate: TimeInterval = 10
+fileprivate let saveRate: TimeInterval = 30
 fileprivate let gsyncInterval = 15 * TimeInterval.minute
 
 protocol DatastoreManager: AnyObject {
@@ -166,7 +166,6 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
         self.env.slaveState = .loading
 
         Task.init {
-            
             let _ = await auth_void_request(env: self.env, "/sync/steal/nutq", method: "DELETE")
             
             try await Task.sleep(for: .seconds(1)) // allow to finish sending changes
