@@ -341,7 +341,7 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
         var notifications = Notifications(lastWrite: .now, identifiers: [])
         // schedule all new notifications
         let flat = env.schemes.map { ObservedObject(initialValue: $0) }
-            .flattenToUpcomingSchemes(start: Date.now)
+            .flattenEventsInRange(start: .now, end: nil, schemeTypes: [.reminder, .assignment, .event])
     
         for event in flat {
             if event.notificationStart < .now || event.state.progress == -1 {

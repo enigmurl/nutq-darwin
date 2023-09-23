@@ -451,6 +451,10 @@ struct Time: View {
                                     }
                                     
                                     self.date = firstDayOfMonth + TimeInterval(day - 1) * .day
+                                    for item in $state {
+                                        item.wrappedValue.progress = 0
+                                        item.wrappedValue.delay = 0
+                                    }
                                 }
                             } label: {
                                 Group {
