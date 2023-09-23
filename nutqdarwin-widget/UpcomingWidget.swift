@@ -30,11 +30,11 @@ struct Provider: IntentTimelineProvider {
                     $0.start ?? $0.end! < $1.start ?? $1.end!
                 })
             
+            if (env.manager.oldNotifications().lastWrite ?? .distantPast) + updatePeriod < .now {
+                env.manager.notificationControl()
+            }
+            
             completion(UpcomingEntry(date: .now, configuration: intent, assignments: flat))
-        }
-       
-        if (env.manager.oldNotifications().lastWrite ?? .distantPast) + updatePeriod < .now {
-            env.manager.notificationControl()
         }
     }
     

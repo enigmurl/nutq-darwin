@@ -372,14 +372,12 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
             content.userInfo["item_id"] = event.id.uuid.uuidString
             content.userInfo["index"] = event.id.index.description
 
-            let id = UUID().uuidString
+            let id = event.notificationStart.description + event.id.uuid.uuidString
             let trigger = UNCalendarNotificationTrigger(dateMatching: Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: event.notificationStart), repeats: false)
             let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
             
             let notificationCenter = UNUserNotificationCenter.current()
-            notificationCenter.add(request) { error in
-                print("Error!", error, "For", event.text, "At", event.notificationStart)
-            }
+            notificationCenter.add(request) { _ in }
             
             notifications.identifiers.append(id)
         }

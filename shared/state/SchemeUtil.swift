@@ -560,7 +560,7 @@ fileprivate func convertSingularScheme(scheme_id: UUID, color: Int, path: [Strin
         text: wrap.text,
         start: start,
         end: end,
-        notificationStart: (start ?? end ?? .now) + start_delay,
+        notificationStart: Calendar.current.date(bySetting: .second, value: 0, of: (start ?? end ?? .now) + start_delay)!,
         notificationEnd: wrap.state[index].delay == 0 ? end?.addingTimeInterval(end_delay) : nil
     )
 }
