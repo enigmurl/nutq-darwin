@@ -137,7 +137,7 @@ struct CalendarEvents: View {
             //default height of events and assignments are 1 hour
             let oldEnd = interRunning.last![0].end ?? interRunning.last![0].start! + .hour
             let newStart = group[0].start ?? group[0].end! - .hour
-            if newStart > oldEnd {
+            if newStart >= oldEnd {
                 intersections.append(interRunning)
                 interRunning = [group]
             }
