@@ -13,6 +13,7 @@
 ## Scheme Editor
 
 ![Scheme View](.github/scheme-view.png)
+![Scheme View 2](.github/scheme-view-2.png)
 
 majority is a mess...
 ## Known Bugs
