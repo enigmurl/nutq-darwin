@@ -1,6 +1,6 @@
 #  Nutq Darwin
 
-- Idea is to divide different task lists by "scheme", with the calendar showing the tasks that are in the union of all the different schemes. Uses a master slave token passing approach so only one online device can write at a single time. Also supports syncing a single scheme to google, repeating events, remind later from the 
+- Idea is to divide different task lists by "scheme", with the calendar showing the tasks that are in the union of all the different schemes. Uses a master slave token passing approach so only one online device can write at a single time. Also supports syncing a single scheme to google, repeating events, notifications across all registered, remind later from the notification menu
 - a task can have a start, an end, both, or neither
     - both start and end is considered an event
     - just end is considered an assignment
