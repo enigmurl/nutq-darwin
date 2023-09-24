@@ -11,12 +11,6 @@ import FirebaseCore
 import FirebaseMessaging
 import UserNotifications
 
-#if DEBUG
-let updatePeriod: TimeInterval = .minute
-#else
-let updatePeriod = 10 * TimeInterval.minute
-#endif
-
 #if os(macOS)
 class AppDelegate: NSObject, NSApplicationDelegate, MessagingDelegate {
     var env: EnvState!

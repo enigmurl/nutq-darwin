@@ -528,9 +528,13 @@ public class EnvMiniState: ObservableObject, DatastoreManager {
         manager = SystemManager(env: self)
     }
     
-    func retrieve(_ completion: @escaping (_ schemes: SchemeHolder) -> ()) {
+    func retrieve(_ completion: @escaping (_ schemes: SchemeHolder) -> (), allow_online: Bool = true) {
         Task.init {
-            var res: SchemeHolder? = await auth_request(env: self, "/sync/bucket/nutq")
+            var res: SchemeHolder? = nil
+            
+            if allow_online {
+                res = await auth_request(env: self, "/sync/bucket/nutq")
+            }
             
             if res == nil {
                 res = load_scheme(from: "latest.json")

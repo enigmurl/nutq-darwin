@@ -12,14 +12,15 @@ import Intents
 #if DEBUG
 fileprivate let updatePeriod: TimeInterval = .minute
 #else
-fileprivate let updatePeriod = 10 * TimeInterval.minute
+fileprivate let updatePeriod = 15 * TimeInterval.minute
 #endif
 
 struct Provider: IntentTimelineProvider {
     
     fileprivate func getCurrentEntry(_ intent: ConfigurationIntent, completion: @escaping (_ upcoming: UpcomingEntry) -> ()) {
         let env = EnvMiniState()
-        env.retrieve { schemes in
+        
+        env.retrieve( { schemes in
             let schemes = schemes.schemes
             
             // not going to write anyways
@@ -35,7 +36,7 @@ struct Provider: IntentTimelineProvider {
             }
             
             completion(UpcomingEntry(date: .now, configuration: intent, assignments: flat))
-        }
+        }, allow_online: false)
     }
     
     func placeholder(in context: Context) -> UpcomingEntry {
