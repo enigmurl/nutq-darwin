@@ -146,7 +146,7 @@ struct Nutq: App {
                 }
             #if os(iOS)
                 .onChange(of: phase, initial: false) { (phase, newPhase) in
-                    if newPhase == .inactive {
+                    if newPhase == .inactive || newPhase == .background {
                         self.env.manager.force {}
                     }
                     else if newPhase == .active {
@@ -299,8 +299,7 @@ class NotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
         content.title = "Error Notification"
         content.body = "An error occurred while performing " + path
 
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 0.1, repeats: false)
-        let request = UNNotificationRequest(identifier: "errorNotification", content: content, trigger: trigger)
+        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
         
         let notificationCenter = UNUserNotificationCenter.current()
         notificationCenter.add(request) { _ in }
