@@ -20,8 +20,8 @@ struct Provider: IntentTimelineProvider {
     fileprivate func getCurrentEntry(_ intent: ConfigurationIntent, completion: @escaping (_ upcoming: UpcomingEntry) -> ()) {
         let env = EnvMiniState()
         
-        env.retrieve( { schemes in
-            let schemes = schemes.schemes
+        env.retrieve( { _ in
+            let schemes = env.schemes 
             
             // not going to write anyways
             // so binding stuff can be kind of iffy

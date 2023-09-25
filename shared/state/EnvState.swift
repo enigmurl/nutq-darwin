@@ -168,8 +168,6 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
         Task.init {
             let _ = await auth_void_request(env: self.env, "/sync/steal/nutq", method: "DELETE")
             
-            try await Task.sleep(for: .seconds(1)) // allow to finish sending changes
-           
             // try acquiring (even if above fails), generally doesn't hurt
             await self.acquireSlave()
         }
@@ -528,7 +526,7 @@ public class EnvMiniState: ObservableObject, DatastoreManager {
         manager = SystemManager(env: self)
     }
     
-    func retrieve(_ completion: @escaping (_ schemes: SchemeHolder) -> (), allow_online: Bool = true) {
+    func retrieve(_ completion: @escaping (_ schemes: SchemeHolder?) -> (), allow_online: Bool = true) {
         Task.init {
             var res: SchemeHolder? = nil
             
@@ -544,7 +542,7 @@ public class EnvMiniState: ObservableObject, DatastoreManager {
             }
            
             schemeHolder = res ?? SchemeHolder(schemes: [])
-            completion(schemeHolder)
+            completion(res)
         }
     }
 }

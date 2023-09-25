@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 #if os(macOS)
 import Cocoa
 #endif
@@ -101,10 +102,13 @@ struct CalendarEvents: View {
     // each duplicate is an array of single iterms
     let day: Date
     let mergedEvents: [[[SchemeSingularItem]]]
-    
+    let schemes: [SchemeSingularItem]
+        
     /* not perfect, but does an ok job usually */
     init(day: Date, schemes: [SchemeSingularItem]) {
         self.day = day
+        self.schemes = schemes
+        
         if schemes.count == 0 {
             mergedEvents = []
             return
@@ -320,6 +324,7 @@ struct CalendarDay: View {
                     .padding(.top, filledPixels - 6) // accounts for circle height
             }
         }
+
     }
 }
 
@@ -328,6 +333,7 @@ struct CalendarView: View {
     
     let schemes: [ObservedObject<SchemeState>]
     @State var headDate = Date.now
+    @State var refresh = 0
     
     var body: some View {
         GeometryReader { proxy in

@@ -23,7 +23,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, MessagingDelegate {
         FirebaseApp.configure()
         Messaging.messaging().delegate = self
     }
-  
  
     func application(_ application: NSApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         Messaging.messaging().apnsToken = deviceToken
@@ -98,8 +97,10 @@ extension AppDelegate {
         }
         else {
             let env = EnvMiniState()
-            env.retrieve { _ in
-                env.manager.notificationControl()
+            env.retrieve { res in
+                if res != nil {
+                    env.manager.notificationControl()
+                }
             }
         }
     }
