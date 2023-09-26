@@ -110,6 +110,7 @@ struct UpcomingAssignment: View {
 
 struct Upcoming: View {
     @State var assignmentSchemes: [SchemeSingularItem] = []
+    @State var reminderSchemes: [SchemeSingularItem] = []
     @State var upcomingSchemes: [SchemeSingularItem] = []
     @State var refresh = 0
     
@@ -153,7 +154,9 @@ struct Upcoming: View {
         // then reminders and events
         ScrollView {
             self.itemList(title: "Assignments", items: self.assignmentSchemes, parity: 0)
-//            
+            
+            self.itemList(title: "Reminders", items: self.reminderSchemes, parity: 0)
+//
             self.itemList(title: "Upcoming", items: self.upcomingSchemes, parity: 0)
         }
         .padding(.horizontal, 4)
@@ -199,8 +202,15 @@ struct Upcoming: View {
                 $0.end! < $1.end!
             })
         
+        self.reminderSchemes = mainSchemes
+            .filter({$0.start != nil && $0.end == nil})
+            .sorted(by: {
+               // $0.state != -1 && $1.state == -1 || ($0.state != -1) == ($1.state != -1) &&
+                $0.start! < $1.start!
+            })
+        
         self.upcomingSchemes   = mainSchemes
-            .filter({$0.start != nil})
+            .filter({$0.start != nil && $0.end != nil && $0.end!.dayDifference(with: .now) == 0})
             .sorted(by: {$0.start! < $1.start!})
     }
 }
