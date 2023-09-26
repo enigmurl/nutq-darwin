@@ -32,20 +32,26 @@ protocol DatastoreManager: AnyObject {
 
 fileprivate func save_scheme(_ data: Data, to file: String) {
     do {
-        let supportDir = try FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+        guard let sharedContainerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.enigmadux.nutqdarwin") else {
+            return
+        }
+        
+        let supportDir = sharedContainerURL.appending(component: "Library/Application Support", directoryHint: .isDirectory)
         let jsonDir = supportDir.appendingPathComponent("backups/")
         try FileManager.default.createDirectory(at: jsonDir, withIntermediateDirectories: true, attributes: nil)
-        
         try data.write(to: jsonDir.appendingPathComponent(file))
     } catch { }
 }
     
 fileprivate func load_scheme(from file: String) -> SchemeHolder? {
-    guard let url = try? FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true) else {
+    guard let sharedContainerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.enigmadux.nutqdarwin") else {
         return nil
     }
     
-    return try? JSONDecoder().decode(SchemeHolder.self, from: Data(contentsOf: url.appending(components: "backups", file)))
+    let supportDir = sharedContainerURL.appending(component: "Library/Application Support", directoryHint: .isDirectory)
+    let jsonDir = supportDir.appendingPathComponent("backups/")
+    
+    return try? JSONDecoder().decode(SchemeHolder.self, from: Data(contentsOf: jsonDir.appending(path: file, directoryHint: .notDirectory)))
 }
 
 
@@ -527,6 +533,13 @@ public class EnvMiniState: ObservableObject, DatastoreManager {
     }
     
     func retrieve(_ completion: @escaping (_ schemes: SchemeHolder?) -> (), allow_online: Bool = true) {
+        if !allow_online {
+            let res: SchemeHolder? = load_scheme(from: "latest.json")
+            schemeHolder = res ?? SchemeHolder(schemes: [])
+            completion(res)
+            return
+        }
+        
         Task.init {
             var res: SchemeHolder? = nil
             
