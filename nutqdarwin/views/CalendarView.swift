@@ -183,6 +183,7 @@ struct CalendarEvents: View {
                     let head = duplicates[0]
                     let above: CGFloat = head.start == nil ? 0 : hourHeight * min(23, head.start!.timeIntervalSince(day.startOfDay()) / .hour)
                     let minCurr: CGFloat = head.start == nil || head.end == nil ? 0 : hourHeight * head.end!.timeIntervalSince(head.start!) / .hour
+                    let effectiveTime = head.start == nil || head.end == nil ? 1: head.end!.timeIntervalSince(head.start!)
                     let below: CGFloat = head.end == nil ? 0 : hourHeight * min(23, (24.0 - head.end!.timeIntervalSince(day.startOfDay()) / .hour))
                     
                     VStack {
@@ -200,7 +201,7 @@ struct CalendarEvents: View {
                                 .saturation(item.state.progress == -1 ? 0 : 0.7)
                                 .font(Font.system(size: 12).bold())
                                 .padding(.horizontal, 6)
-                                .lineLimit(2)
+                                .lineLimit(effectiveTime > .hour ? 2 : 1)
                                 .truncationMode(.tail)
                         }
                     }
