@@ -9,6 +9,7 @@ import WidgetKit
 import SwiftUI
 import Intents
 
+fileprivate let refetchRate: Float = 0.05
 #if DEBUG
 fileprivate let updatePeriod: TimeInterval = .minute
 #else
@@ -20,8 +21,8 @@ struct Provider: IntentTimelineProvider {
     fileprivate func getCurrentEntry(_ intent: ConfigurationIntent, completion: @escaping (_ upcoming: UpcomingEntry) -> ()) {
         let env = EnvMiniState()
         
-        env.retrieve { _ in
-            let schemes = env.schemes 
+        env.retrieve( { _ in
+            let schemes = env.schemes
             
             // not going to write anyways
             // so binding stuff can be kind of iffy
@@ -33,7 +34,7 @@ struct Provider: IntentTimelineProvider {
                 })
             
             completion(UpcomingEntry(date: .now, configuration: intent, assignments: flat))
-        }
+        }, allow_online: Float.random(in: 0...1) < refetchRate)
     }
     
     func placeholder(in context: Context) -> UpcomingEntry {

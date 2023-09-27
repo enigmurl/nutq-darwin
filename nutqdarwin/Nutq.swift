@@ -92,8 +92,6 @@ extension AppDelegate {
     }
     
     func refresh() {
-        self.spawnErrorNotification("hello")
-        
         if let e = EnvState.shared, e.slaveState == .write {
             e.manager.notificationControl()
         }
