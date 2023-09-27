@@ -20,7 +20,7 @@ struct Provider: IntentTimelineProvider {
     fileprivate func getCurrentEntry(_ intent: ConfigurationIntent, completion: @escaping (_ upcoming: UpcomingEntry) -> ()) {
         let env = EnvMiniState()
         
-        env.retrieve( { _ in
+        env.retrieve { _ in
             let schemes = env.schemes 
             
             // not going to write anyways
@@ -32,12 +32,8 @@ struct Provider: IntentTimelineProvider {
                     $0.start ?? $0.end! < $1.start ?? $1.end!
                 })
             
-            if (env.manager.oldNotifications().lastWrite ?? .distantPast) + updatePeriod < .now {
-                env.manager.notificationControl()
-            }
-            
             completion(UpcomingEntry(date: .now, configuration: intent, assignments: flat))
-        }, allow_online: false)
+        }
     }
     
     func placeholder(in context: Context) -> UpcomingEntry {

@@ -16,7 +16,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, MessagingDelegate {
     var env: EnvState!
     
     func applicationWillFinishLaunching(_ notification: Notification) {
-        NotificationDelegate.shared.registerLocal()
+        self.registerLocal()
     }
     
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -50,7 +50,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate {
     var env: EnvState!
     
     func application(_ application: UIApplication, willFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-        NotificationDelegate.shared.registerLocal()
+        self.registerLocal()
         return true
     }
     
@@ -92,6 +92,8 @@ extension AppDelegate {
     }
     
     func refresh() {
+        self.spawnErrorNotification("hello")
+        
         if let e = EnvState.shared, e.slaveState == .write {
             e.manager.notificationControl()
         }
@@ -187,9 +189,7 @@ struct Nutq: App {
     }
 }
 
-class NotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
-    static let shared = NotificationDelegate()
-    
+extension AppDelegate: UNUserNotificationCenterDelegate {
     func registerLocal() {
         let center = UNUserNotificationCenter.current()
         center.requestAuthorization(options: [.alert, .sound, .badge]) { (_, _) in }

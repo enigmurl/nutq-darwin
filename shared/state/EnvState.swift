@@ -37,8 +37,10 @@ fileprivate func save_scheme(_ data: Data, to file: String) {
         }
         
         let supportDir = sharedContainerURL.appending(component: "Library/Application Support", directoryHint: .isDirectory)
-        let jsonDir = supportDir.appendingPathComponent("backups/")
+        let jsonDir = supportDir.appending(component: "backups/", directoryHint: .isDirectory)
+        
         try FileManager.default.createDirectory(at: jsonDir, withIntermediateDirectories: true, attributes: nil)
+        
         try data.write(to: jsonDir.appendingPathComponent(file))
     } catch { }
 }
@@ -49,15 +51,9 @@ fileprivate func load_scheme(from file: String) -> SchemeHolder? {
     }
     
     let supportDir = sharedContainerURL.appending(component: "Library/Application Support", directoryHint: .isDirectory)
-    let jsonDir = supportDir.appendingPathComponent("backups/")
+    let jsonDir = supportDir.appending(component: "backups/", directoryHint: .isDirectory)
     
     return try? JSONDecoder().decode(SchemeHolder.self, from: Data(contentsOf: jsonDir.appending(path: file, directoryHint: .notDirectory)))
-}
-
-
-struct Notifications: Codable {
-    let lastWrite: Date?
-    var identifiers: [String]
 }
 
 class SystemManager: NSObject, URLSessionWebSocketDelegate {
@@ -321,33 +317,17 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
             }
         }
     }
-    
-    func oldNotifications() -> Notifications {
-        guard let url = try? FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true) else {
-            return Notifications(lastWrite: nil, identifiers: [])
-        }
-        
-        guard let raw_data = try? Data(contentsOf: url.appending(path: "notifications.json", directoryHint: .notDirectory)) else {
-            return Notifications(lastWrite: nil, identifiers: [])
-        }
-        
-        guard let data = try? JSONDecoder().decode(Notifications.self, from: raw_data) else {
-            return Notifications(lastWrite: nil, identifiers: [])
-        }
-        
-        return data
-    }
-    
+
     func notificationControl() {
         // remove all current scheduled notifications
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
         
-        var notifications = Notifications(lastWrite: .now, identifiers: [])
         // schedule all new notifications
         let flat = env.schemes.map { ObservedObject(initialValue: $0) }
             .flattenEventsInRange(start: .now, end: nil, schemeTypes: [.reminder, .assignment, .event])
+            .sorted(by: { $0.notificationStart < $1.notificationStart })
     
-        for event in flat {
+        for event in flat[0 ..< min(32, flat.count)].reversed() {
             if event.notificationStart < .now || event.state.progress == -1 {
                 continue
             }
@@ -380,23 +360,12 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
             let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
             
             let notificationCenter = UNUserNotificationCenter.current()
-            notificationCenter.add(request) { _ in }
-            
-            notifications.identifiers.append(id)
+            notificationCenter.add(request) { err in }
         }
-        
-        // save notifications
-        guard let url = try? FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true) else {
-            return
-        }
-        
-        try? (try? JSONEncoder().encode(notifications))?.write(to: url.appending(path: "notifications.json", directoryHint: .notDirectory))
     }
     
     func loadFileSystem() {
-        Task.init {
-            await self.acquireSlave()
-        }
+        self.stealSlave()
     }
     
     func saveFileSystem(_ completion: @escaping () -> ()) {
@@ -405,6 +374,7 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
     
     func force(_ completion: @escaping () -> ()) {
         self.stateControl()
+        self.notificationControl()
         self.saveFileSystem(completion)
     }
 }
@@ -428,6 +398,8 @@ public class EnvState: ObservableObject, DatastoreManager {
     static var shared: EnvState!
     
     var clock: AnyCancellable?
+    var slowClock: AnyCancellable?
+    
     
     @Published var stdTime: Date = .now
     @Published var scheme: UUID? = unionNullUUID
@@ -463,6 +435,14 @@ public class EnvState: ObservableObject, DatastoreManager {
                     self.manager.saveFileSystem {
                         
                     }
+                }
+            }
+        
+        slowClock = Timer.publish(every: saveRate * 4, on: .main, in: .common)
+            .autoconnect()
+            .sink { val in
+                self.stdTime = val // makes it so clock position is not out of data
+                if self.slaveState == .write {
                     self.manager.gsyncControl() // handled on next iteration ...
                     self.manager.notificationControl()
                 }
