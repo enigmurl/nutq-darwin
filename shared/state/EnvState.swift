@@ -337,15 +337,15 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
             // duplicate code...
             var string = ""
             if let start = event.start {
-                string += start.dateString
+                string += start.timeString
                 string += " \u{2192}"
             }
             if let end = event.end {
                 if string.count == 0 {
-                    string += "\u{2192} " + end.dateString
+                    string += "\u{2192} " + end.timeString
                 }
                 else {
-                    string += " " + (end.dayDifference(with: event.start!) == 0 ? end.timeString :  end.dateString)
+                    string += " " + end.timeString
                 }
             }
             content.body = string
