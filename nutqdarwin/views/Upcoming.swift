@@ -195,22 +195,27 @@ struct Upcoming: View {
         let calendar = NSCalendar.current
         let mainSchemes = schemes.flattenToUpcomingSchemes(start: calendar.startOfDay(for: .now))
         
-        self.assignmentSchemes = mainSchemes
-            .filter({$0.start == nil && $0.end != nil})
-            .sorted(by: {
-               // $0.state != -1 && $1.state == -1 || ($0.state != -1) == ($1.state != -1) &&
-                $0.end! < $1.end!
-            })
-        
-        self.reminderSchemes = mainSchemes
-            .filter({$0.start != nil && $0.end == nil})
-            .sorted(by: {
-               // $0.state != -1 && $1.state == -1 || ($0.state != -1) == ($1.state != -1) &&
-                $0.start! < $1.start!
-            })
-        
-        self.upcomingSchemes   = mainSchemes
-            .filter({$0.start != nil && $0.end != nil && $0.end!.dayDifference(with: .now) == 0})
-            .sorted(by: {$0.start! < $1.start!})
+        withAnimation {
+            self.assignmentSchemes = mainSchemes
+                .filter({$0.start == nil && $0.end != nil})
+                .sorted(by: {
+                    $0.state.progress != -1 && $1.state.progress == -1 || ($0.state.progress != -1) == ($1.state.progress != -1) &&
+                    $0.end! < $1.end!
+                })
+            
+            self.reminderSchemes = mainSchemes
+                .filter({$0.start != nil && $0.end == nil})
+                .sorted(by: {
+                    $0.state.progress != -1 && $1.state.progress == -1 || ($0.state.progress != -1) == ($1.state.progress != -1) &&
+                    $0.start! < $1.start!
+                })
+            
+            self.upcomingSchemes = mainSchemes
+                .filter({$0.start != nil && $0.end != nil && $0.end!.dayDifference(with: .now) == 0})
+                .sorted(by: {
+                    $0.state.progress != -1 && $1.state.progress == -1 || ($0.state.progress != -1) == ($1.state.progress != -1) &&
+                    $0.start! < $1.start!
+                })
+        }
     }
 }
