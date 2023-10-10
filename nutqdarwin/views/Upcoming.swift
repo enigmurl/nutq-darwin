@@ -167,7 +167,7 @@ struct Upcoming: View {
         #endif
         .padding(.vertical, 8)
         .onAppear {
-            self.refresh += 1
+            self.recomp(animation: false)
         }
         .onChange(of: schemes.map {$0.wrappedValue}) {
             self.refresh += 1
@@ -187,35 +187,44 @@ struct Upcoming: View {
             self.refresh += 1
         }
         .onChange(of: self.refresh) { _, new in
-            self.recomp()
+            self.recomp(animation: true)
         }
     }
     
-    func recomp() {
+    func recomp(animation: Bool) {
+        if animation {
+            withAnimation {
+                self.actuallyRecomp()
+            }
+        }
+        else {
+            self.actuallyRecomp()
+        }
+    }
+    
+    func actuallyRecomp() {
         let calendar = NSCalendar.current
         let mainSchemes = schemes.flattenToUpcomingSchemes(start: calendar.startOfDay(for: .now))
         
-        withAnimation {
-            self.assignmentSchemes = mainSchemes
-                .filter({$0.start == nil && $0.end != nil})
-                .sorted(by: {
-                    $0.state.progress != -1 && $1.state.progress == -1 || ($0.state.progress != -1) == ($1.state.progress != -1) &&
-                    $0.end! < $1.end!
-                })
-            
-            self.reminderSchemes = mainSchemes
-                .filter({$0.start != nil && $0.end == nil})
-                .sorted(by: {
-                    $0.state.progress != -1 && $1.state.progress == -1 || ($0.state.progress != -1) == ($1.state.progress != -1) &&
-                    $0.start! < $1.start!
-                })
-            
-            self.upcomingSchemes = mainSchemes
-                .filter({$0.start != nil && $0.end != nil && $0.end!.dayDifference(with: .now) == 0})
-                .sorted(by: {
-                    $0.state.progress != -1 && $1.state.progress == -1 || ($0.state.progress != -1) == ($1.state.progress != -1) &&
-                    $0.start! < $1.start!
-                })
-        }
+        self.assignmentSchemes = mainSchemes
+            .filter({$0.start == nil && $0.end != nil})
+            .sorted(by: {
+                $0.state.progress != -1 && $1.state.progress == -1 || ($0.state.progress != -1) == ($1.state.progress != -1) &&
+                $0.end! < $1.end!
+            })
+        
+        self.reminderSchemes = mainSchemes
+            .filter({$0.start != nil && $0.end == nil})
+            .sorted(by: {
+                $0.state.progress != -1 && $1.state.progress == -1 || ($0.state.progress != -1) == ($1.state.progress != -1) &&
+                $0.start! < $1.start!
+            })
+        
+        self.upcomingSchemes = mainSchemes
+            .filter({$0.start != nil && $0.end != nil && $0.end!.dayDifference(with: .now) == 0})
+            .sorted(by: {
+                $0.state.progress != -1 && $1.state.progress == -1 || ($0.state.progress != -1) == ($1.state.progress != -1) &&
+                $0.start! < $1.start!
+            })
     }
 }
