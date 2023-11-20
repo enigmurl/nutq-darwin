@@ -326,12 +326,18 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
         let flat = env.schemes.map { ObservedObject(initialValue: $0) }
             .flattenEventsInRange(start: .now, end: nil, schemeTypes: [.reminder, .assignment, .event])
             .sorted(by: { $0.notificationStart < $1.notificationStart })
-    
-        for event in flat[0 ..< min(32, flat.count)].reversed() {
+   
+        var count = 0
+        for event in flat {
             if event.notificationStart < .now || event.state.progress == -1 {
                 continue
             }
             
+            count += 1
+            if count > 32 {
+                break
+            }
+           
             let content = UNMutableNotificationContent()
             content.title = event.text + " [\(event.path[0])]"
             // duplicate code...
