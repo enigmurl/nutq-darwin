@@ -386,7 +386,7 @@ struct CalendarView: View {
                 
         }
         #if os(macOS)
-        .frame(minWidth: 925, maxWidth: .infinity, maxHeight: .infinity)
+        .frame(minWidth: 825, maxWidth: .infinity, maxHeight: .infinity)
         #else
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         #endif

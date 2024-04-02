@@ -161,9 +161,9 @@ struct Upcoming: View {
         }
         .padding(.horizontal, 4)
         #if os(macOS)
-        .frame(minWidth: 300, maxWidth: 300, maxHeight: .infinity)
+        .frame(minWidth: 250, maxWidth: 250, maxHeight: .infinity)
         #else
-        .frame(minWidth: 300, idealWidth: 300, maxHeight: .infinity)
+        .frame(minWidth: 250, idealWidth: 250, maxHeight: .infinity)
         #endif
         .padding(.vertical, 8)
         .onAppear {

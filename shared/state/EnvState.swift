@@ -20,7 +20,7 @@ let unionNullUUID = UUID(uuidString: "00000000-0000-0000-0000-ffffffffffff")!
 fileprivate let takenSlave = "\"Resource in Use\""
 fileprivate let slaveAboutToBeTaken = "\"Slave stolen\""
 fileprivate let saveRate: TimeInterval = 7
-fileprivate let gsyncInterval = 15 * TimeInterval.minute
+fileprivate let gsyncInterval = 30 * TimeInterval.minute
 
 protocol DatastoreManager: AnyObject {
     var esotericToken: EsotericUser? { get set }
@@ -276,7 +276,7 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
         service.authorizer = authorizer
         
         let query = GTLRCalendarQuery_EventsList.query(withCalendarId: "primary")
-        query.timeMin = GTLRDateTime(date: Date.now.startOfDay())
+        query.timeMin = GTLRDateTime(date: Date.now.startOfDay() - TimeInterval.week + TimeInterval.day)
         query.timeMax = GTLRDateTime(date: Date.now.startOfDay() + TimeInterval.week + TimeInterval.day)
         query.singleEvents = true
         query.orderBy = kGTLRCalendarOrderByStartTime
@@ -465,6 +465,9 @@ public class EnvState: ObservableObject, DatastoreManager {
     }
     
     public func stealSlave() {
+        if slaveState == SlaveMode.none {
+            self.scheme = unionNullUUID
+        }
         self.manager.stealSlave()
     }
     
