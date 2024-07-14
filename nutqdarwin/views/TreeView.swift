@@ -132,6 +132,7 @@ final class TreeTextView: NSTextView, NSTextStorageDelegate {
     var gutterView: GutterView!
     var addNewLineFlag = false
     var initialFocused = false
+    var applyingInitialAttributes = false
     var pipe: AnyCancellable!
     var deleteRange: Range<Int>?
     
@@ -258,7 +259,9 @@ final class TreeTextView: NSTextView, NSTextStorageDelegate {
 
     func textStorage(_ textStorage: NSTextStorage, didProcessEditing editedMask: NSTextStorageEditActions, range editedRange: NSRange, changeInLength delta: Int) {
         // ensure scheme ids are consistent
-        self.fixSchemes(range: editedRange)
+        if !self.applyingInitialAttributes {
+            self.fixSchemes(range: editedRange)
+        }
         self.gutterView.needsLayout = true
     }
     
@@ -494,6 +497,7 @@ final class TreeTextView: UITextView, NSTextStorageDelegate, UITextViewDelegate 
     var handles: [AnyCancellable] = []
     var gutterView: GutterView!
     var addNewLineFlag = false
+    var applyingInitialAttributes = false
     var pipe: AnyCancellable!
     var deleteRange: Range<Int>?
     
@@ -797,15 +801,15 @@ struct TreeView: View {
 extension TreeTextView {
    
     func subscriber(for scheme: SchemeItem) -> AnyCancellable {
-        var enabled = false
+        var count = 0
         let ret = scheme.mergedStatePublisher.receive(on: RunLoop.main).sink { _ in
-            if enabled {
+            count += 1
+            #warning("TODO not a great solution")
+            if count > 4 {
                 let (ranges, _) = self.lines(startIndex: 0)[self.schemes.wrappedValue.firstIndex(of: scheme)!]
                 self.applyDerivedStyles(range: ranges)
             }
         }
-        
-        enabled = true
         
         return ret
     }
@@ -1202,9 +1206,11 @@ extension TreeTextView {
     }
     
     func applyInitialAttributes() {
+        self.applyingInitialAttributes = true
         for (subRange, _) in self.lines(startIndex: 0) {
             applyDerivedStyles(range: subRange)
         }
+        self.applyingInitialAttributes = false
     }
     
     func lines(startIndex: Int) -> [(NSRange, Range<String.Index>)] {
