@@ -71,11 +71,29 @@ struct UpcomingEntry: TimelineEntry {
 struct UpcomingAssignmentWidget: View {
     let item: SchemeSingularItem
     
+    @Environment(\.widgetFamily) var family
+    var isLock: Bool {
+#if os(macOS)
+        false
+#else
+        family == .accessoryRectangular
+#endif
+    }
+    
     var color: Color {
         if (item.state.progress == -1) {
             return .gray
         }
         return colorIndexToColor(item.colorIndex)
+    }
+    
+    var dateColor: Color {
+        if isLock {
+            .white
+        }
+        else {
+            item.widgetDateColor
+        }
     }
 
     var dateString: some View {
@@ -95,18 +113,25 @@ struct UpcomingAssignmentWidget: View {
                 }
             }
         }
-        .foregroundStyle(item.widgetDateColor)
+        .foregroundStyle(self.dateColor)
         .font(.system(size: 10).monospacedDigit())
     }
     
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
-                Text(item.text)
-                    .foregroundStyle(Color.black.opacity(0.8))
-                    .font(.system(size: 12))
-                    .saturation(0.6)
-                    .fontWeight(.semibold)
+                if self.isLock {
+                    Text(item.text)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(Color.white)
+                }
+                else {
+                    Text(item.text)
+                        .foregroundStyle(Color.black.opacity(0.8))
+                        .font(.system(size: 12))
+                        .saturation(0.6)
+                        .fontWeight(.semibold)
+                }
                 self.dateString
                 
             }
@@ -130,9 +155,11 @@ struct UpcomingAssignmentWidget: View {
 }
 
 struct UpcomingWidgetView : View {
+    @Environment(\.widgetFamily) var family
+    
     var entry: UpcomingEntry
 
-    var date: some View {
+    var standard_date: some View {
         HStack(spacing: 2) {
             Spacer()
             
@@ -147,10 +174,29 @@ struct UpcomingWidgetView : View {
         .font(.system(size: 13).smallCaps())
     }
     
+    var isLock: Bool {
+#if os(macOS)
+        false
+#else
+        family == .accessoryRectangular
+#endif
+    }
+    
+    var date: some View {
+        Group {
+            if isLock {
+                EmptyView()
+            }
+            else {
+                standard_date
+            }
+        }
+    }
+    
     fileprivate let columnSize = 3
     
     fileprivate func miniList(_ lst: [SchemeSingularItem]) -> some View {
-        VStack(spacing: 6) {
+        VStack(spacing: isLock ? 0 : 6) {
             ForEach(lst) { assignment in
                 UpcomingAssignmentWidget(item: assignment)
             }
@@ -204,7 +250,12 @@ struct UpcomingWidget: Widget {
         }
         .configurationDisplayName("Nut Q")
         .description("View your upcoming events, assignments, and reminders.")
-        .supportedFamilies([.systemSmall, .systemMedium])
+#if os(macOS)
+        .supportedFamilies([.systemSmall,  .systemMedium])
+#else
+        .supportedFamilies([.systemSmall,  .systemMedium, .accessoryRectangular])
+#endif
+        
     }
 }
 
