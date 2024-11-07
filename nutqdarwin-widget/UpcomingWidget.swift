@@ -28,7 +28,10 @@ struct Provider: IntentTimelineProvider {
             // so binding stuff can be kind of iffy
             let flat = schemes.map { ObservedObject(initialValue: $0) }
                 .flattenToUpcomingSchemes(start: Date.now)
-                .filter( {$0.start == nil || $0.end == nil || $0.start!.dayDifference(with: .now) == 0})
+                
+                .filter({$0.start == nil || $0.end == nil || $0.start!.dayDifference(with: .now) == 0}
+                )
+                .filter { $0.state.progress != -1 }
                 .sorted(by: {
                     $0.start ?? $0.end! < $1.start ?? $1.end!
                 })

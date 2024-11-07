@@ -13,6 +13,8 @@ import GoogleAPIClientForRESTCore
 struct Union: View {
     @EnvironmentObject var env: EnvState
     
+    @State var shown = false
+    
     #if os(iOS)
     @State var showingUpcoming = false
     #endif
@@ -27,7 +29,12 @@ struct Union: View {
             CalendarView(schemes:  env.schemes.map { ObservedObject(wrappedValue: $0) })
         }
         .onAppear {
-            env.stdTime = .now
+            if !shown {
+                DispatchQueue.main.async {
+                    shown = true
+                    env.stdTime = .now
+                }
+            }
         }
         #if os(iOS)
         .sheet(isPresented: $showingUpcoming) {

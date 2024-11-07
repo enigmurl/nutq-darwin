@@ -525,6 +525,7 @@ public class EnvMiniState: ObservableObject, DatastoreManager {
         if !allow_online {
             let res: SchemeHolder? = load_scheme(from: "latest.json")
             schemeHolder = res ?? SchemeHolder(schemes: [])
+            manager.stateControl()
             completion(res)
             return
         }
@@ -544,6 +545,7 @@ public class EnvMiniState: ObservableObject, DatastoreManager {
             }
            
             schemeHolder = res ?? SchemeHolder(schemes: [])
+            manager.stateControl()
             completion(res)
         }
     }

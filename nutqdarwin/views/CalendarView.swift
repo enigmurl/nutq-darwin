@@ -334,9 +334,9 @@ struct CalendarView: View {
     
     let schemes: [ObservedObject<SchemeState>]
     @State var headDate = Date.now
-    @State var refresh = 0
     
     var body: some View {
+        let _ = print("Rerendering calendar")
         GeometryReader { proxy in
             if env.scheme == unionNullUUID {
                 VStack(spacing: 0) {
