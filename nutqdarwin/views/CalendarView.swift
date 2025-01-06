@@ -141,7 +141,7 @@ struct CalendarEvents: View {
             //default height of events and assignments are 1 hour
             let oldEnd = interRunning.last![0].end ?? interRunning.last![0].start! + .hour
             let newStart = group[0].start ?? group[0].end! - .hour
-            if newStart > oldEnd {
+            if newStart >= oldEnd {
                 intersections.append(interRunning)
                 interRunning = [group]
             }
@@ -336,6 +336,7 @@ struct CalendarView: View {
     @State var headDate = Date.now
     
     var body: some View {
+        let _ = print("Rerendering calendar")
         GeometryReader { proxy in
             if env.scheme == unionNullUUID {
                 VStack(spacing: 0) {
