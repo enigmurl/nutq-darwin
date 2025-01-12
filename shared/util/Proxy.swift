@@ -98,6 +98,7 @@ where T: Decodable
     return result
 }
 
+@MainActor
 func sign_in(env: DatastoreManager, username: String, password: String) async -> Bool {
     guard let result: AuthResponse = await base(
         token: nil,
@@ -115,6 +116,7 @@ func sign_in(env: DatastoreManager, username: String, password: String) async ->
     return true
 }
 
+@MainActor
 fileprivate func refresh(env: DatastoreManager) async -> Bool {
     if let exp = env.esotericToken?.refresh_exp, Date.now.timeIntervalSince1970 + auth_buffer > TimeInterval(exp) {
         DispatchQueue.main.async {

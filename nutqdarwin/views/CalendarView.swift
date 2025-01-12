@@ -336,7 +336,6 @@ struct CalendarView: View {
     @State var headDate = Date.now
     
     var body: some View {
-        let _ = print("Rerendering calendar")
         GeometryReader { proxy in
             if env.scheme == unionNullUUID {
                 VStack(spacing: 0) {

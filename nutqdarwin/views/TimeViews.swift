@@ -374,18 +374,20 @@ struct Time: View {
             .monospaced()
             .blueBackground()
             
-            Text("at")
-            
-            HStack(spacing: 0) {
-                //HH
-                self.field(date: date, timeBuffer: timeBuffer, timeComponent: timeComponent, fFocus: 4, comp: .hour)
-                Text(":")
+            if label != "Available" {
+                Text("at")
                 
-                //MM
-                self.field(date: date, timeBuffer: timeBuffer, timeComponent: timeComponent, fFocus: 5, delFocus: -5, comp: .minute)
+                HStack(spacing: 0) {
+                    //HH
+                    self.field(date: date, timeBuffer: timeBuffer, timeComponent: timeComponent, fFocus: 4, comp: .hour)
+                    Text(":")
+                    
+                    //MM
+                    self.field(date: date, timeBuffer: timeBuffer, timeComponent: timeComponent, fFocus: 5, delFocus: -5, comp: .minute)
+                }
+                .monospaced()
+                .blueBackground()
             }
-            .monospaced()
-            .blueBackground()
             
            
             // cant do buttons because of our scuffed hitTest method

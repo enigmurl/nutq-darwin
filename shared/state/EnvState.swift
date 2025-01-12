@@ -558,6 +558,8 @@ public enum MenuAction: CustomStringConvertible {
     
     case toggle
     
+    case toggleAvailableView
+    case disableAvailable
     case toggleStartView
     case disableStart
     case toggleEndView
@@ -594,6 +596,10 @@ public enum MenuAction: CustomStringConvertible {
             return "Toggle Block View"
         case .disableBlock:
             return "Disable Block"
+        case .toggleAvailableView:
+            return "Toggle Available View"
+        case .disableAvailable:
+            return "Disable Available"
         }
     }
 }

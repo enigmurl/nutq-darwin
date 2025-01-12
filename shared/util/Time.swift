@@ -27,12 +27,12 @@ extension TimeInterval {
 
 // a bit redundant, but should be fine
 extension Date {
-    var dateString: String {
+    func dayString(todayString: String = "") -> String {
         let diff = dayDifference(with: .now)
         
         let day: String
         if diff == 0 {
-            day = "" // "Today"
+            day = todayString
         }
         else if diff == 1 {
             day = "Tomorrow"
@@ -44,6 +44,11 @@ extension Date {
             day = dayFormatter.string(from: self)
         }
         
+        return day
+    }
+    
+    var dateString: String {
+        let day = self.dayString()
         let time = hourFormatter.string(from: self)
        
         return day + (day.count == 0 ? "" : " ") + time

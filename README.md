@@ -6,6 +6,11 @@
     - just end is considered an assignment
     - just start is considered a reminder
     - none is considered a procedure (no calendar item, but still may be used for planning purposes)
+
+Also, sometimes we want events that are due in some day
+but to only be shown in upcoming later (rather than right now),
+use command+l to set the 'available' time.
+
 ## Union View
 
 ![Union View](.github/union-view.png)

@@ -175,6 +175,8 @@ struct Nutq: App {
                 }
                
                 Group {
+                    self.commandMenu(menuAction: .toggleAvailableView, key: "l")
+                    self.commandMenu(menuAction: .disableAvailable, key: "l", modifiers: .shift)
                     self.commandMenu(menuAction: .toggleStartView, key: "s")
                     self.commandMenu(menuAction: .disableStart, key: "s", modifiers: .shift)
                     self.commandMenu(menuAction: .toggleEndView, key: "e")

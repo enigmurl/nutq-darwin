@@ -40,6 +40,7 @@ struct SchemeSingularItem: Identifiable {
     public var text: String
     
     public var start: Date?
+    public var available: Date?
     public var end: Date?
     
     public var notificationStart: Date
@@ -118,19 +119,20 @@ public enum SchemeRepeat: Codable, Hashable, CustomStringConvertible {
         }
     }
     
-    public func events(start: Date?, end: Date?) -> [(start: Date?, end: Date?)] {
+    public func events(start: Date?, available: Date?, end: Date?) -> [(start: Date?, available: Date?, end: Date?)] {
         switch(self) {
         case .None:
-            return [(start, end)]
+            return [(start, available, end)]
         case let .Block(block):
             let calendar = Calendar.current
             
-            var ret: [(start: Date?, end: Date?)] = []
+            var ret: [(start: Date?, available: Date?, end: Date?)] = []
             for i in 0 ..< block.blocks {
                 for r in block.remainders {
                     if block.block_unit == .day {
                         let offset = i * block.modulus + r
                         ret.append((start != nil ? calendar.date(byAdding: .day, value: offset, to: start!) : nil,
+                                    available != nil ? calendar.date(byAdding: .day, value: offset, to: available!) : nil,
                                     end != nil ? calendar.date(byAdding: .day, value: offset, to: end!) : nil))
                     }
                     else {
@@ -183,7 +185,7 @@ public final class SchemeItem: ObservableObject, Codable, Hashable, Identifiable
     @Published public var state: [SchemeSingularState] { // 0 = not complete, -1 = finished. Open to intermediate states. Represents states of all events
         didSet { if state != oldValue { dirty = true } }
     }
-    
+
     @Published public var text: String {
         didSet { if text != oldValue { dirty = true } }
     }
@@ -192,6 +194,10 @@ public final class SchemeItem: ObservableObject, Codable, Hashable, Identifiable
         didSet { if start != oldValue { dirty = true } }
     }
     
+    @Published public var available: Date? {
+        didSet { if available != oldValue { dirty = true } }
+    }
+
     @Published public var end: Date? {
         didSet { if end != oldValue { dirty = true } }
     }
@@ -546,7 +552,7 @@ func singularSchemeNotificationDelay(scheme: SchemeItem, index: Int) -> (TimeInt
     return (start_delay + scheme.state[index].delay, end_delay)
 }
 
-fileprivate func convertSingularScheme(scheme_id: UUID, color: Int, path: [String], start: Date?, end: Date?, scheme: Binding<SchemeItem>, index: Int) -> SchemeSingularItem {
+fileprivate func convertSingularScheme(scheme_id: UUID, color: Int, path: [String], start: Date?, available: Date?, end: Date?, scheme: Binding<SchemeItem>, index: Int) -> SchemeSingularItem {
     let wrap = scheme.wrappedValue
   
     let (start_delay, end_delay) = singularSchemeNotificationDelay(scheme: wrap, index: index)
@@ -559,6 +565,7 @@ fileprivate func convertSingularScheme(scheme_id: UUID, color: Int, path: [Strin
         state: scheme.state[index],
         text: wrap.text,
         start: start,
+        available: available,
         end: end,
         notificationStart: Calendar.current.date(bySetting: .second, value: 0, of: (start ?? end ?? .now) + start_delay)!,
         notificationEnd: wrap.state[index].delay == 0 ? end?.addingTimeInterval(end_delay) : nil
@@ -576,13 +583,23 @@ extension Binding<Array<SchemeItem>> {
                 continue
             }
             
-            for (i, (s, e)) in wrap.repeats.events(start: wrap.start, end: wrap.end).enumerated() {
-                let base = convertSingularScheme(scheme_id: scheme_id, color: color, path: path, start: s, end: e, scheme: x, index: i)
-                if base.start != nil && base.start! > start || base.end != nil && base.end! > start {
+            for (i, (s, a, e)) in wrap.repeats.events(start: wrap.start, available: wrap.available, end: wrap.end).enumerated() {
+                let base = convertSingularScheme(scheme_id: scheme_id, color: color, path: path, start: s, available: a, end: e, scheme: x, index: i)
+                if (base.start != nil && base.start! > start || base.end != nil && base.end! > start) &&
+                    (base.available == nil || base.available! < Date.now)
+                {
                     schemes.append(base)
                     break
                 }
-                else if base.state.progress != -1 {
+                else if
+                    (base.state.progress != -1) &&
+                        // available or overdue
+                        ((base.available == nil || base.available! < Date.now) ||
+                         // overdue
+                         (base.end != nil && base.end! < start) ||
+                         (base.start != nil && base.start! < start)
+                         )
+                {
                     schemes.append(base)
                 }
             }
@@ -594,8 +611,8 @@ extension Binding<Array<SchemeItem>> {
         var schemes: [SchemeSingularItem] = []
         for x in self {
             let wrap = x.wrappedValue
-            for (i, (s, e)) in wrap.repeats.events(start: wrap.start, end: wrap.end).enumerated() {
-                let base = convertSingularScheme(scheme_id: scheme_id, color: color, path: path, start: s, end: e, scheme: x, index: i)
+            for (i, (s, a, e)) in wrap.repeats.events(start: wrap.start, available: wrap.available, end: wrap.end).enumerated() {
+                let base = convertSingularScheme(scheme_id: scheme_id, color: color, path: path, start: s, available: a, end: e, scheme: x, index: i)
                 schemes.append(base)
             }
         }
@@ -606,8 +623,8 @@ extension Binding<Array<SchemeItem>> {
         var schemes: [SchemeSingularItem] = []
         for x in self {
             let wrap = x.wrappedValue
-            for (i, (s, e)) in wrap.repeats.events(start: wrap.start, end: wrap.end).enumerated() {
-                let base = convertSingularScheme(scheme_id: scheme_id, color: color, path: path, start: s, end: e, scheme: x, index: i)
+            for (i, (s, a, e)) in wrap.repeats.events(start: wrap.start, available: wrap.available, end: wrap.end).enumerated() {
+                let base = convertSingularScheme(scheme_id: scheme_id, color: color, path: path, start: s, available: a, end: e, scheme: x, index: i)
                 if base.state.progress != -1 {
                     schemes.append(base)
                 }
@@ -624,8 +641,8 @@ extension Binding<Array<SchemeItem>> {
                 continue
             }
             
-            for (i, (s, e)) in wrap.repeats.events(start: wrap.start, end: wrap.end).enumerated() {
-                let base = convertSingularScheme(scheme_id: scheme_id, color: color, path: path, start: s, end: e, scheme: x, index: i)
+            for (i, (s, a, e)) in wrap.repeats.events(start: wrap.start, available: wrap.available, end: wrap.end).enumerated() {
+                let base = convertSingularScheme(scheme_id: scheme_id, color: color, path: path, start: s, available: a, end: e, scheme: x, index: i)
                 if (base.start == nil || end == nil || base.start! < end!) &&
                     (base.end == nil || start == nil || base.end! > start!) {
                     schemes.append(base)

@@ -45,6 +45,10 @@ fileprivate let mainHeight: CGFloat = {
 fileprivate let defaultStartOffset: TimeInterval = 9 * .hour
 fileprivate let defaultEndOffset: TimeInterval = 23 * .hour
 
+fileprivate func standardAvailable(_ start : Date?, _ end: Date?) -> Date {
+    Date.now.startOfDay()
+}
+
 fileprivate func standardStart(_ end: Date?) -> Date {
     if let end = end {
         return end.startOfDay() + defaultStartOffset
@@ -81,6 +85,10 @@ fileprivate func width(for scheme: SchemeItem) -> (NSAttributedString, CGRect) {
         }
     }
     
+    if let available = scheme.available {
+        string += " available \(available.dayString(todayString: "today"))"
+    }
+
     switch scheme.repeats {
     case .None:
         break
@@ -95,6 +103,16 @@ fileprivate func width(for scheme: SchemeItem) -> (NSAttributedString, CGRect) {
         }
     }
     
+    
+    
+    if scheme.start != nil && scheme.end != nil && scheme.start! >= scheme.end! {
+        string += "       WARNING: start is after end"
+    }
+    
+    if scheme.available != nil && (scheme.start ?? scheme.end) != nil && (scheme.start ?? scheme.end)! < scheme.available! {
+        string += "       WARNING: available is after event"
+    }
+
     let nsString = NSAttributedString(string: string, attributes: textAttributes)
     let size = nsString.size()
     let containerWidth = size.width
@@ -111,6 +129,7 @@ fileprivate func width(for scheme: SchemeItem) -> (NSAttributedString, CGRect) {
 enum Popover {
     case start
     case end
+    case available
     case block
 }
 
@@ -882,7 +901,23 @@ extension TreeTextView {
                 
                 self.addPopover(view: view, for: schemeIndex, width: timeWidth, height: 200)
             }
+        case .toggleAvailableView:
+            let initial = scheme.available
+            scheme.available = scheme.available ?? standardAvailable(scheme.start, scheme.end)
             
+            self.popover = self.popover == .start ? nil : .start
+            
+            if self.popover == .start {
+                self.popoverIndex = schemeIndex
+                
+                let binding = projected.available
+                let view = Time(label: "Available", date: binding, state: projected.state, menuState: publisher, callback: self, initial: initial) {
+                    self.popover = nil
+                }
+                
+                self.addPopover(view: view, for: schemeIndex, width: timeWidth, height: 200)
+            }
+        
         case .toggleEndView:
             let initial = scheme.end
             scheme.end = scheme.end ?? standardEnd(scheme.start)
@@ -925,7 +960,13 @@ extension TreeTextView {
             if self.popover == .start {
                 self.popover = nil
             }
-            
+        case .disableAvailable:
+            self.setBinding(projected.available, old: scheme.available, new: nil)
+            scheme.available = nil
+            if self.popover == .start {
+                self.popover = nil
+            }
+
         case .disableEnd:
             self.setBinding(projected.end, old: scheme.end, new: nil)
             if self.popover == .end {
