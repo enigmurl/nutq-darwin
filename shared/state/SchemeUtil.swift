@@ -232,6 +232,7 @@ public final class SchemeItem: ObservableObject, Codable, Hashable, Identifiable
         case state
         case text
         case start
+        case available
         case end
         case repeats
         case indentation
@@ -253,6 +254,7 @@ public final class SchemeItem: ObservableObject, Codable, Hashable, Identifiable
         self.state = try container.decode([SchemeSingularState].self, forKey: .state)
         self.text = try container.decode(String.self, forKey: .text)
         self.start = try container.decode(Optional<Date>.self, forKey: .start)
+        self.available = try container.decode(Optional<Date>.self, forKey: .available)
         self.end = try container.decode(Optional<Date>.self, forKey: .end)
         self.repeats = try container.decode(SchemeRepeat.self, forKey: .repeats)
         self.indentation = try container.decode(Int.self, forKey: .indentation)
@@ -266,6 +268,7 @@ public final class SchemeItem: ObservableObject, Codable, Hashable, Identifiable
         try container.encode(state, forKey: .state)
         try container.encode(text, forKey: .text)
         try container.encode(start, forKey: .start)
+        try container.encode(available, forKey: .available)
         try container.encode(end, forKey: .end)
         try container.encode(repeats, forKey: .repeats)
         try container.encode(indentation, forKey: .indentation)

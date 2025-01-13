@@ -369,11 +369,11 @@ struct Time: View {
                     .padding(.leading, 2)
                 
                 //DD
-                self.field(date: date, timeBuffer: timeBuffer, timeComponent: timeComponent, fFocus: 3, comp: .day)
+                self.field(date: date, timeBuffer: timeBuffer, timeComponent: timeComponent, fFocus: 3, delFocus: label == "Available" ? -3 : 3, comp: .day)
             }
             .monospaced()
             .blueBackground()
-            
+             
             if label != "Available" {
                 Text("at")
                 
