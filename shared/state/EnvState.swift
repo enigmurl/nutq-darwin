@@ -148,7 +148,7 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
     private func listenForClose() async {
         while let message = try? await self.slaveSocket?.receive() {
             if case .string(let string) = message, string == slaveAboutToBeTaken {
-                self.updateUpstream { 
+                await self.updateUpstream {
                     self.slaveSocket?.cancel()
                 }
             }
@@ -202,12 +202,17 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
         return self.env.schemeHolder.updatesSince(lastWrite)
     }
     
+    @MainActor
     func updateUpstream(_ completion: @escaping () -> ()) {
         if self.env.slaveState != .write {
             completion()
             return
         }
         
+        let updates = self.findUpdates()
+        let overview = self.createOverview(old: self.env.schemeHolder)
+        self.saveLocal()
+
         Task.init {
             do {
                 defer { 
@@ -215,22 +220,20 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
                         completion()
                     }
                 }
-                
-                let updates = self.findUpdates()
-                
+               
                 guard updates.count > 0 else {
                     slaveSocket?.sendPing { _ in }
                     return
                 }
                 
-                self.saveLocal()
-                
                 let str = String(data: try! JSONEncoder().encode(updates), encoding: .utf8)!
                 try await self.slaveSocket?.send(URLSessionWebSocketTask.Message.string(str))
               
                 // recreate
-                self.lastWrite = self.createOverview(old: self.env.schemeHolder)
+                self.lastWrite = overview
             } catch let error {
+                self.env.slaveState = .none
+                completion()
                 print("Error:", error)
             }
         }
@@ -290,6 +293,10 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
                         // Handle the error
                         self.env.schemes[i].scheme_list.schemes.insert(SchemeItem(state: [SchemeSingularState()], text:  "ERR_{\(error.localizedDescription)}", repeats: .None, indentation: 0), at: 0)
                         print("Calendar events query error: \(error.localizedDescription)")
+                        return
+                    }
+                    
+                    if self.env.slaveState != .write {
                         return
                     }
                     
@@ -375,7 +382,9 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
     }
     
     func saveFileSystem(_ completion: @escaping () -> ()) {
-        self.updateUpstream(completion)
+        DispatchQueue.main.async {
+            self.updateUpstream(completion)
+        }
     }
     
     func force(_ completion: @escaping () -> ()) {
