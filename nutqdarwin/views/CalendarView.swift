@@ -95,64 +95,162 @@ struct CalendarHeader: View {
     }
 }
 
+
+typealias SchemeChunk = (equalGroups: [[SchemeSingularItem]], showTime: Bool, offset: Double)
+fileprivate let overlapOffset = 15.0
+
 #warning("TODO coordinate compression so we don't always have them in different columns whenever necessary")
 struct CalendarEvents: View {
     // array of intersections
     // each intersection is an array of duplicates (duplicates are same time/same type) events)
     // each duplicate is an array of single iterms
     let day: Date
-    let mergedEvents: [[[SchemeSingularItem]]]
+    var mergedEvents: [[SchemeChunk]]
+    
     let schemes: [SchemeSingularItem]
+    
         
     /* not perfect, but does an ok job usually */
     init(day: Date, schemes: [SchemeSingularItem]) {
         self.day = day
         self.schemes = schemes
         
-        if schemes.count == 0 {
-            mergedEvents = []
-            return
+        self.mergedEvents = []
+        for t in [SchemeType.event, SchemeType.reminder, SchemeType.assignment] {
+            let timeSorted = schemes
+                .filter { $0.schemeType == t }
+                .sorted {
+                    if t == .event {
+                        return $0.start! < $1.start! || $0.start == $1.start && $0.end! < $1.end!
+                    }
+                    else {
+                        let time1 = $0.start ?? $0.end!
+                        let time2 = $1.start ?? $1.end!
+                        return time1 < time2
+                    }
+                }
+            
+            if timeSorted.isEmpty {
+                self.mergedEvents.append([])
+                continue
+            }
+            
+            var partition: [[SchemeSingularItem]] = []
+            var running: [SchemeSingularItem] = [timeSorted[0]]
+            for item in timeSorted.dropFirst() {
+                if item.start != running[0].start || item.end != running[0].end {
+                    partition.append(running)
+                    running = [item]
+                }
+                else {
+                    running.append(item)
+                }
+            }
+            partition.append(running)
+            
+            
+            
+            func convertIntersection(equalGroups: [[SchemeSingularItem]]) -> SchemeChunk {
+                if self.mergedEvents.isEmpty {
+                    return (equalGroups: interRunning, showTime: true, offset: Double(0.0))
+                }
+                
+                let effectiveRange = estimateRange(items: equalGroups, showTime: true, onlyVisual: true)
+                let effectiveClippedRange = estimateRange(items: equalGroups, showTime: false, onlyVisual: true)
+                
+                var showTime = true
+                var offset = 0.0
+                for group in self.mergedEvents {
+                    for chunk in group {
+                        let range = estimateRange(items: chunk.equalGroups, showTime: chunk.showTime, onlyVisual: true)
+                        if effectiveRange.overlaps(range) {
+                            if effectiveClippedRange.overlaps(range) {
+                                offset = max(offset, chunk.offset + overlapOffset)
+                                showTime = false
+                            }
+                            else {
+                                showTime = false
+                            }
+                        }
+                    }
+                }
+                
+                return (equalGroups: interRunning, showTime: showTime, offset: offset)
+            }
+            
+            // first do single merging
+            // then see if any events would intersect, and collapse
+            var intersections: [SchemeChunk] = []
+            var interRunning: [[SchemeSingularItem]] = [partition[0]]
+            for group in partition.dropFirst() {
+                // heuristic height estimate
+                let oldEnd = estimateRange(items: interRunning, showTime: true, onlyVisual: false)
+                    .upperBound
+                
+                let newStart = estimateRange(items: [group], showTime: true, onlyVisual: false).lowerBound
+                if newStart >= oldEnd {
+                    // convert to a scheme chunk
+                    intersections.append(convertIntersection(equalGroups: interRunning))
+                    interRunning = [group]
+                }
+                else {
+                    interRunning.append(group)
+                }
+            }
+            intersections.append(convertIntersection(equalGroups: interRunning))
+            
+            
+            self.mergedEvents.append(intersections)
         }
-        
-        let timeSorted = schemes.sorted(by: {
-            let time1 = $0.start ?? $0.end! - .hour
-            let time2 = $1.start ?? $1.end! - .hour
-            return time1 < time2 || time1 == time2 && $0.schemeType.rawValue < $1.schemeType.rawValue
-        })
-        
-        var partition: [[SchemeSingularItem]] = []
-        var running: [SchemeSingularItem] = [timeSorted[0]]
-        for item in timeSorted.dropFirst() {
-            if item.schemeType != running[0].schemeType || item.start != running[0].start || item.end != running[0].end {
-                partition.append(running)
-                running = [item]
+    }
+    
+    private func estimateRange(items: [[SchemeSingularItem]], showTime: Bool, onlyVisual: Bool) -> Range<Date> {
+        if items[0][0].schemeType == .event {
+            let lower = items.map { $0[0].start! }.min()!
+            var increase = 0.125 * TimeInterval.hour
+            for group in items {
+                if showTime {
+                    increase += 0.3 * TimeInterval.hour
+                }
+                increase += 0.4 * Double(group.count) * .hour
+            }
+            let upper: Date
+            if onlyVisual {
+                upper = lower + increase
             }
             else {
-                running.append(item)
+                upper = max(lower + increase, items.map { $0[0].end! }.max()!)
             }
+            
+            return lower ..< upper
         }
-        partition.append(running)
-        
-        // first do single merging
-        // then see if any events would intersect, and collapse
-        var intersections: [[[SchemeSingularItem]]] = []
-        var interRunning: [[SchemeSingularItem]] = [partition[0]]
-        for group in partition.dropFirst() {
-            //default height of events and assignments are 1 hour
-            let oldEnd = interRunning.last![0].end ?? interRunning.last![0].start! + .hour
-            let newStart = group[0].start ?? group[0].end! - .hour
-            if newStart >= oldEnd {
-                intersections.append(interRunning)
-                interRunning = [group]
+        else if items[0][0].schemeType == .assignment {
+            let upper = items.last![0].end!
+            var decrease = 0.125 * TimeInterval.hour
+            for group in items {
+                if showTime {
+                    decrease += 0.3 * TimeInterval.hour
+                }
+                decrease += 0.4 * Double(group.count) * .hour
             }
-            else {
-                interRunning.append(group)
-            }
+            
+            let lower = upper - decrease
+            return lower ..< upper
         }
-        intersections.append(interRunning)
-        
-        
-        self.mergedEvents = intersections
+        else {
+            /* reminder */
+            let lower = items[0][0].start!
+            var increase = 0.125 * TimeInterval.hour
+            for group in items {
+                if showTime {
+                    increase += 0.3 * TimeInterval.hour
+                }
+                increase += 0.4 * Double(group.count) * .hour
+            }
+            let upper = lower + increase
+            
+            return lower ..< upper
+        }
     }
     
     private func dateString(start: Date?, end: Date?) -> String {
@@ -171,77 +269,122 @@ struct CalendarEvents: View {
         }
     }
     
+    private func chunk(_ chunk: SchemeChunk) -> some View {
+        let head = chunk.equalGroups.first![0]
+        let tail = chunk.equalGroups.last![0]
+        
+        let above: CGFloat = head.start == nil ? 0 : hourHeight * min(23, head.start!.timeIntervalSince(day.startOfDay()) / .hour)
+        let minCurr: CGFloat = head.start == nil || tail.end == nil ? 0 : hourHeight * tail.end!.timeIntervalSince(head.start!) / .hour
+        let below: CGFloat = tail.end == nil ? 0 : hourHeight * min(23, (24.0 - tail.end!.timeIntervalSince(day.startOfDay()) / .hour))
+        
+        let hideTime = head.schemeType == .event && tail.end!.timeIntervalSince(head.start!) <= 30 * TimeInterval.minute || !chunk.showTime
+        
+        var extraLines = 0
+        if head.schemeType == .event {
+            let totalTime = tail.end!.timeIntervalSince(tail.start!)
+            var usingOnes = 0.125 * TimeInterval.hour
+            for group in chunk.equalGroups {
+                if chunk.showTime {
+                    usingOnes += 0.3 * TimeInterval.hour
+                }
+                usingOnes += 0.4 * Double(group.count) * TimeInterval.hour
+            }
+            extraLines = max(0, Int((totalTime - usingOnes) / (0.35 * TimeInterval.hour)))
+        }
+        
+        var lineMap: [Int] = []
+        for group in chunk.equalGroups {
+            lineMap.append(extraLines >= group.count ? 2 : 1)
+            extraLines -= group.count
+        }
+        
+        return VStack(spacing: 0) {
+            ForEach(Array(zip(chunk.equalGroups, lineMap)), id: \.0.first!.id) { (items, lines) in
+                if !hideTime {
+                    Text(self.dateString(start: items[0].start, end: items[0].end))
+                        .font(.caption.monospaced())
+                        .scaleEffect(CGSize(width: 0.8, height: 0.8))
+                        .frame(maxWidth: .infinity, alignment: .top)
+                }
+                
+                ForEach(items, id: \.id) { item in
+                    Text(item.text)
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(colorIndexToColor(item.colorIndex))
+                        .saturation(item.state.progress == -1 ? 0 : 0.7)
+                        .font(Font.system(size: 10).bold())
+                        .padding(.horizontal, 6)
+                        .lineLimit(lines)
+                        .truncationMode(.tail)
+                }
+                .padding(.top, hideTime ? 3 : 0)
+            }
+        }
+        .padding(.top, 3)
+        .padding(.bottom, 5)
+        .frame(maxWidth: .infinity)
+        .background(alignment: .top) {
+            if head.schemeType != .event {
+                if chunk.offset != 0 {
+                    Rectangle()
+                        .foregroundStyle(.ultraThickMaterial.opacity(0.6))
+                        .blur(radius: 4)
+                }
+                else {
+                    Rectangle()
+                        .foregroundStyle(Color.white.opacity(0.1))
+                }
+                
+                GeometryReader { shape in
+                    Path { path in
+                        let w = shape.size.width
+                        let h = shape.size.height
+                        
+                        if head.start != nil {
+                            path.move(to: .zero)
+                            path.addLine(to: CGPoint(x: w, y: 0))
+                        }
+                        else if tail.end != nil {
+                            path.move(to: CGPoint(x: 0, y: h))
+                            path.addLine(to: CGPoint(x: w, y: h))
+                        }
+                    }
+                    .stroke(.white, lineWidth: 1.5)
+                }
+            }
+            else {
+                Group {
+                    RoundedRectangle(cornerRadius: 3)
+                        .foregroundStyle(Color.white.opacity(0.1))
+                    RoundedRectangle(cornerRadius: 3)
+                        .stroke(.white, lineWidth: 1.5)
+                }
+                .padding(2)
+                .frame(minHeight: minCurr)
+            }
+        }
+        .padding(head.start == nil ? .bottom : .top,
+                 max(0, head.start == nil ? below : above))
+        .padding(.leading, chunk.offset)
+        .frame(maxHeight: .infinity, alignment: head.start == nil ? .bottom : .top)
+        
+    }
+    
     var body: some View {
         /* merging protocol
            if different time or different event, then display horizontally
            if same time and same same type of event, then display inline
                 if so, if different colors, display white, otherwise display the same color, works?
          */
-        ForEach(mergedEvents, id: \.first!.first!.id) { intersection in
-            HStack(spacing: 2) {
-                ForEach(intersection, id: \.first!.id) { duplicates in
-                    let head = duplicates[0]
-                    let above: CGFloat = head.start == nil ? 0 : hourHeight * min(23, head.start!.timeIntervalSince(day.startOfDay()) / .hour)
-                    let minCurr: CGFloat = head.start == nil || head.end == nil ? 0 : hourHeight * head.end!.timeIntervalSince(head.start!) / .hour
-                    let effectiveTime = head.start == nil || head.end == nil ? 1: head.end!.timeIntervalSince(head.start!)
-                    let below: CGFloat = head.end == nil ? 0 : hourHeight * min(23, (24.0 - head.end!.timeIntervalSince(day.startOfDay()) / .hour))
-                    
-                    VStack {
-                        Text(self.dateString(start: head.start, end: head.end))
-                            .font(.caption.monospaced())
-                            .padding(.top, 3)
-                            .padding(.leading, 6)
-                            .frame(maxWidth: .infinity, alignment: .topLeading)
-                        
-                        ForEach(duplicates, id: \.id) { item in
-                            /* display */
-                            Text(item.text)
-                                .multilineTextAlignment(.center)
-                                .foregroundStyle(colorIndexToColor(item.colorIndex))
-                                .saturation(item.state.progress == -1 ? 0 : 0.7)
-                                .font(Font.system(size: 12).bold())
-                                .padding(.horizontal, 6)
-                                .lineLimit(effectiveTime > .hour ? 2 : 1)
-                                .truncationMode(.tail)
-                        }
-                    }
-                    .padding(.bottom, 5)
-                    .background(alignment: .top) {
-                        if head.start == nil || head.end == nil {
-                            Rectangle()
-                                .foregroundStyle(.white.opacity(0.2))
-                            GeometryReader { shape in
-                                Path { path in
-                                    let w = shape.size.width
-                                    let h = shape.size.height
-                                    
-                                    if head.start != nil {
-                                        path.move(to: .zero)
-                                        path.addLine(to: CGPoint(x: w, y: 0))
-                                    }
-                                    else if head.end != nil {
-                                        path.move(to: CGPoint(x: 0, y: h))
-                                        path.addLine(to: CGPoint(x: w, y: h))
-                                    }
-                                }
-                                .stroke(.white, lineWidth: 2)
-                            }
-                        }
-                        else {
-                            Group {
-                                RoundedRectangle(cornerRadius: 3)
-                                    .foregroundStyle(.white.opacity(0.2))
-                                RoundedRectangle(cornerRadius: 3)
-                                    .stroke(.white, lineWidth: 2)
-                            }
-                            .padding(2)
-                            .frame(minHeight: minCurr)
-                        }
-                    }
-                    .padding(head.start == nil ? .bottom : .top,
-                             max(0, head.start == nil ? below : above))
-                    .frame(maxHeight: .infinity, alignment: head.start == nil ? .bottom : .top)
-                }
+        Group {
+            ForEach(mergedEvents[0], id: \.equalGroups.first!.first!.id) { intersection in
+                self.chunk(intersection)
+            }
+            ForEach(mergedEvents[1], id: \.equalGroups.first!.first!.id) { intersection in
+                self.chunk(intersection)
+            }
+            ForEach(mergedEvents[2], id: \.equalGroups.first!.first!.id) { intersection in
+                self.chunk(intersection)
             }
         }
     }
@@ -402,17 +545,7 @@ struct CalendarView: View {
     }
     
     private func days(count: Int) -> [Date] {
-        // if 7, do entire week
-        // otherwise do
-        let offset: Int
-        if count == 7 {
-            offset = NSCalendar.current.component(.weekday, from: self.headDate) - 1
-        }
-        else {
-            offset = count / 2
-        }
-        
-        return Array(-offset ..< count - offset).map({self.headDate + Double($0) * TimeInterval.day})
+        return Array(0 ..< count).map({self.headDate + Double($0) * TimeInterval.day})
     }
 }
 
@@ -454,7 +587,7 @@ class MacosSwipeRecognizer: NSView {
                 self.window?.makeFirstResponder(self)
             }
         }
-        else if event.phase == .ended && self.window?.firstResponder == self {
+        else if event.phase == .ended && self.window?.firstResponder == self && start != nil {
             let duration = Date.now.timeIntervalSince(start!)
            
             if duration < 0.2 && abs(cumulativeScroll) > 100 {

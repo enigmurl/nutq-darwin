@@ -32,7 +32,7 @@ protocol DatastoreManager: AnyObject {
 
 fileprivate func save_scheme(_ data: Data, to file: String) {
     do {
-        guard let sharedContainerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.enigmadux.nutqdarwin") else {
+        guard let sharedContainerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "T35KD9JHQ6.group.com.enigmadux.nutqdarwin") else {
             return
         }
         
@@ -46,7 +46,7 @@ fileprivate func save_scheme(_ data: Data, to file: String) {
 }
     
 fileprivate func load_scheme(from file: String) -> SchemeHolder? {
-    guard let sharedContainerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.enigmadux.nutqdarwin") else {
+    guard let sharedContainerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "T35KD9JHQ6.group.com.enigmadux.nutqdarwin") else {
         return nil
     }
     
@@ -234,7 +234,6 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
             } catch let error {
                 self.env.slaveState = .none
                 completion()
-                print("Error:", error)
             }
         }
     }
@@ -421,7 +420,7 @@ public class EnvState: ObservableObject, DatastoreManager {
     @Published var esotericToken: EsotericUser? = nil {
         didSet {
             // save 
-            UserDefaults(suiteName: "group.com.enigmadux.nutqdarwin")?.setValue(try! JSONEncoder().encode(esotericToken), forKey: "esoteric_token")
+            UserDefaults(suiteName: "T35KD9JHQ6.group.com.enigmadux.nutqdarwin")?.setValue(try! JSONEncoder().encode(esotericToken), forKey: "esoteric_token")
         }
     }
     @Published var slaveState = SlaveMode.none
@@ -438,7 +437,7 @@ public class EnvState: ObservableObject, DatastoreManager {
     weak var undoManager: UndoManager?
     
     init() {
-        let raw = UserDefaults(suiteName: "group.com.enigmadux.nutqdarwin")?.data(forKey: "esoteric_token")
+        let raw = UserDefaults(suiteName: "T35KD9JHQ6.group.com.enigmadux.nutqdarwin")?.data(forKey: "esoteric_token")
         esotericToken = raw != nil ? try? JSONDecoder().decode(EsotericUser.self, from: raw!) : nil
         manager = SystemManager(env: self)
         clock = Timer.publish(every: saveRate, on: .main, in: .common)
@@ -447,9 +446,7 @@ public class EnvState: ObservableObject, DatastoreManager {
                 self.stdTime = val // makes it so clock position is not out of data
                 if self.slaveState == .write {
                     self.manager.stateControl()
-                    self.manager.saveFileSystem {
-                        
-                    }
+                    self.manager.saveFileSystem { }
                 }
             }
         
@@ -525,7 +522,7 @@ public class EnvMiniState: ObservableObject, DatastoreManager {
     var manager: SystemManager!
     
     init() {
-        let raw = UserDefaults(suiteName: "group.com.enigmadux.nutqdarwin")?.data(forKey: "esoteric_token")
+        let raw = UserDefaults(suiteName: "T35KD9JHQ6.group.com.enigmadux.nutqdarwin")?.data(forKey: "esoteric_token")
         esotericToken = raw != nil ? try? JSONDecoder().decode(EsotericUser.self, from: raw!) : nil
         manager = SystemManager(env: self)
     }
