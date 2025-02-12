@@ -30,9 +30,15 @@ protocol DatastoreManager: AnyObject {
     var manager: SystemManager! { get set }
 }
 
+#if os(macOS)
+let appGroup = "T35KD9JHQ6.group.com.enigmadux.nutqdarwin"
+#else
+let appGroup = "group.com.enigmadux.nutqdarwin"
+#endif
+
 fileprivate func save_scheme(_ data: Data, to file: String) {
     do {
-        guard let sharedContainerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "T35KD9JHQ6.group.com.enigmadux.nutqdarwin") else {
+        guard let sharedContainerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroup) else {
             return
         }
         
@@ -42,11 +48,11 @@ fileprivate func save_scheme(_ data: Data, to file: String) {
         try FileManager.default.createDirectory(at: jsonDir, withIntermediateDirectories: true, attributes: nil)
         
         try data.write(to: jsonDir.appendingPathComponent(file))
-    } catch { }
+    } catch let err { print("ERROR", err) }
 }
     
 fileprivate func load_scheme(from file: String) -> SchemeHolder? {
-    guard let sharedContainerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "T35KD9JHQ6.group.com.enigmadux.nutqdarwin") else {
+    guard let sharedContainerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroup) else {
         return nil
     }
     
@@ -103,13 +109,14 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
                 break
             }
             else {
-                let localCopy = load_scheme(from: "latest.json")
                 
                 // first iteration it will be null
-                let holder = try? JSONDecoder().decode(SchemeHolder.self, from: str.data(using: .utf8)!)
-                let current = holder ?? SchemeHolder(schemes: [])
-                
                 DispatchQueue.main.async {
+                    let localCopy = load_scheme(from: "latest.json")
+
+                    let holder = try? JSONDecoder().decode(SchemeHolder.self, from: str.data(using: .utf8)!)
+                    let current = holder ?? SchemeHolder(schemes: [])
+                    
                     self.lastWrite = self.createOverview(old: holder)
                  
                     // not even that inefficient since ids are checked first
@@ -230,8 +237,10 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
                 try await self.slaveSocket?.send(URLSessionWebSocketTask.Message.string(str))
               
                 // recreate
-                self.lastWrite = overview
-            } catch let error {
+                DispatchQueue.main.async {
+                    self.lastWrite = overview
+                }
+            } catch  {
                 self.env.slaveState = .none
                 completion()
             }
@@ -278,7 +287,7 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
         service.authorizer = authorizer
         
         let query = GTLRCalendarQuery_EventsList.query(withCalendarId: "primary")
-        query.timeMin = GTLRDateTime(date: Date.now.startOfDay() - TimeInterval.week + TimeInterval.day)
+        query.timeMin = GTLRDateTime(date: Date.now.startOfDay() - TimeInterval.day)
         query.timeMax = GTLRDateTime(date: Date.now.startOfDay() + TimeInterval.week + TimeInterval.day)
         query.singleEvents = true
         query.orderBy = kGTLRCalendarOrderByStartTime
@@ -288,35 +297,53 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
             if scheme.syncs_to_gsync {
                 
                 service.executeQuery(query) { (_, result, error) in
-                    if let error = error {
-                        // Handle the error
-                        self.env.schemes[i].scheme_list.schemes.insert(SchemeItem(state: [SchemeSingularState()], text:  "ERR_{\(error.localizedDescription)}", repeats: .None, indentation: 0), at: 0)
-                        print("Calendar events query error: \(error.localizedDescription)")
-                        return
-                    }
-                    
-                    if self.env.slaveState != .write {
-                        return
-                    }
-                    
-                    self.env.schemes[i].scheme_list.schemes = []
-                    
-                    // Process the events returned in the response
-                    if let events = (result as? GTLRCalendar_Events)?.items {
-                        for (j, event) in events.enumerated() {
-                            guard let start = event.start?.dateTime?.date, let end = event.end?.dateTime?.date else {
-                                continue
+                    DispatchQueue.main.async {
+                        if let error = error {
+                            // Handle the error
+                            self.env.schemes[i].scheme_list.schemes.insert(SchemeItem(state: [SchemeSingularState()], text:  "ERR_{\(error.localizedDescription)}", repeats: .None, indentation: 0), at: 0)
+                            print("Calendar events query error: \(error.localizedDescription)")
+                            return
+                        }
+                        
+                        if self.env.slaveState != .write {
+                            return
+                        }
+                        
+                        struct GCSummary : Hashable {
+                            let text: String
+                            let start: Date
+                            let end: Date
+                        }
+                       
+                        var old_map : [GCSummary:UUID] = [:]
+                        for old in self.env.schemes[i].scheme_list.schemes {
+                            let summary = GCSummary(text: old.text, start: old.start!, end: old.end!)
+                            old_map[summary] = old.id
+                        }
+                        self.env.schemes[i].scheme_list.schemes = []
+                        
+                        // Process the events returned in the response
+                        if let events = (result as? GTLRCalendar_Events)?.items {
+                            for (j, event) in events.enumerated() {
+                                guard let start = event.start?.dateTime?.date, let end = event.end?.dateTime?.date else {
+                                    continue
+                                }
+                                
+                                let summary = GCSummary(text: event.summary ?? "", start: start, end: end)
+                                let old = old_map[summary]
+                                let id = old ?? UUID()
+                                
+                                let finished = Date.now > end ? -1 : 0
+                                let item = SchemeItem(id: id,
+                                                      state: [SchemeSingularState(progress: finished)],
+                                                      text: (event.summary ?? ""),
+                                                      start: start,
+                                                      end: end,
+                                                      repeats: .None,
+                                                      indentation: 0)
+                                
+                                self.env.schemes[i].scheme_list.schemes.insert(item, at: j)
                             }
-                            
-                            let finished = Date.now > end ? -1 : 0
-                            let item = SchemeItem(state: [SchemeSingularState(progress: finished)],
-                                                  text: (event.summary ?? ""),
-                                                  start: start,
-                                                  end: end,
-                                                  repeats: .None,
-                                                  indentation: 0)
-                            
-                            self.env.schemes[i].scheme_list.schemes.insert(item, at: j)
                         }
                     }
                 }
@@ -327,52 +354,89 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
     func notificationControl() {
         // remove all current scheduled notifications
         UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
-        
-        // schedule all new notifications
-        let flat = env.schemes.map { ObservedObject(initialValue: $0) }
-            .flattenEventsInRange(start: .now, end: nil, schemeTypes: [.reminder, .assignment, .event])
-            .sorted(by: { $0.notificationStart < $1.notificationStart })
-   
-        var count = 0
-        for event in flat {
-            if event.notificationStart < .now || event.state.progress == -1 {
-                continue
-            }
-            
-            count += 1
-            if count > 32 {
-                break
-            }
-           
-            let content = UNMutableNotificationContent()
-            content.title = event.text + " [\(event.path[0])]"
-            // duplicate code...
-            var string = ""
-            if let start = event.start {
-                string += start.timeString
-                string += " \u{2192}"
-            }
-            if let end = event.end {
-                if string.count == 0 {
-                    string += "\u{2192} " + end.timeString
+        UNUserNotificationCenter.current().getDeliveredNotifications { notifications in
+            DispatchQueue.main.async {
+                // schedule all new notifications
+                let flat = self.env.schemes.map { ObservedObject(initialValue: $0) }
+                    // start of day so we can cancel null calendar events
+                    .flattenEventsInRange(start: Calendar.current.startOfDay(for: .now), end: nil, schemeTypes: [.reminder, .assignment, .event])
+                    .sorted(by: { $0.notificationStart < $1.notificationStart })
+                
+                struct FullIndex: Hashable {
+                    let scheme_id:UUID
+                    let item_id: UUID
+                    let index: Int
                 }
-                else {
-                    string += " " + end.timeString
+                
+                var completed: Set<FullIndex> = Set()
+                for event in flat {
+                    if event.state.progress == -1 {
+                        completed.insert(FullIndex(scheme_id: event.scheme_id, item_id: event.id.uuid, index: event.id.index))
+                    }
+                }
+                
+                var toDelete: [String] = []
+                for notification in notifications {
+                    guard let scheme_id = UUID(uuidString: notification.request.content.userInfo["scheme_id"] as! String) else {
+                        continue
+                    }
+                    guard let item_id = UUID(uuidString: notification.request.content.userInfo["item_id"] as! String) else {
+                        continue
+                    }
+                    guard let index = Int(notification.request.content.userInfo["index"] as! String) else {
+                        continue
+                    }
+                    
+                    if completed.contains(FullIndex(scheme_id: scheme_id, item_id: item_id, index: index)) {
+                        toDelete.append(notification.request.identifier)
+                    }
+                }
+                
+                UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: toDelete)
+                
+                
+                var count = 0
+                for event in flat {
+                    if event.notificationStart < .now || event.state.progress == -1 {
+                        continue
+                    }
+                    
+                    count += 1
+                    if count > 32 {
+                        break
+                    }
+                    
+                    let content = UNMutableNotificationContent()
+                    content.title = event.text + " [\(event.path[0])]"
+                    // duplicate code...
+                    var string = ""
+                    if let start = event.start {
+                        string += start.timeString
+                        string += " \u{2192}"
+                    }
+                    if let end = event.end {
+                        if string.count == 0 {
+                            string += "\u{2192} " + end.timeString
+                        }
+                        else {
+                            string += " " + end.timeString
+                        }
+                    }
+                    content.body = string
+                    content.categoryIdentifier = "nutq-reminder"
+                    content.sound = .defaultCritical
+                    content.userInfo["scheme_id"] = event.scheme_id.uuidString
+                    content.userInfo["item_id"] = event.id.uuid.uuidString
+                    content.userInfo["index"] = event.id.index.description
+                    
+                    let id = event.id.uuid.uuidString + event.id.index.description
+                    let trigger = UNCalendarNotificationTrigger(dateMatching: Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: event.notificationStart), repeats: false)
+                    let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
+                    
+                    let notificationCenter = UNUserNotificationCenter.current()
+                    notificationCenter.add(request) { err in }
                 }
             }
-            content.body = string
-            content.categoryIdentifier = "nutq-reminder"
-            content.sound = .defaultCritical
-            content.userInfo["scheme_id"] = event.scheme_id.uuidString
-            content.userInfo["item_id"] = event.id.uuid.uuidString
-            content.userInfo["index"] = event.id.index.description
-
-            let id = event.id.uuid.uuidString + event.id.index.description
-            let trigger = UNCalendarNotificationTrigger(dateMatching: Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: event.notificationStart), repeats: false)
-            let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
-            
-            let notificationCenter = UNUserNotificationCenter.current()
-            notificationCenter.add(request) { err in }
         }
     }
     
@@ -408,7 +472,7 @@ enum SlaveMode {
     case write
 }
 
-public class EnvState: ObservableObject, DatastoreManager {
+public final class EnvState: ObservableObject, DatastoreManager {
     static var shared: EnvState!
     
     var clock: AnyCancellable?
@@ -543,16 +607,18 @@ public class EnvMiniState: ObservableObject, DatastoreManager {
                 res = await auth_request(env: self, "/sync/bucket/nutq")
             }
             
-            if res == nil {
-                res = load_scheme(from: "latest.json")
+            DispatchQueue.main.async {
+                if res == nil {
+                    res = load_scheme(from: "latest.json")
+                }
+                else if let data = try? JSONEncoder().encode(res) {
+                    save_scheme(data, to: "latest.json")
+                }
+                
+                self.schemeHolder = res ?? SchemeHolder(schemes: [])
+                self.manager.stateControl()
+                completion(res)
             }
-            else if let data = try? JSONEncoder().encode(res) {
-                save_scheme(data, to: "latest.json")
-            }
-           
-            schemeHolder = res ?? SchemeHolder(schemes: [])
-            manager.stateControl()
-            completion(res)
         }
     }
 }

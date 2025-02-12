@@ -6,7 +6,7 @@
 	<true/>
 	<key>com.apple.security.application-groups</key>
 	<array>
-		<string>$(AppIdentifierPrefix)group.com.enigmadux.nutqdarwin</string>
+		<string>group.com.enigmadux.nutqdarwin</string>
 	</array>
 	<key>com.apple.security.get-task-allow</key>
 	<true/>

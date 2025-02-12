@@ -153,7 +153,7 @@
 		B434A5E22A23D91B001D81E8 /* NutqContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NutqContentView.swift; sourceTree = "<group>"; };
 		B434A5E42A23D91D001D81E8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B434A5E72A23D91D001D81E8 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
-		B434A5E92A23D91D001D81E8 /* nutqdarwin.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = nutqdarwin.entitlements; sourceTree = "<group>"; };
+		B434A5E92A23D91D001D81E8 /* nutqdarwin-macos.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "nutqdarwin-macos.entitlements"; sourceTree = "<group>"; };
 		B44F47A02A55084E008C8899 /* Nut Q Widget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Nut Q Widget.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B44F47A22A55084E008C8899 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		B44F47A42A55084E008C8899 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
@@ -180,6 +180,7 @@
 		B47F3ED52A9BCEFB00D3CC09 /* TreeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TreeView.swift; sourceTree = "<group>"; };
 		B49946E22A998F30006783E6 /* Auth.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Auth.swift; sourceTree = "<group>"; };
 		B49946E52A99A7A0006783E6 /* Proxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Proxy.swift; sourceTree = "<group>"; };
+		B4A3C9C32D5AD45300BB6809 /* nutqdarwin-ios.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "nutqdarwin-ios.entitlements"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -325,7 +326,8 @@
 				B4754EDF2A3A3A1A00FB26C0 /* Info.plist */,
 				B4701FA12ABD08D30043FB2E /* .gitignore */,
 				B434A5E42A23D91D001D81E8 /* Assets.xcassets */,
-				B434A5E92A23D91D001D81E8 /* nutqdarwin.entitlements */,
+				B434A5E92A23D91D001D81E8 /* nutqdarwin-macos.entitlements */,
+				B4A3C9C32D5AD45300BB6809 /* nutqdarwin-ios.entitlements */,
 				B434A5E62A23D91D001D81E8 /* Preview Content */,
 			);
 			path = nutqdarwin;
@@ -776,7 +778,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = nutqdarwin/nutqdarwin.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "nutqdarwin/nutqdarwin-macos.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -814,7 +816,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = nutqdarwin/nutqdarwin.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "nutqdarwin/nutqdarwin-macos.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -977,7 +979,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon (iOS)";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = nutqdarwin/nutqdarwin.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "nutqdarwin/nutqdarwin-ios.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -1017,7 +1019,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon (iOS)";
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = nutqdarwin/nutqdarwin.entitlements;
+				CODE_SIGN_ENTITLEMENTS = "nutqdarwin/nutqdarwin-ios.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;

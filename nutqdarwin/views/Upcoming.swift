@@ -12,6 +12,10 @@ struct UpcomingAssignment: View {
     @EnvironmentObject var env: EnvState
     let item: SchemeSingularItem
     
+    var animation: Animation {
+        .easeOut(duration: 0.25)
+    }
+    
     var color: Color {
         if (item.state.progress == -1) {
             return .gray
@@ -53,7 +57,9 @@ struct UpcomingAssignment: View {
         Text(self.item.path.joined(separator: "\u{00bb}"))
             .font(.caption2)
             .bold()
-            .foregroundStyle(color)
+            .animation(self.animation) {
+                $0.foregroundStyle(color)
+            }
     }
     
     var body: some View {
@@ -64,9 +70,11 @@ struct UpcomingAssignment: View {
         HStack {
             Rectangle()
                 .frame(maxWidth: 1.5, maxHeight: .infinity)
-                .foregroundStyle(color)
+                .animation(self.animation) {
+                    $0.foregroundStyle(color)
+                }
                 .saturation(0.4)
-        
+            
             VStack(alignment: .leading) {
                 self.path
                     .saturation(0.4)
@@ -83,36 +91,50 @@ struct UpcomingAssignment: View {
         }
         .contentShape(Rectangle())
         .allowsHitTesting(true)
-        .frame(maxWidth: .infinity, minHeight: 35, alignment: .leading)
-       
-        .grayscale(self.item.state.progress == -1 ? 1 : 0)
-        .opacity(self.item.state.progress == -1 ? 0.3 : 1)
-        .strikethrough(self.item.state.progress == -1, color: .red)
-     
         .onTapGesture {
             self.switchState()
         }
-        
+        .frame(maxWidth: .infinity, minHeight: 35, alignment: .leading)
+        .animation(self.animation) {
+            $0.grayscale(self.item.state.progress == -1 ? 1 : 0)
+              .opacity(self.item.state.progress == -1 ? 0.3 : 1)
+        }
         .tag(item.id)
     }
     
     func switchState() {
-//        withAnimation {
         if (self.item.state.progress != -1) {
             self.item.state.progress = -1
         }
         else {
             self.item.state.progress = 0
         }
-//        }
+    }
+}
+
+class RefreshController: ObservableObject {
+    @Published var refreshTrigger = 0
+    private var debounceTask: Task<Void, Never>?
+
+    func scheduleRefresh() {
+        debounceTask?.cancel()
+        debounceTask = Task {
+            try? await Task.sleep(nanoseconds: 100_000)
+            await MainActor.run {
+                self.refreshTrigger += 1
+            }
+        }
     }
 }
 
 struct Upcoming: View {
+    @State var assignmentSchemesIndices: [SchemeSingularItem.IDPath: Int] = [:]
+    @State var reminderSchemesIndices: [SchemeSingularItem.IDPath: Int] = [:]
+    @State var upcomingSchemesIndices: [SchemeSingularItem.IDPath: Int] = [:]
     @State var assignmentSchemes: [SchemeSingularItem] = []
     @State var reminderSchemes: [SchemeSingularItem] = []
     @State var upcomingSchemes: [SchemeSingularItem] = []
-    @State var refresh = 0
+    @StateObject var refreshController = RefreshController()
     
     let schemes: [ObservedObject<SchemeState>]
     
@@ -167,64 +189,80 @@ struct Upcoming: View {
         #endif
         .padding(.vertical, 8)
         .onAppear {
-            self.recomp(animation: false)
+            self.assignmentSchemesIndices = [:]
+            self.upcomingSchemesIndices = [:]
+            self.reminderSchemesIndices = [:]
+            
+            self.actuallyRecomp()
         }
         .onChange(of: schemes.map {$0.wrappedValue}) {
-            self.refresh += 1
+            self.refreshController.scheduleRefresh()
         }
         // names and colors
         .onReceive(Publishers.MergeMany(schemes.map { $0.wrappedValue.objectWillChange })) { _ in
-            self.refresh += 1
+            self.refreshController.scheduleRefresh()
         }
         // adds or removes
         .onReceive(Publishers.MergeMany(schemes.map { $0.wrappedValue.scheme_list.objectWillChange })) { _ in
-            self.refresh += 1
+            self.refreshController.scheduleRefresh()
         }
         // individual schemes
         .onReceive(Publishers.MergeMany(
             schemes.map { $0.wrappedValue.scheme_list.schemes.map { $0.objectWillChange } }.joined()
         )) { _ in
-            self.refresh += 1
+            self.refreshController.scheduleRefresh()
         }
-        .onChange(of: self.refresh) { _, new in
-            self.recomp(animation: true)
-        }
-    }
-    
-    func recomp(animation: Bool) {
-        if animation {
-            withAnimation {
+        .onChange(of: refreshController.refreshTrigger) { _, _ in
+            withAnimation(.easeInOut(duration: 0.2)) {
                 self.actuallyRecomp()
             }
-        }
-        else {
-            self.actuallyRecomp()
-        }
+         }
     }
     
     func actuallyRecomp() {
+        // theres some swiftui bug with animation
+        // so im just making it keep its order as much as possible
+        func compare(_ u: SchemeSingularItem, _ v: SchemeSingularItem, _ index: [SchemeSingularItem.IDPath: Int]) -> Bool {
+            let ui = index[u.id] ?? Int.max
+            let vi = index[v.id] ?? Int.max
+            
+            if ui != vi {
+                return ui < vi
+            }
+            
+            return
+                u.state.progress != -1 && v.state.progress == -1 || (u.state.progress != -1) == (v.state.progress != -1) &&
+                (u.end ?? u.start)! < (v.end ?? v.start)!
+        }
+        
         let calendar = NSCalendar.current
         let mainSchemes = schemes.flattenToUpcomingSchemes(start: calendar.startOfDay(for: .now))
         
         self.assignmentSchemes = mainSchemes
             .filter({$0.start == nil && $0.end != nil})
-            .sorted(by: {
-                $0.state.progress != -1 && $1.state.progress == -1 || ($0.state.progress != -1) == ($1.state.progress != -1) &&
-                $0.end! < $1.end!
-            })
+            .sorted { compare($0, $1, self.assignmentSchemesIndices) }
+        
+        self.assignmentSchemesIndices = [:]
+        for (i, a) in self.assignmentSchemes.enumerated() {
+            self.assignmentSchemesIndices[a.id] = i
+        }
         
         self.reminderSchemes = mainSchemes
             .filter({$0.start != nil && $0.end == nil})
-            .sorted(by: {
-                $0.state.progress != -1 && $1.state.progress == -1 || ($0.state.progress != -1) == ($1.state.progress != -1) &&
-                $0.start! < $1.start!
-            })
+            .sorted { compare($0, $1, self.reminderSchemesIndices) }
         
+        self.reminderSchemesIndices = [:]
+        for (i, a) in self.reminderSchemes.enumerated() {
+            self.reminderSchemesIndices[a.id] = i
+        }
+
         self.upcomingSchemes = mainSchemes
             .filter({$0.start != nil && $0.end != nil && $0.end!.dayDifference(with: .now) == 0})
-            .sorted(by: {
-                $0.state.progress != -1 && $1.state.progress == -1 || ($0.state.progress != -1) == ($1.state.progress != -1) &&
-                $0.start! < $1.start!
-            })
+            .sorted { compare($0, $1, self.upcomingSchemesIndices) }
+
+        self.upcomingSchemesIndices = [:]
+        for (i, a) in self.upcomingSchemes.enumerated() {
+            self.upcomingSchemesIndices[a.id] = i
+        }
     }
 }

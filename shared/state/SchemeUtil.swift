@@ -571,7 +571,7 @@ fileprivate func convertSingularScheme(scheme_id: UUID, color: Int, path: [Strin
         available: available,
         end: end,
         notificationStart: Calendar.current.date(bySetting: .second, value: 0, of: (start ?? end ?? .now) + start_delay)!,
-        notificationEnd: wrap.state[index].delay == 0 ? end?.addingTimeInterval(end_delay) : nil
+        notificationEnd: start != nil && wrap.state[index].delay == 0 ? end?.addingTimeInterval(end_delay) : nil
     )
 }
 
@@ -646,8 +646,8 @@ extension Binding<Array<SchemeItem>> {
             
             for (i, (s, a, e)) in wrap.repeats.events(start: wrap.start, available: wrap.available, end: wrap.end).enumerated() {
                 let base = convertSingularScheme(scheme_id: scheme_id, color: color, path: path, start: s, available: a, end: e, scheme: x, index: i)
-                if (base.start == nil || end == nil || base.start! < end!) &&
-                    (base.end == nil || start == nil || base.end! > start!) {
+                if (base.start ?? base.end) != nil && (end == nil || (base.start ?? base.end)! < end!) &&
+                    (start == nil || (base.end ?? base.start)! > start!) {
                     schemes.append(base)
                 }
             }

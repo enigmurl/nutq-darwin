@@ -98,6 +98,9 @@ struct CalendarHeader: View {
 
 typealias SchemeChunk = (equalGroups: [[SchemeSingularItem]], showTime: Bool, offset: Double)
 fileprivate let overlapOffset = 15.0
+fileprivate let baseHeightHours = 0.125
+fileprivate let runLineHours = 0.4
+fileprivate let timeHeaderHours = 0.3
 
 #warning("TODO coordinate compression so we don't always have them in different columns whenever necessary")
 struct CalendarEvents: View {
@@ -205,15 +208,18 @@ struct CalendarEvents: View {
     }
     
     private func estimateRange(items: [[SchemeSingularItem]], showTime: Bool, onlyVisual: Bool) -> Range<Date> {
+        
+        var increase = baseHeightHours * TimeInterval.hour
+        for group in items {
+            if showTime {
+                increase += timeHeaderHours * TimeInterval.hour
+            }
+            increase += runLineHours * Double(group.count) * .hour
+        }
+        
         if items[0][0].schemeType == .event {
             let lower = items.map { $0[0].start! }.min()!
-            var increase = 0.125 * TimeInterval.hour
-            for group in items {
-                if showTime {
-                    increase += 0.3 * TimeInterval.hour
-                }
-                increase += 0.4 * Double(group.count) * .hour
-            }
+            
             let upper: Date
             if onlyVisual {
                 upper = lower + increase
@@ -226,27 +232,13 @@ struct CalendarEvents: View {
         }
         else if items[0][0].schemeType == .assignment {
             let upper = items.last![0].end!
-            var decrease = 0.125 * TimeInterval.hour
-            for group in items {
-                if showTime {
-                    decrease += 0.3 * TimeInterval.hour
-                }
-                decrease += 0.4 * Double(group.count) * .hour
-            }
-            
-            let lower = upper - decrease
+
+            let lower = upper - increase
             return lower ..< upper
         }
         else {
             /* reminder */
             let lower = items[0][0].start!
-            var increase = 0.125 * TimeInterval.hour
-            for group in items {
-                if showTime {
-                    increase += 0.3 * TimeInterval.hour
-                }
-                increase += 0.4 * Double(group.count) * .hour
-            }
             let upper = lower + increase
             
             return lower ..< upper
@@ -282,14 +274,14 @@ struct CalendarEvents: View {
         var extraLines = 0
         if head.schemeType == .event {
             let totalTime = tail.end!.timeIntervalSince(tail.start!)
-            var usingOnes = 0.125 * TimeInterval.hour
+            var usingOnes = baseHeightHours * TimeInterval.hour
             for group in chunk.equalGroups {
                 if chunk.showTime {
-                    usingOnes += 0.3 * TimeInterval.hour
+                    usingOnes += timeHeaderHours * TimeInterval.hour
                 }
-                usingOnes += 0.4 * Double(group.count) * TimeInterval.hour
+                usingOnes += runLineHours * Double(group.count) * TimeInterval.hour
             }
-            extraLines = max(0, Int((totalTime - usingOnes) / (0.35 * TimeInterval.hour)))
+            extraLines = max(0, Int((totalTime - usingOnes) / (runLineHours * 0.95 * TimeInterval.hour)))
         }
         
         var lineMap: [Int] = []
@@ -450,6 +442,12 @@ struct CalendarDay: View {
                 .padding(.horizontal, 1)
         }
         .padding(.top, timeLegendYOffset)
+        .background {
+            if self.isWeekend {
+                Color.gray.opacity(0.1)
+                    .frame(maxHeight: .infinity, alignment: .top)
+            }
+        }
         .overlay(
             Color.blue.opacity(completedDateOpacity)
                 .frame(height: filledPixels, alignment: .top)
@@ -495,7 +493,7 @@ struct CalendarView: View {
                                 
                                 ForEach(days, id: \.self) { day in
                                     Divider()
-                                    CalendarDay(day: day, schemes: schemes, isActive: false, isWeekend: true)
+                                    CalendarDay(day: day, schemes: schemes, isActive: false, isWeekend: Calendar.current.isDateInWeekend(day))
                                 }
                             }
                         }
