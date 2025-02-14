@@ -484,7 +484,7 @@ public final class EnvState: ObservableObject, DatastoreManager {
     @Published var esotericToken: EsotericUser? = nil {
         didSet {
             // save 
-            UserDefaults(suiteName: "T35KD9JHQ6.group.com.enigmadux.nutqdarwin")?.setValue(try! JSONEncoder().encode(esotericToken), forKey: "esoteric_token")
+            UserDefaults(suiteName: appGroup)?.setValue(try! JSONEncoder().encode(esotericToken), forKey: "esoteric_token")
         }
     }
     @Published var slaveState = SlaveMode.none
@@ -501,7 +501,7 @@ public final class EnvState: ObservableObject, DatastoreManager {
     weak var undoManager: UndoManager?
     
     init() {
-        let raw = UserDefaults(suiteName: "T35KD9JHQ6.group.com.enigmadux.nutqdarwin")?.data(forKey: "esoteric_token")
+        let raw = UserDefaults(suiteName: appGroup)?.data(forKey: "esoteric_token")
         esotericToken = raw != nil ? try? JSONDecoder().decode(EsotericUser.self, from: raw!) : nil
         manager = SystemManager(env: self)
         clock = Timer.publish(every: saveRate, on: .main, in: .common)
@@ -586,7 +586,7 @@ public class EnvMiniState: ObservableObject, DatastoreManager {
     var manager: SystemManager!
     
     init() {
-        let raw = UserDefaults(suiteName: "T35KD9JHQ6.group.com.enigmadux.nutqdarwin")?.data(forKey: "esoteric_token")
+        let raw = UserDefaults(suiteName: appGroup)?.data(forKey: "esoteric_token")
         esotericToken = raw != nil ? try? JSONDecoder().decode(EsotericUser.self, from: raw!) : nil
         manager = SystemManager(env: self)
     }

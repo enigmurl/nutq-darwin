@@ -9,12 +9,8 @@ import WidgetKit
 import SwiftUI
 import Intents
 
-fileprivate let refetchRate: Float = 0.05
-#if DEBUG
-fileprivate let updatePeriod: TimeInterval = .minute
-#else
+fileprivate let refetchRate: Float = 0.1
 fileprivate let updatePeriod = 15 * TimeInterval.minute
-#endif
 
 struct Provider: IntentTimelineProvider {
     

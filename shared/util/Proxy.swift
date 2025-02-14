@@ -117,7 +117,7 @@ func sign_in(env: DatastoreManager, username: String, password: String) async ->
 
 fileprivate func refresh(env: DatastoreManager) async -> Bool {
     if let exp = env.esotericToken?.refresh_exp, Date.now.timeIntervalSince1970 + auth_buffer > TimeInterval(exp) {
-        DispatchQueue.main.async {
+        DispatchQueue.main.sync {
             env.esotericToken = nil
         }
         return false
