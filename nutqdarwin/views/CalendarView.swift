@@ -263,7 +263,7 @@ struct CalendarEvents: View {
     
     private func chunk(_ chunk: SchemeChunk) -> some View {
         let head = chunk.equalGroups.first![0]
-        let tail = chunk.equalGroups.last![0]
+        let tail = chunk.equalGroups.max(by: { ($0[0].end ?? $0[0].start)! < ($1[0].end ?? $1[0].start)!})![0]
         
         let above: CGFloat = head.start == nil ? 0 : hourHeight * min(23, head.start!.timeIntervalSince(day.startOfDay()) / .hour)
         let minCurr: CGFloat = head.start == nil || tail.end == nil ? 0 : hourHeight * tail.end!.timeIntervalSince(head.start!) / .hour

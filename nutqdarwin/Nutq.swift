@@ -84,11 +84,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate {
 
 extension AppDelegate {
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-        if let token = fcmToken {
-            Task.init {
-                await auth_void_request(env: env, "/sync/device/\(token)", method: "POST")
-            }
-        }
+//        if let token = fcmToken {
+//            Task.init {
+//                await auth_void_request(env: env, "/sync/device/\(token)", method: "POST")
+//            }
+//        }
     }
     
     func refresh() {
@@ -139,6 +139,7 @@ struct Nutq: App {
     var body: some Scene {
         WindowGroup {
             NutqContentView()
+                .preferredColorScheme(.dark)
                 .environmentObject(env)
                 .environmentObject(commandDispatcher)
                 .onAppear {
@@ -195,15 +196,15 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         center.requestAuthorization(options: [.alert, .sound, .badge]) { (_, _) in }
         center.delegate = self
         
-        let complete = UNNotificationAction(identifier: "complete", title: "Complete", options: [.foreground])
-        let remind15Minute = UNNotificationAction(identifier: "remind-0", title: "Remind in 10 minutes", options: [])
-        let remindOneHour = UNNotificationAction(identifier: "remind-1", title: "Remind in 60 minutes", options: [])
-        let remindNight = UNNotificationAction(identifier: "remind-2", title: "Remind me tonight", options: [.destructive])
-        let remindTomorrowMorning = UNNotificationAction(identifier: "remind-3", title: "Remind me tomorrow morning", options: [])
-        let remindTomorrow = UNNotificationAction(identifier: "remind-4", title: "Remind in 24 hours", options: [])
-        let remindWeek = UNNotificationAction(identifier: "remind-5", title: "Remind in 7 days", options: [])
-        
-        let main = UNNotificationCategory(identifier: "nutq-reminder", actions: [complete, remind15Minute, remindOneHour, remindNight, remindTomorrowMorning, remindTomorrow, remindWeek], intentIdentifiers: [], options: [.hiddenPreviewsShowSubtitle, .hiddenPreviewsShowTitle])
+//        let complete = UNNotificationAction(identifier: "complete", title: "Complete", options: [.foreground])
+//        let remind15Minute = UNNotificationAction(identifier: "remind-0", title: "Remind in 10 minutes", options: [])
+//        let remindOneHour = UNNotificationAction(identifier: "remind-1", title: "Remind in 60 minutes", options: [])
+//        let remindNight = UNNotificationAction(identifier: "remind-2", title: "Remind me tonight", options: [.destructive])
+//        let remindTomorrowMorning = UNNotificationAction(identifier: "remind-3", title: "Remind me tomorrow morning", options: [])
+//        let remindTomorrow = UNNotificationAction(identifier: "remind-4", title: "Remind in 24 hours", options: [])
+//        let remindWeek = UNNotificationAction(identifier: "remind-5", title: "Remind in 7 days", options: [])
+//        
+        let main = UNNotificationCategory(identifier: "nutq-reminder", actions: [], intentIdentifiers: [], options: [.hiddenPreviewsShowSubtitle, .hiddenPreviewsShowTitle])
         UNUserNotificationCenter.current().setNotificationCategories([main])
     }
     
@@ -235,64 +236,6 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
-        let user_info = response.notification.request.content.userInfo
-        
-        guard let scheme_id_ = user_info["scheme_id"] as? String,
-              let item_id_   = user_info["item_id"] as? String,
-              let index_     = user_info["index"] as? String else {
-            return
-        }
-        
-        let env = EnvMiniState()
-        
-        let index = Int(index_, radix: 10)!
-        let scheme_id = UUID(uuidString: scheme_id_)!
-        let item_id = UUID(uuidString: item_id_)!
-       
-        let command: String
-        let arg_path = "\(scheme_id)/\(item_id)/\(index)"
-        let body: Data?
-        
-        if response.actionIdentifier == "complete" {
-            command = "/sync/nutq/complete/"
-            body = nil
-        }
-        else {
-            command = "/sync/nutq/delay/"
-            
-            let time: TimeInterval
-            if response.actionIdentifier == "remind-0" {
-                time = .minute * 10
-            }
-            else if response.actionIdentifier == "remind-1" {
-                time = .minute * 60
-            }
-            else if response.actionIdentifier == "remind-2" {
-                // tonight
-                time = max(.minute, Date.now.distance(to: Calendar.current.date(bySettingHour: 18, minute: 0, second: 0, of: .now) ?? .now))
-            }
-            else if response.actionIdentifier == "remind-3" {
-                // tomorrow morning
-                time = max(.minute, Date.now.distance(to: Calendar.current.date(bySettingHour: 8, minute: 0, second: 0, of: .now + .day) ?? .now))
-            }
-            else if response.actionIdentifier == "remind-4" {
-                time = .day
-            }
-            else if response.actionIdentifier == "remind-5" {
-                time = .week
-            }
-            else {
-                return
-            }
-           
-            body = try? JSONEncoder().encode(DateHolder(dispatch_time: .now + time))
-        }
-       
-        let success = await auth_void_request(env: env, command + arg_path, body: body, method: "PUT")
-        
-        if !success {
-            spawnErrorNotification(command)
-        }
     }
     
     func spawnErrorNotification(_ path: String) {

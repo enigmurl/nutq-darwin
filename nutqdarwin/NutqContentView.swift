@@ -14,29 +14,29 @@ struct NutqContentView: View {
     
     var body: some View {
         Group {
-            if env.esotericToken == nil {
-                Auth()
-            }
-            else if case .none = env.slaveState {
-                VStack {
-                    Text("Slave not claimed")
-                    Button("Steal Slave") {
-                        env.stealSlave()
-                    }
-                }
-            }
-            else if case .loading = env.slaveState {
-                VStack {
-                    Text("Loading")
-                    ProgressView()
-                }
-            }
-            else {
+//            if env.esotericToken == nil {
+//                Auth()
+//            }
+//            else if case .none = env.slaveState {
+//                VStack {
+//                    Text("Slave not claimed")
+//                    Button("Steal Slave") {
+//                        env.stealSlave()
+//                    }
+//                }
+//            }
+//            else if case .loading = env.slaveState {
+//                VStack {
+//                    Text("Loading")
+//                    ProgressView()
+//                }
+//            }
+//            else {
                 NavigationView {
                     Sidebar()
                     Union()
                 }
-            }
+//            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .environmentObject(env)

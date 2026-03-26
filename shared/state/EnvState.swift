@@ -23,7 +23,6 @@ fileprivate let saveRate: TimeInterval = 7
 fileprivate let gsyncInterval = 30 * TimeInterval.minute
 
 protocol DatastoreManager: AnyObject {
-    var esotericToken: EsotericUser? { get set }
     var schemes: [SchemeState] { get set }
     var slaveState: SlaveMode { get set }
     var schemeHolder: SchemeHolder { get set }
@@ -39,6 +38,7 @@ let appGroup = "group.com.enigmadux.nutqdarwin"
 fileprivate func save_scheme(_ data: Data, to file: String) {
     do {
         guard let sharedContainerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroup) else {
+            print("FAIL TO FIND URL")
             return
         }
         
@@ -66,121 +66,17 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
     unowned var env: DatastoreManager
     var lastSave = Date.distantPast
     var lastWrite: [SchemeStateMeta]? = nil
-    var slaveSocket: URLSessionWebSocketTask? = nil
     
     init(env: DatastoreManager) {
         self.env = env
-    }
-    
-    func acquireSlave() async {
-        guard let token = await updated_token(env: env), let url = URL(string: ws_url_base() + "/sync/slave/nutq") else {
-            return
-        }
-        
-        var request = URLRequest(url: url)
-        request.setValue("Bearer " + token, forHTTPHeaderField: "Authorization")
-        
-        let session = URLSession(configuration: .default, delegate: self, delegateQueue: OperationQueue())
-        
-        slaveSocket?.cancel()
-        
-        slaveSocket = session.webSocketTask(with: request)
-        slaveSocket?.resume()
-        
-        DispatchQueue.main.async {
-            self.env.slaveState = .loading
-        }
-        
-        // receive initial data block, ensuring that the connection is not in conflict
-        guard let res = try? await slaveSocket?.receive() else {
-            self.slaveSocket = nil
-            DispatchQueue.main.async {
-                self.env.slaveState = .none
-            }
-            
-            return
-        }
-        
-        switch res {
-        case .data(_):
-            break
-        case let .string(str):
-            if str == takenSlave {
-                break
-            }
-            else {
-                
-                // first iteration it will be null
-                DispatchQueue.main.async {
-                    let localCopy = load_scheme(from: "latest.json")
-
-                    let holder = try? JSONDecoder().decode(SchemeHolder.self, from: str.data(using: .utf8)!)
-                    let current = holder ?? SchemeHolder(schemes: [])
-                    
-                    self.lastWrite = self.createOverview(old: holder)
-                 
-                    // not even that inefficient since ids are checked first
-                    for scheme in current.schemes {
-                        if !(localCopy?.schemes ?? []).contains(where: scheme.deepEquals(_:)) {
-                            scheme.remoteUpdated = !scheme.syncs_to_gsync
-                        }
-                    }
-                    
-                    self.env.slaveState = .write
-                    self.env.schemeHolder = current
-                    self.saveLocal()
-                }
-                
-                await self.listenForClose()
-                
-                return
-            }
-        @unknown default:
-            break
-        }
-      
-        DispatchQueue.main.async {
-            self.slaveSocket = nil
-            self.env.slaveState = .none
+        if let localCopy = load_scheme(from: "latest.json") {
+            self.env.schemeHolder = localCopy;
         }
     }
     
-    func urlSession(_ session: URLSession, webSocketTask: URLSessionWebSocketTask, didCloseWith closeCode: URLSessionWebSocketTask.CloseCode, reason: Data?) {
-        DispatchQueue.main.async {
-            self.slaveSocket = nil
-            self.env.slaveState = .none
-        }
-    }
+    private func listenForClose() async { }
     
-    private func listenForClose() async {
-        while let message = try? await self.slaveSocket?.receive() {
-            if case .string(let string) = message, string == slaveAboutToBeTaken {
-                await self.updateUpstream {
-                    self.slaveSocket?.cancel()
-                }
-            }
-        }
-        
-        DispatchQueue.main.async {
-            self.slaveSocket = nil
-            self.env.slaveState = .none
-        }
-    }
-    
-    func stealSlave() {
-        guard self.env.slaveState == .none else {
-            return
-        }
-        
-        self.env.slaveState = .loading
-
-        Task.init {
-            let _ = await auth_void_request(env: self.env, "/sync/steal/nutq", method: "DELETE")
-            
-            // try acquiring (even if above fails), generally doesn't hurt
-            await self.acquireSlave()
-        }
-    }
+    func stealSlave() { }
     
     func createOverview(old: SchemeHolder?) -> [SchemeStateMeta]? {
         guard let old = old else {
@@ -211,58 +107,28 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
     
     @MainActor
     func updateUpstream(_ completion: @escaping () -> ()) {
-        if self.env.slaveState != .write {
-            completion()
-            return
-        }
-        
-        let updates = self.findUpdates()
-        let overview = self.createOverview(old: self.env.schemeHolder)
         self.saveLocal()
-
-        Task.init {
-            do {
-                defer { 
-                    DispatchQueue.main.async {
-                        completion()
-                    }
-                }
-               
-                guard updates.count > 0 else {
-                    slaveSocket?.sendPing { _ in }
-                    return
-                }
-                
-                let str = String(data: try! JSONEncoder().encode(updates), encoding: .utf8)!
-                try await self.slaveSocket?.send(URLSessionWebSocketTask.Message.string(str))
-              
-                // recreate
-                DispatchQueue.main.async {
-                    self.lastWrite = overview
-                }
-            } catch  {
-                self.env.slaveState = .none
-                completion()
-            }
-        }
+        completion()
     }
     
     func saveLocal() {
         guard let total = try? JSONEncoder().encode(self.env.schemeHolder) else {
             return
         }
+        
+        let delta = self.findUpdates()
        
         let dayOfWeek = Calendar.current.component(.weekday, from: .now) - 1
         
         save_scheme(total, to: "\(daysOfWeek[dayOfWeek]).json")
         save_scheme(total, to: "latest.json")
+        
+        self.lastWrite = self.createOverview(old: self.env.schemeHolder)
+        
     }
     
     
     func closeSlave() {
-        Task.init {
-            await auth_void_request(env: self.env, "/sync/steal/nutq", method: "DELETE")
-        }
     }
     
     func stateControl() {
@@ -317,8 +183,10 @@ class SystemManager: NSObject, URLSessionWebSocketDelegate {
                        
                         var old_map : [GCSummary:UUID] = [:]
                         for old in self.env.schemes[i].scheme_list.schemes {
-                            let summary = GCSummary(text: old.text, start: old.start!, end: old.end!)
-                            old_map[summary] = old.id
+                            if old.start != nil && old.end != nil {
+                                let summary = GCSummary(text: old.text, start: old.start!, end: old.end!)
+                                old_map[summary] = old.id
+                            }
                         }
                         self.env.schemes[i].scheme_list.schemes = []
                         
@@ -467,8 +335,6 @@ struct EsotericUser: Codable {
 }
 
 enum SlaveMode {
-    case none
-    case loading
     case write
 }
 
@@ -481,13 +347,7 @@ public final class EnvState: ObservableObject, DatastoreManager {
     
     @Published var stdTime: Date = .now
     @Published var scheme: UUID? = unionNullUUID
-    @Published var esotericToken: EsotericUser? = nil {
-        didSet {
-            // save 
-            UserDefaults(suiteName: appGroup)?.setValue(try! JSONEncoder().encode(esotericToken), forKey: "esoteric_token")
-        }
-    }
-    @Published var slaveState = SlaveMode.none
+    @Published var slaveState = SlaveMode.write
    
     @AppStorage("registeredDevice") var registered = false
     
@@ -501,9 +361,9 @@ public final class EnvState: ObservableObject, DatastoreManager {
     weak var undoManager: UndoManager?
     
     init() {
-        let raw = UserDefaults(suiteName: appGroup)?.data(forKey: "esoteric_token")
-        esotericToken = raw != nil ? try? JSONDecoder().decode(EsotericUser.self, from: raw!) : nil
         manager = SystemManager(env: self)
+        self.manager.loadFileSystem()
+        
         clock = Timer.publish(every: saveRate, on: .main, in: .common)
             .autoconnect()
             .sink { val in
@@ -524,7 +384,6 @@ public final class EnvState: ObservableObject, DatastoreManager {
                 }
             }
         
-        self.manager.loadFileSystem()
         self.startup()
         
         Self.shared = self
@@ -535,9 +394,6 @@ public final class EnvState: ObservableObject, DatastoreManager {
     }
     
     public func stealSlave() {
-        if slaveState == SlaveMode.none {
-            self.scheme = unionNullUUID
-        }
         self.manager.stealSlave()
     }
     
@@ -582,7 +438,7 @@ public class EnvMiniState: ObservableObject, DatastoreManager {
         get { schemeHolder.schemes }
         set { schemeHolder.schemes = newValue }
     }
-    var slaveState: SlaveMode = .none
+    var slaveState: SlaveMode = .write
     var manager: SystemManager!
     
     init() {
@@ -591,35 +447,11 @@ public class EnvMiniState: ObservableObject, DatastoreManager {
         manager = SystemManager(env: self)
     }
     
-    func retrieve(_ completion: @escaping (_ schemes: SchemeHolder?) -> (), allow_online: Bool = true) {
-        if !allow_online {
-            let res: SchemeHolder? = load_scheme(from: "latest.json")
-            schemeHolder = res ?? SchemeHolder(schemes: [])
-            manager.stateControl()
-            completion(res)
-            return
-        }
-        
-        Task.init {
-            var res: SchemeHolder? = nil
-            
-            if allow_online {
-                res = await auth_request(env: self, "/sync/bucket/nutq")
-            }
-            
-            DispatchQueue.main.async {
-                if res == nil {
-                    res = load_scheme(from: "latest.json")
-                }
-                else if let data = try? JSONEncoder().encode(res) {
-                    save_scheme(data, to: "latest.json")
-                }
-                
-                self.schemeHolder = res ?? SchemeHolder(schemes: [])
-                self.manager.stateControl()
-                completion(res)
-            }
-        }
+    func retrieve(_ completion: @escaping (_ schemes: SchemeHolder?) -> ()) {
+        let res: SchemeHolder? = load_scheme(from: "latest.json")
+        schemeHolder = res ?? SchemeHolder(schemes: [])
+        manager.stateControl()
+        completion(res)
     }
 }
 

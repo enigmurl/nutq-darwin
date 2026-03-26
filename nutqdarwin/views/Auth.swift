@@ -28,14 +28,14 @@ struct Auth: View {
                 Button("Go") {
                     Task.init {
                         error = ""
-                        let res = await sign_in(
-                            env: env,
-                            username: username,
-                            password: password
-                        )
-                        if !res {
-                            error = "Error"
-                        }
+//                        let res = await sign_in(
+//                            env: env,
+//                            username: username,
+//                            password: password
+//                        )
+//                        if !res {
+//                            error = "Error"
+//                        }
                     }
                 }
             }

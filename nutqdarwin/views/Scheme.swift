@@ -61,7 +61,8 @@ struct Scheme: View {
 #endif
                 }
 #if os(macOS)
-                .frame(minWidth: 140, alignment: .leading)
+                .offset(x: -5, y: 0)
+                .frame(minWidth: 140, alignment: .center)
 #endif
             }
             

@@ -52,8 +52,9 @@ struct Union: View {
                     Text("Union")
                         .font(.headline)
                 }
+                .offset(x: -5, y: 0)
                 #if os(macOS)
-                .frame(width: 140, alignment: .leading)
+                .frame(width: 140, alignment: .center)
                 #endif
             }
             
